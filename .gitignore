@@ -57,3 +57,21 @@ LLM_Models/
 **/checkpoint/
 .git_disabled/
 .git_disabled/
+
+# Integrated runtime / secrets
+.env
+.env.*
+!.env.example
+.runtime/
+.pytest_cache/
+# Generated ledgers, training corpora, adapters and evaluation artifacts live on the server.
+/artifacts/
+# Host handoff inventories include data-file metadata; keep these local.
+/SYNC-MANIFEST.json
+/docs/SOURCE.json
+/docs/UPSTREAM-ALIGNMENT.json
+# Server handoff, audit reports, screenshots and design inputs remain local.
+/docs/*
+!/docs/DEVELOPMENT.md
+!/docs/VERSION-SNAPSHOT.md
+/design-reference/

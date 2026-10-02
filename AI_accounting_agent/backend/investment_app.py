@@ -1,16 +1,18 @@
+from __future__ import annotations
 import csv
 import json
 import os
 import re
 import uvicorn
 from collections import deque
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from typing import Deque, Dict, List, Optional
-import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from llm_runtime import model_status, api_chat, provider
 
 # Configuration
 MODEL_DIR = os.environ.get("QWEN_MODEL_DIR")
@@ -108,10 +110,10 @@ def _read_kline_records(csv_path: Path, limit: int) -> List[Dict[str, str]]:
         return []
 
     buffer: Deque[Dict[str, str]] = deque(maxlen=limit)
-    with open(csv_path, "r", encoding="utf-8") as f:
+    with open(csv_path, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            buffer.append({key: row.get(key) for key in reader.fieldnames})
+            buffer.append({(key.strip() or "date"): row.get(key) for key in reader.fieldnames})
     return list(buffer)
 
 # App Setup
@@ -128,15 +130,21 @@ app.add_middleware(
 # Global Model Variables
 tokenizer = None
 model = None
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "not_loaded"
 
 def load_model_if_needed():
-    global tokenizer, model
+    global tokenizer, model, torch, device
     if tokenizer is not None and model is not None:
         return
     
     if not MODEL_DIR:
-        raise RuntimeError("QWEN_MODEL_DIR environment variable not set")
+        raise HTTPException(status_code=503, detail="尚未配置本地模型")
+    try:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail="请安装 requirements-local.txt") from exc
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     print(f"Loading model from {MODEL_DIR}...")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR, trust_remote_code=True)
@@ -195,7 +203,7 @@ def _sanitize_reply(text: str) -> str:
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "investment-agent"}
+    return {"status": "ok", "service": "investment-agent", "llm": model_status(MODEL_DIR)}
 
 @app.get("/trader/portfolio")
 def get_portfolio():
@@ -204,14 +212,18 @@ def get_portfolio():
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    load_model_if_needed()
-    
     system_prompt = req.system_prompt or "You are a helpful financial investment assistant."
+    system_prompt += (f"\n当前日期为 {datetime.now(ZoneInfo('Asia/Shanghai')).date()}（Asia/Shanghai）。"
+                      "只依据提供的数据回答，注明历史数据日期，不能将历史快照说成实时行情；不得臆测另一个今天的日期。")
     
     messages = [{"role": "system", "content": system_prompt}]
     for m in req.messages:
         messages.append({"role": m.role, "content": m.content})
         
+    if provider(MODEL_DIR) != "local":
+        return ChatResponse(reply=_sanitize_reply(api_chat(messages, req.max_new_tokens, req.temperature, req.top_p)))
+    load_model_if_needed()
+
     input_ids = tokenizer.apply_chat_template(
         messages,
         add_generation_prompt=True,
@@ -252,7 +264,7 @@ def generate_analyst_report():
     3. **Risk & Allocation**: Comment on sector allocation and concentration.
     
     
-    Format the output in clean Markdown.
+    请使用简体中文和清晰的 Markdown 输出；说明快照日期，不得称为实时行情。
     """
     
     req = ChatRequest(
@@ -274,8 +286,10 @@ def get_watchlist():
 
 
 @app.get("/trader/stock/{stock_code}/kline")
-def get_stock_kline(stock_code: str, days: int = 10):
+def get_stock_kline(stock_code: str, days: int = Query(10, ge=1, le=365)):
     """Get recent K-line data for a stock"""
+    if stock_code not in STOCK_METADATA:
+        raise HTTPException(status_code=404, detail="此股票尚未接入历史行情")
     csv_path = A10_KLINE_DIR / f"{stock_code}.csv"
     if not csv_path.exists():
         raise HTTPException(status_code=404, detail=f"K-line data not found for {stock_code}")
@@ -287,6 +301,8 @@ def get_stock_kline(stock_code: str, days: int = 10):
 @app.get("/trader/stock/{stock_code}/news")
 def get_stock_news(stock_code: str):
     """Get news and research reports for a stock"""
+    if stock_code not in STOCK_METADATA:
+        raise HTTPException(status_code=404, detail="此股票尚未接入资讯")
     report_path = REPORTS_DIR / f"{stock_code}_news_report.json"
     if not report_path.exists():
         raise HTTPException(status_code=404, detail=f"News/report data not found for {stock_code}")
@@ -308,6 +324,9 @@ def get_stock_news(stock_code: str):
 def generate_stock_daily_report(stock_code: str):
     """Generate daily analysis report for a specific stock"""
     
+    if stock_code not in STOCK_METADATA:
+        raise HTTPException(status_code=404, detail="此股票尚未接入研究数据")
+
     # Load K-line data
     try:
         kline_data = get_stock_kline(stock_code, days=10)
@@ -323,7 +342,7 @@ def generate_stock_daily_report(stock_code: str):
     stock_name = STOCK_METADATA.get(stock_code, stock_code)
     
     # Build context
-    kline_summary = f"Recent 10-day K-line data (latest first):\n"
+    kline_summary = f"Recent 10-day K-line data (oldest first):\n"
     if kline_data:
         for i, row in enumerate(kline_data[-5:]):  # Last 5 days
             kline_summary += f"- {row.get('date')}: Open {row.get('open')}, High {row.get('high')}, Low {row.get('low')}, Close {row.get('close')}, Volume {row.get('volume')}\n"
@@ -337,6 +356,7 @@ def generate_stock_daily_report(stock_code: str):
         reports_summary += f"- {report.get('报告名称')} ({report.get('机构')}, {report.get('东财评级')})\n"
     
     prompt = f"""
+你正在研究 {stock_name}（{stock_code}）。数据为历史快照，并非今天的实时行情。
 你是一名资深证券研究员，需要用中文输出一份结构化的个股研究日报，禁止透露任何思考过程或中间推理，只展示最终结论。
 
 基础数据：
@@ -367,3 +387,4 @@ def generate_stock_daily_report(stock_code: str):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8020"))
     uvicorn.run("investment_app:app", host="0.0.0.0", port=port, reload=False)
+

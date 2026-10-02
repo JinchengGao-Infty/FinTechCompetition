@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import os
 import sqlite3
@@ -9,27 +10,20 @@ from datetime import date, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 from threading import Lock
+from zoneinfo import ZoneInfo
 from typing import List, Optional
 
-import torch
 from fastapi import FastAPI, HTTPException, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, field_validator
-from transformers import AutoModelForCausalLM, AutoTokenizer
-try:
-    from transformers import AutoModelForVision2Seq, AutoProcessor  # type: ignore
-except Exception:
-    AutoModelForVision2Seq = None  # type: ignore
-    AutoProcessor = None  # type: ignore
+from pydantic import BaseModel, Field, field_validator, model_validator
+from llm_runtime import model_status, api_chat, provider
+import math
 
 from prompts import DEFAULT_SYSTEM_PROMPT
+from accounting_schema import EXPENSE_CATEGORIES, INCOME_CATEGORIES, extraction_prompt, explicit_payment
 
 
-MODEL_DIR = os.environ.get(
-    "QWEN_MODEL_DIR",
-    #"/home/bld/data/data4/admin/fintechcom/Qwen3-4B",
-    #"/home/bld/data/data4/admin/fintechcom/Qwen2.5-VL-3B-Instruct",
-)
+MODEL_DIR = os.environ.get("QWEN_MODEL_DIR")
 DATA_DIR = Path(
     os.environ.get(
         "AI_BOOKKEEPER_DATA_DIR",
@@ -39,7 +33,7 @@ DATA_DIR = Path(
 DB_PATH = DATA_DIR / "bills.db"
 JSONL_PATH = DATA_DIR / "synthetic_bank_bills.jsonl"
 
-DISPLAY_CATEGORIES = ["餐饮", "出行", "购物", "生活缴费", "娱乐", "其他"]
+DISPLAY_CATEGORIES = EXPENSE_CATEGORIES
 CATEGORY_ALIASES = {
     "餐": "餐饮",
     "饭": "餐饮",
@@ -95,11 +89,18 @@ class BillBase(BaseModel):
     event_date: date = Field(..., description="发生日期")
     category: str = Field(..., min_length=1, max_length=64)
     type: str = Field("expense", description="expense 或 income")
-    amount: float = Field(..., description="正数金额")
+    amount: float = Field(..., gt=0, allow_inf_nan=False, description="正数金额")
     currency: str = Field("CNY", min_length=1, max_length=8)
     description: str = Field(..., min_length=1, max_length=512)
     source: Optional[str] = Field(None, description="数据来源，如OCR/手动")
     metadata: Optional[dict] = None
+
+    @field_validator("currency")
+    @classmethod
+    def validate_currency(cls, value: str) -> str:
+        if value.strip().upper() in {"CNY", "RMB", "元", "人民币"}:
+            return "CNY"
+        raise ValueError("当前账本仅汇总人民币，请先确认 CNY 金额")
 
     @field_validator("type")
     @classmethod
@@ -112,13 +113,23 @@ class BillBase(BaseModel):
     @field_validator("amount")
     @classmethod
     def validate_amount(cls, value: float) -> float:
-        if value < 0:
+        if not math.isfinite(value) or value <= 0:
             raise ValueError("amount 必须为正数")
-        return round(float(value), 2)
+        rounded = round(float(value), 2)
+        if rounded <= 0:
+            raise ValueError("金额至少为 0.01")
+        return rounded
 
 
 class BillCreate(BillBase):
-    pass
+    @model_validator(mode="after")
+    def category_matches_type(self):
+        # Older clients used a shared "其他" category for both cash-flow directions.
+        if self.category == "其他" and self.type == "income":
+            self.category = "其他收入"
+        if (self.category in INCOME_CATEGORIES and self.type != "income") or (self.category in EXPENSE_CATEGORIES and self.type != "expense"):
+            raise ValueError("分类与收入/支出类型不一致")
+        return self
 
 
 class Bill(BillBase):
@@ -161,13 +172,16 @@ with _db_lock:
 
 # 从 JSONL 导入账单至 SQLite（仅当数据库为空时触发）
 def _import_jsonl_if_needed() -> None:
-    jsonl_path = os.environ.get("AI_BOOKKEEPER_JSONL_PATH")
-    if not jsonl_path:
+    if os.getenv("AI_BOOKKEEPER_IMPORT_JSONL", "true").lower() in {"0", "false", "no", "off"}:
         return
-    p = Path(jsonl_path)
+    p = Path(os.environ.get("AI_BOOKKEEPER_JSONL_PATH") or JSONL_PATH)
     if not p.exists():
         return
     with _db_lock:
+        _db_conn.execute("CREATE TABLE IF NOT EXISTS data_imports (name TEXT PRIMARY KEY, source_path TEXT NOT NULL, record_count INTEGER NOT NULL, imported_at TEXT NOT NULL)")
+        _db_conn.commit()
+        if _db_conn.execute("SELECT 1 FROM data_imports WHERE name = 'initial_jsonl'").fetchone():
+            return
         count = _db_conn.execute("SELECT COUNT(*) AS c FROM bills").fetchone()["c"]
     if count and count > 0:
         return
@@ -208,6 +222,13 @@ def _import_jsonl_if_needed() -> None:
                 if not event_date or amount is None:
                     continue
                 amount = float(amount)
+                bill_type = str(payload.get("type", "expense")).lower()
+                currency = payload.get("currency") or "CNY"
+                imported = BillCreate(
+                    event_date=event_date, category=category, type=bill_type,
+                    amount=amount, currency=currency,
+                    description=description or (f"{merchant or ''}消费").strip(),
+                )
                 metadata = {
                     "merchant": merchant,
                     "payment_method": payment,
@@ -221,12 +242,12 @@ def _import_jsonl_if_needed() -> None:
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        event_date,
-                        category,
-                        "expense",
-                        amount,
-                        "CNY",
-                        description if description else (f"{merchant or ''}消费").strip(),
+                        imported.event_date.isoformat(),
+                        imported.category,
+                        imported.type,
+                        imported.amount,
+                        imported.currency,
+                        imported.description,
                         "jsonl",
                         metadata_json,
                         now,
@@ -236,19 +257,29 @@ def _import_jsonl_if_needed() -> None:
             except Exception:
                 # 单条失败忽略，继续导入其它行
                 continue
+        if inserted:
+            _db_conn.execute(
+                "INSERT INTO data_imports (name, source_path, record_count, imported_at) VALUES ('initial_jsonl', ?, ?, ?)",
+                (str(p.resolve()), inserted, now),
+            )
         _db_conn.commit()
     # 可在启动日志上体现
     print(f"[bootstrap] Imported {inserted} bills from JSONL: {p}")
 
 
+_import_jsonl_if_needed()
+
+
 def _normalize_category(raw: Optional[str]) -> str:
     if not raw:
         return "其他"
-    text = str(raw)
+    text = str(raw).strip()
+    if text in EXPENSE_CATEGORIES + INCOME_CATEGORIES:
+        return text
     for key, value in CATEGORY_ALIASES.items():
         if key in text:
             return value
-    return text if text in DISPLAY_CATEGORIES else "其他"
+    return text or "其他"
 
 
 def _extract_payload_from_jsonl(line: str) -> Optional[dict]:
@@ -337,7 +368,7 @@ def _build_category_comparison(curr_records: List[dict], prev_records: List[dict
     current = _category_totals(curr_records)
     previous = _category_totals(prev_records)
     items = []
-    for cat in DISPLAY_CATEGORIES:
+    for cat in dict.fromkeys([*DISPLAY_CATEGORIES, *current, *previous]):
         items.append(
             {
                 "name": cat,
@@ -590,19 +621,19 @@ def _empty_report(unit: str) -> dict:
     }
 
 
-@lru_cache(maxsize=1)
+def _ledger_reference_date() -> date:
+    with _db_lock:
+        latest = _db_conn.execute("SELECT MAX(date(event_date)) FROM bills").fetchone()[0]
+    return date.fromisoformat(latest) if latest else date.today()
+
+
 def build_report_payload() -> dict:
-    if not SYNTHETIC_RECORDS:
-        return {
-            "week": _empty_report("天"),
-            "month": _empty_report("周"),
-            "year": _empty_report("月"),
-        }
-    reference = max((r["event_date"] for r in SYNTHETIC_RECORDS), default=REPORT_REFERENCE_DATE)
+    reference = _ledger_reference_date()
+    records = _fetch_db_records(date(reference.year - 1, 1, 1), date(reference.year, 12, 31))
     return {
-        "week": _build_week_report(SYNTHETIC_RECORDS, reference),
-        "month": _build_month_report(SYNTHETIC_RECORDS, reference),
-        "year": _build_year_report(SYNTHETIC_RECORDS, reference),
+        "week": _build_week_report(records, reference),
+        "month": _build_month_report(records, reference),
+        "year": _build_year_report(records, reference),
     }
 
 
@@ -813,8 +844,8 @@ def _build_advice_center_context(ref_date: date) -> dict:
     }
 
 
-def build_advice_payload() -> dict:
-    today = date.today()
+def build_advice_payload(reference_date: Optional[date] = None) -> dict:
+    today = reference_date or _ledger_reference_date()
     return {
         "overview": _build_overview_context(today),
         "behavior": _build_behavior_context(today),
@@ -832,7 +863,7 @@ app.add_middleware(
 
 tokenizer: Optional[AutoTokenizer] = None
 model: Optional[AutoModelForCausalLM] = None
-device: str = "cuda" if torch.cuda.is_available() else "cpu"
+device: str = "not_loaded"
 _resolved_model_dir: Optional[Path] = None
 _is_vl_model: bool = False
 _processor = None
@@ -947,6 +978,7 @@ def build_retrieval_context(month_window: Optional[int] = 12) -> str:
     lines.append("以下为基于全库的检索上下文：")
     lines.append(f"- 总收入：{(totals['total_income'] or 0):.2f}")
     lines.append(f"- 总支出：{(totals['total_expense'] or 0):.2f}")
+    lines.append(f"- 净现金结余：{((totals['total_income'] or 0) - (totals['total_expense'] or 0)):.2f}")
 
     # 类别汇总
     lines.append("\n[按类别汇总]")
@@ -973,7 +1005,7 @@ def build_retrieval_context(month_window: Optional[int] = 12) -> str:
     for ym in months_sorted:
         income = month_map[ym].get("income", 0) or 0
         expense = month_map[ym].get("expense", 0) or 0
-        lines.append(f"- {ym} | 收入：{income:.2f} | 支出：{expense:.2f}")
+        lines.append(f"- {ym} | 收入：{income:.2f} | 支出：{expense:.2f} | 结余：{income-expense:.2f}")
 
     # Top 商户
     lines.append("\n[支出 Top 商户]")
@@ -1011,9 +1043,18 @@ def _sanitize_reply(text: str) -> str:
 
 
 def load_model_if_needed() -> None:
-    global tokenizer, model, _resolved_model_dir, _is_vl_model, _processor
+    global tokenizer, model, _resolved_model_dir, _is_vl_model, _processor, torch, device
     if tokenizer is not None and model is not None:
         return
+
+    if not MODEL_DIR:
+        raise HTTPException(status_code=503, detail="尚未配置本地模型。请设置 QWEN_MODEL_DIR，或在 .env 配置 API 模式。")
+    try:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModelForVision2Seq, AutoProcessor
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail="本地模型依赖未安装。请安装 requirements-local.txt。") from exc
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # 解析模型目录：若根目录无 config.json 而存在子目录 model/config.json，则使用子目录
     base_dir = Path(MODEL_DIR)
@@ -1058,27 +1099,52 @@ def load_model_if_needed() -> None:
 
 @app.get("/health")
 def health():
+    with _db_lock:
+        count = _db_conn.execute("SELECT COUNT(*) AS c FROM bills").fetchone()["c"]
+        bounds = _db_conn.execute("SELECT MIN(date(event_date)), MAX(date(event_date)) FROM bills").fetchone()
+        categories = [row[0] for row in _db_conn.execute("SELECT DISTINCT category FROM bills ORDER BY category")]
+        sources = {row[0] or 'unknown': row[1] for row in _db_conn.execute("SELECT source, COUNT(*) FROM bills GROUP BY source")}
+    return {"status": "ok", "service": "bookkeeper", "device": device,
+            "bill_count": count, "database": str(DB_PATH), "llm": model_status(MODEL_DIR),
+            "date_range": {"start": bounds[0], "end": bounds[1]},
+            "categories": categories, "sources": sources,
+            "category_schema": {"expense": EXPENSE_CATEGORIES, "income": INCOME_CATEGORIES},
+            "dataset": {"version": os.getenv("ACCOUNTING_DATASET_VERSION", "original"),
+                        "synthetic": bool(sources.get("synthetic_v2") or sources.get("synthetic") or sources.get("jsonl"))},
+            "capabilities": {"ocr": provider(MODEL_DIR) == "local"}}
+
+
+class ParseBillRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=4000)
+    reference_date: date
+
+
+@app.post("/bills/parse")
+def parse_bill(req: ParseBillRequest):
+    guard = ("如果单笔的日期（包括今天或昨天）、金额和用途已明确，就输出账单，不要再次询问已提供的信息。"
+             "明确的礼金支出和退货退款都是可记账的现金流；不得引入输入未提及的借款。")
+    reply = chat(ChatRequest(messages=[ChatMessage(role="user", content=req.text)],
+                             system_prompt=extraction_prompt(req.reference_date.isoformat()) + guard,
+                             include_bill_context=False, retrieval=False, max_new_tokens=512, temperature=0)).reply
     try:
-        load_model_if_needed()
-        # 确保在第一次健康检查前尝试导入（若尚未导入）
-        _import_jsonl_if_needed()
-        with _db_lock:
-            count = (
-                _db_conn.execute("SELECT COUNT(*) AS c FROM bills").fetchone()["c"]
-            )
-        return {
-            "status": "ok",
-            "device": device,
-            "bill_count": count,
-            "database": str(DB_PATH),
-        }
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
+        payload = json.loads(reply.strip().removeprefix("```json").removesuffix("```").strip())
+        if not isinstance(payload, dict):
+            raise ValueError("账单必须是 JSON 对象")
+        if payload.get("needs_clarification") is True:
+            return {"needs_clarification": True, "reason": str(payload.get("reason") or "请补充账单信息。")}
+        allowed = INCOME_CATEGORIES if payload.get("type") == "income" else EXPENSE_CATEGORIES
+        if payload.get("category") not in allowed or payload.get("currency") != "CNY":
+            raise ValueError("分类、收支或币种不符合账本规范")
+        bill = BillCreate.model_validate(payload)
+        return {**bill.model_dump(mode="json"), "payment_method": explicit_payment(req.text)}
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(502, "模型未返回有效账单，请补充日期、金额和用途后重试。") from exc
 
 
 @app.get("/bills", response_model=List[Bill])
 def list_bills(
     limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     category: Optional[str] = None,
     type: Optional[str] = Query(None, pattern="^(expense|income)$"),
     start_date: Optional[date] = None,
@@ -1098,8 +1164,8 @@ def list_bills(
     if end_date:
         sql += " AND date(event_date) <= date(?)"
         params.append(end_date.isoformat())
-    sql += " ORDER BY datetime(event_date) DESC, id DESC LIMIT ?"
-    params.append(limit)
+    sql += " ORDER BY datetime(event_date) DESC, id DESC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
 
     with _db_lock:
         rows = _db_conn.execute(sql, params).fetchall()
@@ -1114,6 +1180,18 @@ def create_bill(bill: BillCreate):
     now = datetime.utcnow().isoformat()
 
     with _db_lock:
+        # A stable draft identifier makes retries safe after a lost response.
+        request_id = (bill.metadata or {}).get("client_request_id")
+        if request_id:
+            existing = _db_conn.execute(
+                "SELECT * FROM bills WHERE json_extract(metadata, '$.client_request_id') = ? LIMIT 1",
+                (str(request_id),),
+            ).fetchone()
+            if existing is not None:
+                prior = _row_to_bill(existing)
+                if (prior.event_date, prior.amount, prior.currency, prior.type, prior.category, prior.description, prior.metadata) != (bill.event_date, bill.amount, bill.currency, bill.type, bill.category, bill.description, bill.metadata):
+                    raise HTTPException(status_code=409, detail="这份草稿已经保存且内容不同，请刷新账本核对。")
+                return prior
         cursor = _db_conn.execute(
             """
             INSERT INTO bills (event_date, category, type, amount, currency, description, source, metadata, created_at)
@@ -1161,13 +1239,18 @@ async def ocr_bill(file: UploadFile = File(...)):
     import io
     from PIL import Image
     
+    if provider(MODEL_DIR) != "local":
+        raise HTTPException(status_code=503, detail="票据识别需要配置本地 Qwen 视觉模型。")
+
     # 检查是否为图片文件
     if not file.content_type or not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="请上传图片文件")
     
     # 读取图片
     try:
-        image_data = await file.read()
+        image_data = await file.read(10 * 1024 * 1024 + 1)
+        if len(image_data) > 10 * 1024 * 1024:
+            raise ValueError("图片不能超过 10 MB")
         image = Image.open(io.BytesIO(image_data))
         # 转换为RGB格式（如果需要）
         if image.mode != 'RGB':
@@ -1206,7 +1289,7 @@ async def ocr_bill(file: UploadFile = File(...)):
             # 尝试使用processor处理图片和文本
             if hasattr(_processor, 'apply_chat_template'):
                 text = _processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                image_inputs, video_inputs = _processor.process_vision_info(messages)
+                image_inputs, video_inputs = [image], None
                 inputs = _processor(
                     text=[text],
                     images=image_inputs,
@@ -1236,17 +1319,8 @@ async def ocr_bill(file: UploadFile = File(...)):
                 # 这里需要根据具体模型调整
                 raise NotImplementedError("Processor不支持图片处理")
         except Exception as proc_error:
-            # 如果视觉处理失败，尝试使用文本描述方式
-            print(f"[WARN] Vision processing failed: {proc_error}, falling back to text description")
-            # 使用chat API来解析图片描述
-            fallback_prompt = f"这是一张票据图片（文件名：{file.filename}），请根据常见的票据格式，生成一个示例账单JSON，包含event_date(YYYY-MM-DD), category, type(expense或income), amount(数字), currency(默认CNY), description。仅输出JSON。"
-            chat_req = ChatRequest(
-                messages=[ChatMessage(role="user", content=fallback_prompt)],
-                include_bill_context=False
-            )
-            chat_resp = chat(chat_req)
-            reply = chat_resp.reply
-        
+            raise HTTPException(status_code=502, detail="票据识别失败，请改用手动录入；没有生成或保存账单。") from proc_error
+
         # 解析JSON
         import re
         import json
@@ -1321,16 +1395,21 @@ def aggregate_reports(
     if start_date and end_date:
         if start_date > end_date:
             raise HTTPException(status_code=400, detail="start_date must be before end_date")
-        records = _fetch_db_records(start_date, end_date)
-        # 支持空数据直接返回空报表，避免前端 404
+        if (end_date - start_date).days > 3660:
+            raise HTTPException(status_code=400, detail="日期范围不能超过十年")
+        previous_start = start_date - timedelta(days=(end_date - start_date).days + 1)
+        records = _fetch_db_records(previous_start, end_date)
+        # 同时读取上期，保证比较值正确
         return {"custom": _build_custom_report(records, start_date, end_date)}
+    if start_date or end_date:
+        raise HTTPException(status_code=400, detail="请同时提供开始与结束日期")
     return build_report_payload()
 
 
 @app.get("/advice/context")
-def advice_context():
+def advice_context(reference_date: Optional[date] = Query(None)):
     try:
-        return build_advice_payload()
+        return build_advice_payload(reference_date)
     except Exception as e:
         import traceback
         error_detail = traceback.format_exc()
@@ -1340,17 +1419,28 @@ def advice_context():
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest) -> ChatResponse:
-    load_model_if_needed()
 
     system_prompt = req.system_prompt or DEFAULT_SYSTEM_PROMPT
     # 注入禁止 CoT 的系统指令
     system_prompt = f"{system_prompt}\n\n{_force_no_cot_instruction()}".strip()
     # RAG：如果启用检索，则使用全库检索上下文；否则按原逻辑使用最新 20 条
     use_retrieval = req.retrieval if req.retrieval is not None else DEFAULT_RETRIEVAL
-    if use_retrieval:
+    if use_retrieval and req.include_bill_context:
         bill_context = build_retrieval_context(month_window=req.retrieval_months)
     else:
         bill_context = build_bill_context() if req.include_bill_context else ""
+
+    if bill_context:
+        bill_context = (f"今天是 {datetime.now(ZoneInfo('Asia/Shanghai')).date()}（Asia/Shanghai）。"
+                        "账本可能包含合成演示记录，不能视作用户真实财务情况。\n" + bill_context)
+
+    if provider(MODEL_DIR) != "local":
+        messages = [{"role": "system", "content": system_prompt}]
+        if bill_context:
+            messages.append({"role": "system", "content": bill_context})
+        messages.extend(m.model_dump() for m in req.messages)
+        return ChatResponse(reply=_sanitize_reply(api_chat(messages, req.max_new_tokens, req.temperature, req.top_p)))
+    load_model_if_needed()
 
     conversation_parts: List[str] = []
     if system_prompt:
@@ -1416,7 +1506,7 @@ def chat(req: ChatRequest) -> ChatResponse:
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "8000"))
+    port = int(os.environ.get("PORT", "8010"))
     uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)
 
 

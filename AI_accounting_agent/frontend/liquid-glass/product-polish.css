@@ -1,0 +1,318 @@
+/* P1-TOKENS — load after all existing page / material styles.
+ * Scope: public typography, controls and materials only. No route, data, amount
+ * animation or chart geometry changes. Radix palette lives in product-tokens.css.
+ * The font-size declarations alone use !important: legacy sheets mix high
+ * specificity, mobile breakpoints and one !important label. Keep all new sizes
+ * on these four roles rather than adding per-page pixel overrides.
+ */
+:root {
+  --fp-type-meta: 12px;
+  --fp-type-body: 14px;
+  --fp-type-title: 18px;
+  --fp-type-value: 30px;
+  --fp-action: var(--indigo9, #3e63dd);
+  --fp-action-hover: var(--indigo10, #3358d4);
+  --fp-action-text: #fff;
+  --fp-focus: var(--indigo11, #3a5bc7);
+  --fp-error-text: var(--ruby11, #ca244d);
+  --fp-error-surface: var(--ruby2, #fff7f8);
+  --fp-radius-outer: 24px;
+  --fp-radius-inner: 16px; /* outer radius minus the shared 8px inset */
+  --fp-radius-control: 12px; /* 20px container minus its 8px inset */
+  --fp-radius-pill: 999px;
+  --fp-control-height: 44px;
+  --fp-control-large: 48px;
+  --accent: var(--fp-action);
+  --primary: var(--fp-action);
+  --fp-accent: var(--fp-action);
+  --ink: var(--fp-text, #1c2024);
+  --muted: var(--fp-muted, #60646c);
+  --danger: var(--fp-error-text);
+  --radius-card: var(--fp-radius-outer);
+  --radius-input: var(--fp-radius-control);
+  --radius-sheet: 32px;
+}
+
+/* A deterministic text baseline, including body-level dialogs. This changes
+ * font size only; SVG viewBox, icon width, line geometry and motion are intact.
+ * Semantic role rules below intentionally have the same selector specificity.
+ */
+body, #toast { font-size: var(--fp-type-body); }
+:is(#app, .sheet) :where(*) {
+  font-size: var(--fp-type-body) !important;
+}
+:is(#app, .sheet) :where(
+  small, dt, figcaption, .hint, .tag, .field-label, .primary-eyebrow,
+  .primary-dates, .primary-details, .ledger-result, .ledger-selection,
+  .mobile-label, .mobile-summary-pair, .mobile-chart-value > span,
+  .mobile-category small, .mobile-holding small, .chart-labels, .chart-value,
+  .legend, .analytics-date, .cashflow-legend, .series-legend, .comparison-legend,
+  .balance-currency, .balance-comparison, .investment-eyebrow,
+  .banking-eyebrow, .banking-copy, .banking-history-status, .banking-result-line,
+  .banking-evidence, .banking-technical, .banking-conversation-history,
+  .fp-ledger-eyebrow, .fp-ledger-range, .fp-ledger-results, .fp-ledger-basis,
+  .fp-ledger-row-badge, .fp-ledger-day-head > span, .fp-ledger-stats span,
+  .fp-invest-cost-label, .fp-invest-section-head, .fp-invest-legend,
+  .fp-invest-quote, .fp-invest-field-hint, .pa-budget, .pa-percent,
+  .pa-trend-key, .pc-account, .pc-batch-heading > span, .pc-source,
+  .pc-duplicate, .pc-movement, .pc-pager, .pc-confirm-summary,
+  .pc-confirm > span, .fp-task-environment, .fp-task-status, .fp-task-reason,
+  .fp-task-card h3, .fp-task-amount > span:first-child,
+  .tab-bar a, .tab-bar a span, svg text, .fp-type-meta
+) { font-size: var(--fp-type-meta) !important; }
+:is(#app, .sheet) :where(
+  h1, h2, h3, .mobile-section-heading h2, .sheet-head h2,
+  .home-next h2, .spending-story h2, .primary-heading h2,
+  .mobile-asset-parts strong, .home-totals strong, .metric strong,
+  .analytics-totals .metric strong, .finance-metrics strong,
+  .banking-facts dd, .banking-target, .banking-current-question,
+  .investment-option-content > strong, .fp-invest-market strong,
+  .fp-invest-section-head h2, .pa-stat strong, .pa-donut-center strong,
+  .pc-result > strong, .fp-task-intro h2, .fp-type-title
+) { font-size: var(--fp-type-title) !important; }
+:is(#app, .sheet) :where(
+  .hero-amount, .home-net, .story-value, .balance-value,
+  .mobile-asset, .mobile-total, .fp-ledger-total, .fp-ledger-detail > strong,
+  .fp-invest-total, .investment-holding-total, .banking-main-amount,
+  .banking-operation-step .hero-amount, .fp-task-amount > strong, .fp-task-compact-amount,
+  .compact-goal-progress > strong, .entry-draft-amount, .amount-input,
+  .entry-amount-line input, .fp-type-value
+) {
+  font-size: var(--fp-type-value) !important;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* Lists and compact monetary comparisons use the body role; their weight,
+ * alignment and tabular figures establish hierarchy without extra type sizes.
+ */
+:is(#app, .sheet) :where(
+  .bill-row .amount, .mobile-bill .amount, .mobile-bill .grow strong,
+  .fp-ledger-row-value strong, .fp-invest-holding-copy > strong,
+  .fp-invest-holding-value > strong, .pc-row-edit > .money,
+  .pc-receipt-row > [data-motion-receipt-target],
+  .mobile-chart-value strong, .fp-type-body
+) { font-size: var(--fp-type-body) !important; }
+/* 18px editable fields also avoid the native iOS zoom triggered below 16px.
+ * Amount fields retain the value role. No font shrinking on narrow screens.
+ */
+:is(#app, .sheet) :where(input, select, textarea) {
+  font-size: var(--fp-type-title) !important;
+}
+:is(#app, .sheet) :where(.amount-input, .entry-amount-line input) {
+  font-size: var(--fp-type-value) !important;
+}
+:is(#app, .sheet) :where(.money, .amount, .fp-ledger-row-value, .fp-invest-holding-value) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Controls: one action color, compact / large sizes, coherent concentric radii.
+ * Do not recolor generic submit buttons: operation confirmation and danger
+ * variants keep their existing semantic ownership.
+ */
+:is(#app, .sheet) :is(
+  button, [role="button"], summary, .btn, .primary-button, .icon-button,
+  .pill, .tab-bar a, .mobile-month
+) { min-height: var(--fp-control-height); }
+:is(#app, .sheet) :is(.btn, .primary-button, .icon-button, .pill) {
+  min-width: var(--fp-control-height);
+}
+:is(#app, .sheet) button { min-width: var(--fp-control-height); }
+:is(#app, .sheet) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: var(--fp-control-height);
+}
+:is(#app, .sheet) label:has(> :is(input[type="checkbox"], input[type="radio"])) {
+  min-height: var(--fp-control-height);
+}
+:is(#app, .sheet) :is(.btn, .primary-button, .field, .fp-ledger-button, .fp-invest-button, .fp-task-button) {
+  border-radius: var(--fp-radius-control);
+}
+:is(#app, .sheet) :is(.btn.small, .pill, .mobile-period-tabs button, .chips button) {
+  border-radius: var(--fp-radius-pill);
+}
+:is(#app, .sheet) .icon-button { border-radius: 50%; }
+:is(#app, .sheet) :is(.surface-card, .bubble) { border-radius: var(--fp-radius-outer); }
+:is(#app, .sheet) .surface-card :is(.surface-card, .metric) { border-radius: var(--fp-radius-inner); }
+:is(#app, .sheet) :is(.segmented, .mobile-period-tabs) { padding: 4px; border-radius: var(--fp-radius-inner); }
+:is(#app, .sheet) :is(.segmented, .mobile-period-tabs) button { border-radius: var(--fp-radius-control); }
+:is(#app, .sheet) :is(
+  .btn.primary, .btn.blue, .primary-button, .fp-ledger-primary,
+  .fp-invest-primary, .fp-task-primary, .composer .send,
+  .composer button[type="submit"]
+) {
+  background: var(--fp-action);
+  color: var(--fp-action-text);
+  border-color: transparent;
+  box-shadow: none;
+}
+:is(#app, .sheet) :is(.btn.primary, .primary-button, .entry-save) {
+  min-height: var(--fp-control-large);
+}
+:is(#app, .sheet) :is(.tab-bar a[aria-current="page"], .category-grid button.selected) {
+  color: var(--indigo11);
+  background: var(--indigo3);
+  box-shadow: none;
+}
+:is(#app, .sheet) :is(.mobile-all-categories, .fp-ledger-text, .fp-invest-text) { color: var(--indigo11); }
+
+/* Opaque content and control surfaces provide dependable text contrast.
+ * Translucency stays on navigation, composer and the active sheet only.
+ */
+:is(#app, .sheet) :is(
+  .surface-card, .metric, .bubble, .btn, .primary-button, .icon-button,
+  .pill, .field, .segmented, .mobile-period-tabs, .protection-link,
+  .chips button, .feature-links button, .three-actions button, .category-grid button
+) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:is(#app, .sheet) :is(.surface-card, .metric, .bubble) {
+  background: var(--fp-surface);
+  border-color: var(--fp-line);
+  box-shadow: none;
+}
+:is(#app, .sheet) :is(.field, .btn:where(:not(.primary):not(.blue):not(.danger)), .icon-button) {
+  background: var(--fp-surface);
+  border-color: var(--fp-line);
+  box-shadow: none;
+}
+:is(#app, .sheet) .user .bubble { background: var(--indigo12); color: #fff; }
+:is(#app, .sheet) :is(.segmented, .mobile-period-tabs) { background: var(--fp-soft); box-shadow: none; }
+:is(#app, .sheet) .composer :is(.send, button[type="submit"]) {
+  background: var(--fp-action); color: var(--fp-action-text); border-color: transparent;
+}
+:is(#app, .sheet) .composer :is(.icon-button:not(.send):not([type="submit"])) {
+  background: transparent;
+  border-color: transparent;
+}
+.tab-bar, .composer, .topbar, .sheet {
+  background: var(--glass-sheen), rgba(255,255,255,.88);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+}
+.sheet { border-radius: 32px 32px 0 0; }
+.sheet .sheet-head { background: var(--fp-surface); }
+
+/* Focus survives legacy outline:none search/composer rules. Invalid fields
+ * use both a border and the existing associated error message (no new copy).
+ */
+:is(#app, .sheet) :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--fp-focus);
+  outline-offset: 3px;
+}
+:is(#app, .sheet) :is(input, select, textarea)[aria-invalid="true"] {
+  border: 1px solid var(--fp-error-text);
+  background: var(--fp-error-surface);
+}
+:is(#app, .sheet) :is(.error, .pc-error, .fp-task-error, .fp-invest-error) {
+  color: var(--fp-error-text);
+  background: var(--fp-error-surface);
+  overflow-wrap: anywhere;
+}
+:is(#app, .sheet) :is(.btn.danger, .fp-invest-danger) {
+  color: var(--fp-error-text);
+  background: var(--fp-error-surface);
+}
+:is(#app, .sheet) :is(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: .55;
+  box-shadow: none;
+}
+@media (hover: hover) {
+  :is(#app, .sheet) :is(.btn.primary, .btn.blue, .primary-button, .fp-ledger-primary, .fp-invest-primary, .fp-task-primary, .composer button[type="submit"]):not(:disabled):hover {
+    background: var(--fp-action-hover);
+    color: var(--fp-action-text);
+    filter: none;
+  }
+}
+
+/* Optional home / assistant entry components for the parallel logic change.
+ * No reserved-height hero or explanatory copy: controls grow with their text.
+ */
+.fp-assistant-start { display: grid; gap: 16px; min-width: 0; padding: 8px 0; }
+.fp-assistant-actions { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; }
+.fp-assistant-action {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  min-height: 56px; padding: 12px; text-align: left;
+  border: 1px solid var(--fp-line); border-radius: var(--fp-radius-inner);
+  background: var(--fp-surface); color: var(--fp-text);
+}
+.fp-assistant-action > .icon { flex-shrink: 0; color: var(--indigo11); }
+.fp-assistant-action > .icon:last-child { margin-left: auto; color: var(--fp-muted); }
+.fp-assistant-action > span { min-width: 0; overflow-wrap: anywhere; }
+.fp-assistant-status { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.fp-assistant-status > .btn { margin-left: auto; }
+.fp-home-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fp-home-actions > .btn { flex: 1 1 120px; }
+.fp-home-cashflow { min-width: 0; padding-top: 12px; border-top: 1px solid var(--fp-line); }
+.fp-home-cashflow-metrics {
+  display: flex; flex-wrap: wrap; gap: 12px; min-width: 0;
+}
+.fp-home-cashflow-metrics > * { flex: 1 1 calc((100% - 24px)/3); min-width: max-content; }
+.fp-home-cashflow-metrics :is(span, dt, small) { display: block; color: var(--fp-muted); }
+.fp-home-cashflow-metrics :is(strong, dd) {
+  display: block; margin: 4px 0 0; color: var(--fp-text);
+  font-weight: 600; font-variant-numeric: tabular-nums;
+  min-width: 0; white-space: nowrap; overflow-wrap: normal;
+}
+:is(#app, .sheet) :where(.fp-home-cashflow-metrics span, .fp-home-cashflow-metrics dt, .fp-home-cashflow-metrics small) {
+  font-size: var(--fp-type-meta) !important;
+}
+:is(#app, .sheet) :where(.fp-home-cashflow-metrics strong, .fp-home-cashflow-metrics dd) {
+  font-size: var(--fp-type-body) !important;
+}
+.fp-assistant-modes { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.fp-assistant-modes > button { flex: 1; min-width: 44px; min-height: 44px; }
+:is(#app, .sheet) .fp-assistant-modes { background: transparent; border: 0; box-shadow: none; }
+:is(#app, .sheet) .fp-assistant-modes > button { background: transparent; }
+:is(#app, .sheet) .fp-assistant-modes > button[aria-selected="true"] {
+  background: var(--indigo3); color: var(--indigo11);
+}
+:is(#app, .sheet) .fp-home-account {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-width: 44px; min-height: 44px; padding: 0;
+  background: transparent; border: 0; box-shadow: none; color: var(--fp-muted);
+}
+.fp-home-account > .icon { width: 18px; height: 18px; flex-shrink: 0; }
+/* The asset overview is the one elevated content exception. Use the bundled
+ * official alpha scales rather than applying opacity to text or a solid fill.
+ */
+:is(#app, .sheet) .mobile-asset-card {
+  background: linear-gradient(145deg,var(--indigoA2),var(--slateA2)),var(--slateA1);
+  border-color: var(--slateA6);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+}
+@media (max-width: 350px) {
+  .fp-home-cashflow-metrics { gap: 8px; }
+  .fp-home-cashflow-metrics > * { flex-basis: calc((100% - 16px)/3); }
+  .sheet .actions { gap: 8px; }
+  .sheet .actions > .btn { white-space: normal; overflow-wrap: anywhere; }
+}
+@media (max-height: 650px) {
+  .sheet { max-height: 90dvh; }
+  .mobile-chat-start { padding-block: 4px; }
+  .fp-assistant-start { gap: 12px; }
+}
+/* Honor existing preferences without changing author animation timings. */
+[data-reduce-transparency="true"] :is(.tab-bar, .composer, .topbar, .sheet) {
+  background: var(--fp-surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+[data-reduce-transparency="true"] :is(#app, .sheet) .mobile-asset-card {
+  background: var(--fp-surface); -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tab-bar, .composer, .topbar, .sheet { background: var(--fp-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  :is(#app, .sheet) .mobile-asset-card { background: var(--fp-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tab-bar, .composer, .topbar, .sheet { background: var(--fp-surface); }
+  :is(#app, .sheet) .mobile-asset-card { background: var(--fp-surface); }
+}

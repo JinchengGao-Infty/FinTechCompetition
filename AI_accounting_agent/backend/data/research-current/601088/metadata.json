@@ -1,0 +1,88 @@
+{
+  "symbol": "601088",
+  "name": "中国神华",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:23:59.182142+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -41 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "公司深度报告：煤炭航母并购加码，盈利向上高股息红利龙头",
+      "publisher": "开源证券",
+      "published_at": "2026-09-23 00:00:00.000",
+      "info_code": "AP202609231829780296",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601088&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.030666+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609231829780296_1.pdf",
+      "local_file": "601088/research-latest.pdf",
+      "sha256": "d1353bcb2f4277e63e0979a3d18d86d953d45e1318e5e8d246b947388d792c35",
+      "download_status": "ok",
+      "pdf_pages": 27,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601088"
+    },
+    {
+      "type": "broker_research",
+      "title": "公司信息更新报告：资产注入规模增长，业绩兑现高分红彰显投资价值",
+      "publisher": "开源证券",
+      "published_at": "2026-08-31 00:00:00.000",
+      "info_code": "AP202608311828809448",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601088&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.030666+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608311828809448_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601088,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 49.07,
+    "high": 50.28,
+    "low": 49.0,
+    "close": 50.2,
+    "volume_lots": 419866.0,
+    "volume": 41986600
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601088&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "中国神华2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225531759.PDF",
+      "retrieved_at_utc": "2026-10-24T17:25:55.363400+00:00",
+      "download_status": "ok",
+      "local_file": "601088/company-disclosure.pdf",
+      "sha256": "ff4a670c7aa9e0309dc610a0e225d490970731dcc14eda234d73bb8c9b9b54f4",
+      "stock_identity_verified": true,
+      "pdf_pages": 230,
+      "document_form": "full_report_pdf"
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601088.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:57.079687+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 49.07,
+      "high": 50.28,
+      "low": 49.0,
+      "close": 50.2,
+      "volume": 41986641
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": -41
+  }
+}

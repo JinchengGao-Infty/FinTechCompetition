@@ -1,0 +1,7 @@
+export function marketCandles(rows,{esc,money,mask=false}={}){
+ if(mask)return '<div class="market-chart-mask">金额已隐藏</div>';
+ if(!rows.length)return '<div class="market-chart-mask">暂无行情</div>';
+ const high=Math.max(...rows.map(r=>Number(r.high))),low=Math.min(...rows.map(r=>Number(r.low))),pad=Math.max((high-low)*.1,high*.002),top=high+pad,bottom=low-pad,span=top-bottom||1;
+ const y=v=>18+(top-Number(v))/span*142,step=288/rows.length,body=Math.max(1.5,Math.min(12,step*.62));
+ return `<div class="market-candles"><div class="market-candle-heading"><strong>日 K</strong><span>前复权</span></div><svg viewBox="0 0 320 192" role="img" aria-label="${esc(rows[0].date+'至'+rows.at(-1).date+'日K线，前复权')}">${[0,1,2].map(i=>`<line x1="12" x2="308" y1="${18+i*71}" y2="${18+i*71}" stroke="var(--slate6)" stroke-width=".5" stroke-dasharray="3 5"/>`).join('')}${rows.map((r,i)=>{const x=16+step*(i+.5),up=Number(r.close)>=Number(r.open),color=up?'var(--ruby9)':'var(--jade9)';return `<g><title>${esc(r.date)} 开${r.open} 高${r.high} 低${r.low} 收${r.close}</title><line x1="${x}" x2="${x}" y1="${y(r.high)}" y2="${y(r.low)}" stroke="${color}" stroke-width="1"/><rect x="${x-body/2}" y="${Math.min(y(r.open),y(r.close))}" width="${body}" height="${Math.max(1,Math.abs(y(r.open)-y(r.close)))}" rx=".7" fill="${color}"/></g>`}).join('')}<text x="12" y="185">${esc(rows[0].date.slice(5))}</text><text x="308" y="185" text-anchor="end">${esc(rows.at(-1).date.slice(5))}</text></svg><div class="market-candle-scale"><span>${money(low)}</span><span>${money(high)}</span></div></div>`;
+}

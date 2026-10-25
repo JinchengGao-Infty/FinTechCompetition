@@ -1,0 +1,99 @@
+{
+  "symbol": "601288",
+  "name": "农业银行",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:24:02.050618+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 31 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "农业银行2026年中报点评：非息收入拉动营收提速，县域贷款增速领先",
+      "publisher": "太平洋",
+      "published_at": "2026-09-21 00:00:00.000",
+      "info_code": "AP202609211829729594",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601288&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.346135+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609211829729594_1.pdf",
+      "local_file": "601288/research-latest.pdf",
+      "sha256": "135c9e5491c11f344a9f33a8bff0eeda6378edff7a1c612a7d0f00efe4229783",
+      "download_status": "ok",
+      "pdf_pages": 5,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601288"
+    },
+    {
+      "type": "broker_research",
+      "title": "资产增速回落，净息差企稳",
+      "publisher": "国信证券",
+      "published_at": "2026-09-02 00:00:00.000",
+      "info_code": "AP202609021828909996",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601288&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.346135+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828909996_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601288,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 7.33,
+    "high": 7.42,
+    "low": 7.11,
+    "close": 7.19,
+    "volume_lots": 5904283.0,
+    "volume": 590428300
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601288&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "农业银行2026年半年度报告",
+      "url": "https://www.abchina.com/cn/aboutabc/investor_relations/report/mm/202608/t20260828_2658912.htm",
+      "retrieved_at_utc": "2026-10-24T17:25:57.325101+00:00",
+      "download_status": "ok",
+      "local_file": "601288/company-disclosure.html",
+      "sha256": "0f90c384bc6ffa06518c835a43adf04e72ed9c5dd9d88fd25414f99a80b9ab18",
+      "stock_identity_verified": true,
+      "document_form": "official_landing_page"
+    },
+    {
+      "type": "company_disclosure",
+      "title": "农业银行2026年半年度报告（A股）",
+      "url": "https://www.abchina.com/cn/aboutabc/investor_relations/report/mm/202608/P020260924668950211207.pdf",
+      "retrieved_at_utc": "2026-10-24T17:27:12.396805+00:00",
+      "document_form": "full_report_pdf",
+      "download_status": "ok",
+      "local_file": "601288/company-verified.pdf",
+      "sha256": "d94e1793dfe065828107b8671a03eaaa3f57a7dce0a6ceb0cce6f96fe95ca1d5",
+      "stock_identity_verified": true,
+      "pdf_pages": 232
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601288.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:58.289288+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 7.33,
+      "high": 7.42,
+      "low": 7.11,
+      "close": 7.19,
+      "volume": 590428269
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": 31
+  }
+}

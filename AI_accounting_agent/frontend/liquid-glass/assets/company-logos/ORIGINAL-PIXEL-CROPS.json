@@ -1,0 +1,213 @@
+{
+  "created_utc": "2026-10-25T08:34:03.566364+00:00",
+  "coordinate_system": "source pixels, [left, top, right, bottom], right/bottom exclusive",
+  "assets": [
+    {
+      "stock_code": "600036",
+      "source_file": "../600036.png",
+      "source_dimensions": [
+        132,
+        146
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        6,
+        0,
+        126,
+        100
+      ],
+      "output_dimensions": [
+        120,
+        100
+      ],
+      "source_sha256": "8ef0aa09b7c8a66e7ea715db4b72b10a1d44f7792ef2f057a27cf02d4f85a2fd",
+      "derived_sha256": "a4fffb8937a2d2f0c13f161252e776d18d413702e976a4fb025db03ab6fe02af",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Complete official red-background CMB mark/name block; excludes separate All In One Net tagline",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "600519",
+      "source_file": "../600519.png",
+      "source_dimensions": [
+        359,
+        59
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        0,
+        0,
+        60,
+        59
+      ],
+      "output_dimensions": [
+        60,
+        59
+      ],
+      "source_sha256": "0df1df30a45dbcd537265c6e55d5b8a783a25c73d671e6312c3b26cd2804303a",
+      "derived_sha256": "c82f9ff39b420a5eb1aaedb8695f7ab685554799f8cb35addfd9cd9aeae0cc42",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "600900",
+      "source_file": "../600900.png",
+      "source_dimensions": [
+        280,
+        72
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        0,
+        0,
+        73,
+        72
+      ],
+      "output_dimensions": [
+        73,
+        72
+      ],
+      "source_sha256": "4e964376731bd2e6cc12432fabde7bb0e61b079ecaf92ece57f1d25edae97472",
+      "derived_sha256": "6b839bf35b36bb5d5ea03e28b0fcb37f3b7983e0417c280ce4596d5aaf7c9bb6",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "601088",
+      "source_file": "../601088.png",
+      "source_dimensions": [
+        600,
+        174
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        3,
+        24,
+        88,
+        89
+      ],
+      "output_dimensions": [
+        85,
+        65
+      ],
+      "source_sha256": "c34e623b525a48b077a817c0a1be0a494a19e6cf09b0f323e4c502e7c29836eb",
+      "derived_sha256": "d6c40339c37cac02ee9da918c97a221cf3e933360529c469d27d0558bd1efda5",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Official CHN ENERGY parent symbol extracted from the China Shenhua official header",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "601138",
+      "source_file": "../601138.png",
+      "source_dimensions": [
+        180,
+        31
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        0,
+        0,
+        48,
+        31
+      ],
+      "output_dimensions": [
+        48,
+        31
+      ],
+      "source_sha256": "d33b451f47d94eda045b7b419d929477410d1cfbaabcf6f1c1acc841dd418558",
+      "derived_sha256": "6d9bab7ca5f0996a440e0c16b3529483550f7d07740b9658cf73a2a2fdc2bb83",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "601288",
+      "source_file": "../601288.png",
+      "source_dimensions": [
+        220,
+        48
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        1,
+        2,
+        47,
+        46
+      ],
+      "output_dimensions": [
+        46,
+        44
+      ],
+      "source_sha256": "b0dc140a8bb52abcc1c13a523b010afad76a94af3e270d1fef1b47e15cba57cf",
+      "derived_sha256": "247dfdb21b27598ddc2434f59eee0075a75c9d1a41b1c12881743c631c1e6049",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "601398",
+      "source_file": "../601398.png",
+      "source_dimensions": [
+        314,
+        41
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        77,
+        0,
+        118,
+        41
+      ],
+      "output_dimensions": [
+        41,
+        41
+      ],
+      "source_sha256": "24be2a6d6747c9b8ee2d602d448aeb65d233d1d3380bd2e0d1fc7d3e3df0a90e",
+      "derived_sha256": "6e30ee9ea4dba06ff6241e2d33ca6bb2a492f5b816335d8f099a7e141e1749ec",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "601628",
+      "source_file": "../601628.png",
+      "source_dimensions": [
+        195,
+        71
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        0,
+        9,
+        54,
+        63
+      ],
+      "output_dimensions": [
+        54,
+        54
+      ],
+      "source_sha256": "499b6f454139fe5a622894b544f14a9921ad7fd961586873057d159d2ea4abf1",
+      "derived_sha256": "41f98d0f2ff00fa559afd9a3ecb970b296e9f39346546c2ddaff4d46fcfdda78",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    },
+    {
+      "stock_code": "601988",
+      "source_file": "../601988.png",
+      "source_dimensions": [
+        175,
+        49
+      ],
+      "crop_rectangle_ltrb_exclusive": [
+        0,
+        0,
+        51,
+        49
+      ],
+      "output_dimensions": [
+        51,
+        49
+      ],
+      "source_sha256": "a61810be66550d5d97b745636aa540a5fde60bc5576be0c95e0f6a49a7d780dc",
+      "derived_sha256": "588e19a8ff36c95f1e54790f34f62571401c0abee24b99cf103128d81db0b334",
+      "method": "Pillow Image.crop only; lossless PNG encoding; no resizing, recoloring, redrawing, or synthesized pixels",
+      "note": "Existing graphic component from original official website mark",
+      "pixel_identity_verified": true
+    }
+  ]
+}

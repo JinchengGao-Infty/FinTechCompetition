@@ -1,0 +1,106 @@
+{
+  "symbol": "601398",
+  "name": "工商银行",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:24:02.218084+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -27 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "consulting_research",
+      "title": "工商银行深度研究报告：全球资产规模最大商业银行，盈利稳健质量夯实，数智化转型重塑增长动能",
+      "publisher": "北京智研科信咨询",
+      "published_at": "2026-10-07 00:00:00.000",
+      "info_code": "AP202610061830166264",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601398&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.361803+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202610061830166264_1.pdf",
+      "local_file": "601398/research-latest.pdf",
+      "sha256": "15441630466cb7a7840135a3219a6d4ff6eca7ae3e28b37b1aef99097796de43",
+      "download_status": "ok",
+      "pdf_pages": 21,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601398"
+    },
+    {
+      "type": "broker_research",
+      "title": "工商银行2026年中报点评：信贷投放稳步扩容，中期分红比例提升",
+      "publisher": "太平洋",
+      "published_at": "2026-09-16 00:00:00.000",
+      "info_code": "AP202609161829466204",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601398&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.361803+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609161829466204_1.pdf",
+      "local_file": "601398/broker-research.pdf",
+      "download_status": "ok",
+      "sha256": "9e1053dac9c9ccee540e8a68e81b547bed0f9b526c80a679bbe6ae4faec04e80",
+      "pdf_pages": 5,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601398"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601398,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 8.6,
+    "high": 8.64,
+    "low": 8.27,
+    "close": 8.32,
+    "volume_lots": 6903334.0,
+    "volume": 690333400
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601398&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "工商银行2026年半年度报告",
+      "url": "https://www.icbc-ltd.com/page/1266821007844429824.html",
+      "retrieved_at_utc": "2026-10-24T17:25:58.928567+00:00",
+      "download_status": "ok",
+      "local_file": "601398/company-disclosure.html",
+      "sha256": "2dfe9f094b10d07acf0c161f6b8fd92121a9fbaeda85b1497ea24cd2dfd963b7",
+      "stock_identity_verified": true,
+      "document_form": "official_landing_page"
+    },
+    {
+      "type": "company_disclosure",
+      "title": "工商银行2026年半年度报告（A股）",
+      "url": "https://v.icbc.com.cn/userfiles/resources/icbcltd/download/2026/InterimReportA20260924.pdf",
+      "retrieved_at_utc": "2026-10-24T17:27:12.398616+00:00",
+      "document_form": "full_report_pdf",
+      "download_status": "ok",
+      "local_file": "601398/company-verified.pdf",
+      "sha256": "5e46724bf1e57c6c671350e4a4786e487f3c4f3f61c4b2a08e6e32afa861d4f1",
+      "stock_identity_verified": true,
+      "pdf_pages": 207
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601398.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:59.523032+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 8.6,
+      "high": 8.64,
+      "low": 8.27,
+      "close": 8.32,
+      "volume": 690333427
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": -27
+  }
+}

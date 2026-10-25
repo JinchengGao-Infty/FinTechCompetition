@@ -1,0 +1,98 @@
+{
+  "symbol": "600036",
+  "name": "招商银行",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:23:59.178141+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 33 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "招商银行2026年中报点评：财富管理带动中收提速，息差降幅收窄",
+      "publisher": "太平洋",
+      "published_at": "2026-09-28 00:00:00.000",
+      "info_code": "AP202609281829964281",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.513724+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609281829964281_1.pdf",
+      "local_file": "600036/research-latest.pdf",
+      "sha256": "7a92e7766a9c65ca345f422a110b2f37f7b9fce9924856ca4ba6244c83cf538f",
+      "download_status": "ok",
+      "pdf_pages": 5,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "600036"
+    },
+    {
+      "type": "broker_research",
+      "title": "公司简评报告：息差边际趋稳，财富管理修复延续",
+      "publisher": "东海证券",
+      "published_at": "2026-09-02 00:00:00.000",
+      "info_code": "AP202609021828933539",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.513724+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828933539_1.pdf"
+    },
+    {
+      "type": "broker_research",
+      "title": "点评报告：营收和利润增速持续改善",
+      "publisher": "万联证券",
+      "published_at": "2026-08-31 00:00:00.000",
+      "info_code": "AP202608311828821668",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.513724+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608311828821668_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600036,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 41.7,
+    "high": 42.38,
+    "low": 41.42,
+    "close": 41.77,
+    "volume_lots": 1232174.0,
+    "volume": 123217400
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "招商银行2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-28/1225531453.PDF",
+      "retrieved_at_utc": "2026-10-24T17:25:55.173809+00:00",
+      "download_status": "ok",
+      "local_file": "600036/company-disclosure.pdf",
+      "sha256": "0194f5122575ee8576dbce941fcc10fb171e0cd17c627dd63330da952c52b57c",
+      "stock_identity_verified": true,
+      "pdf_pages": 247,
+      "document_form": "full_report_pdf"
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600036.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:57.716361+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 41.7,
+      "high": 42.38,
+      "low": 41.42,
+      "close": 41.77,
+      "volume": 123217367
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": 33
+  }
+}

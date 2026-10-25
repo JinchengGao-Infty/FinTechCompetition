@@ -1,0 +1,43 @@
+.ap-trends{min-width:0;color:var(--ap-ink,#1c2024);font-size:16px}.ap-trends *{box-sizing:border-box}.ap-t-tabs{display:flex;gap:4px;background:#ffffff88;border:1px solid var(--ap-glass-border,#fff);border-radius:28px;padding:4px;margin-bottom:12px}.ap-t-tabs button{flex:1;min-width:0;min-height:44px;border:0;border-radius:24px;background:none;font:inherit;color:var(--ap-muted,#60646c)}.ap-t-tabs button[aria-selected=true]{color:var(--ap-accent,#4361ee);background:#ffffffaa;box-shadow:0 2px 8px #354cb81a}.ap-t-card{background:var(--ap-glass,#ffffff88);border:1px solid var(--ap-glass-border,#fff);border-radius:26px;box-shadow:inset 0 1px 0 white;margin-bottom:12px;min-width:0}.ap-t-hero{padding:16px 12px 8px}.ap-t-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.ap-t-heading>div:first-child{min-width:0}.ap-t-heading h2{font-size:16px;margin:0 0 8px;font-weight:500}.ap-t-total{display:block;font-size:32px;line-height:1.2;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ap-t-metrics{display:flex;flex-shrink:0;border:1px solid white;border-radius:24px;padding:3px;background:#ffffff70}.ap-t-metrics button{min-width:44px;min-height:44px;padding:0 8px;border:0;border-radius:22px;background:none;font:inherit;color:var(--ap-muted,#60646c)}.ap-t-metrics button[aria-pressed=true]{background:var(--ap-accent,#4361ee);color:white}.ap-t-chart{display:block;width:100%;height:auto;margin-top:14px;touch-action:pan-y}.ap-t-chart text{font-size:12px;fill:var(--ap-muted,#60646c)}.ap-t-dates{display:flex;gap:4px;padding:6px;overflow-x:auto;max-width:100%;overscroll-behavior-x:contain}.ap-t-dates button{position:relative;flex:0 0 44px;min-height:56px;border:1px solid transparent;background:none;color:var(--ap-muted,#60646c);font:inherit;border-radius:20px}.ap-t-dates button[aria-pressed=true]{border-color:white;background:#ffffffaa;color:var(--ap-accent,#4361ee)}.ap-t-dates i{display:block;width:4px;height:4px;border-radius:50%;background:currentColor;margin:5px auto 0}.ap-t-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:18px 12px;gap:12px}.ap-t-summary>div{display:flex;align-items:center;gap:8px;min-width:0}.ap-t-summary>div+div{border-left:1px solid #becbf0;padding-left:12px}.ap-t-summary svg{width:24px;height:24px;flex:none;color:var(--ap-muted,#60646c)}.ap-t-summary small{display:block;font-size:12px;color:var(--ap-muted,#60646c);margin-bottom:6px}.ap-t-summary strong{display:block;font-size:16px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.ap-t-mask{height:190px;display:grid;place-items:center;color:var(--ap-muted,#60646c)}.ap-trends button:focus-visible{outline:2px solid var(--ap-accent,#4361ee);outline-offset:2px}@media(max-width:350px){.ap-t-heading{flex-wrap:wrap}.ap-t-metrics{margin-left:auto}.ap-t-summary{gap:8px;padding:14px 10px}.ap-t-summary svg{width:20px;height:20px}}
+
+@media(max-width:350px){.ap-t-chart text{font-size:15px}}
+
+/* C3 geometry only: preserve the SVG viewBox, width and intrinsic ratio. */
+.ap-t-hero{padding:6px 12px 2px}
+.ap-t-heading h2{margin-bottom:0}
+.ap-t-chart{margin-top:0}
+/* The visible pill is 30px high inside unchanged 44px button hit targets. */
+.ap-t-metrics{position:relative;isolation:isolate;border:0;padding:0;background:transparent;min-height:44px}
+.ap-t-metrics:before{content:"";position:absolute;inset:7px 0;border:1px solid white;border-radius:20px;background:#ffffff70;z-index:-1;pointer-events:none}
+.ap-t-metrics button{position:relative;isolation:isolate;min-height:44px;border-radius:20px;background:transparent}
+.ap-t-metrics button[aria-pressed=true]{background:transparent}
+.ap-t-metrics button[aria-pressed=true]:before{content:"";position:absolute;inset:7px 0;background:var(--ap-accent,#4361ee);border-radius:20px;z-index:-1;pointer-events:none}
+/* A quieter chart, with real point values kept outside the plot. */
+#app[data-approved-ui] .ap-trends .ap-t-hero{padding:20px 16px 12px}
+#app[data-approved-ui] .ap-trends .ap-t-heading{flex-wrap:wrap;gap:12px}
+#app[data-approved-ui] .ap-trends .ap-t-heading h2{font-size:12px;line-height:1.5;color:var(--ap-muted);margin:0 0 6px}
+#app[data-approved-ui] .ap-trends .ap-t-total{font-size:28px;line-height:1.2;letter-spacing:-.035em;white-space:nowrap;overflow-wrap:normal}
+#app[data-approved-ui] .ap-trends .ap-t-metrics{margin-left:auto}
+#app[data-approved-ui] .ap-trends .ap-t-chart{margin-top:16px;color:var(--ap-muted);overflow:visible}
+#app[data-approved-ui] .ap-trends .ap-t-chart text{font-size:12px}
+.ap-t-chart path[stroke]{stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}.ap-t-chart:focus-visible{outline:2px solid var(--ap-accent);outline-offset:3px;border-radius:12px}
+.ap-t-selection{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid #a0b4de40;padding-top:8px;font-size:12px;font-variant-numeric:tabular-nums}.ap-t-selection>span{color:var(--ap-muted)}.ap-t-selection strong{font-size:16px;white-space:nowrap}.ap-t-selection button{margin-left:auto;display:flex;align-items:center;gap:4px;min-height:44px;border:0;background:transparent;color:var(--ap-accent);font-size:12px;font-weight:600}.ap-t-selection svg{width:16px;height:16px}
+#app[data-approved-ui] .ap-trends .ap-t-summary strong{font-size:16px;white-space:nowrap;overflow-wrap:normal;letter-spacing:-.025em}#app[data-approved-ui] .ap-trends .ap-t-summary svg{width:20px;height:20px}
+.ap-t-dates button{transition:background 160ms ease,color 160ms ease}.ap-t-dates button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #fff,0 3px 8px #4361ee15;font-weight:600}
+@media(max-width:350px){#app[data-approved-ui] .ap-trends .ap-t-summary{gap:8px;padding:14px 10px}#app[data-approved-ui] .ap-trends .ap-t-summary>div{gap:4px}#app[data-approved-ui] .ap-trends .ap-t-summary>div+div{padding-left:8px}#app[data-approved-ui] .ap-trends .ap-t-summary svg{display:none}}
+@media(prefers-reduced-motion:reduce){.ap-t-dates button{transition:none}}
+/* Override the inherited legacy universal important type reset within this page only. */
+#app[data-approved-ui] .ap-trends :where(*){font-size:16px!important}
+#app[data-approved-ui] .ap-trends :is(.ap-t-heading h2,.ap-t-chart text,.ap-t-summary small,.ap-t-selection>span,.ap-t-selection button){font-size:12px!important}
+#app[data-approved-ui] .ap-trends .ap-t-total{font-size:28px!important}
+/* SVG text scales with its 320-unit viewBox: 16 units stays above 12px on the narrow layout. */
+#app[data-approved-ui] .ap-trends .ap-t-chart text{font-size:16px!important}
+
+/* Direct curve selection: one guide, one amount and one date, no date scroller. */
+.ap-t-plot{position:relative;min-width:0;margin-top:16px}
+#app[data-approved-ui] .ap-trends .ap-t-plot .ap-t-chart{margin-top:0}
+.ap-t-guide{opacity:.72;pointer-events:none}.ap-t-point-value,.ap-t-point-date{position:absolute;pointer-events:none;font-variant-numeric:tabular-nums;white-space:nowrap;z-index:1}
+#app[data-approved-ui] .ap-trends .ap-t-point-value{transform:translate(-50%,-100%);padding:6px 10px;border:.5px solid #fff;border-radius:12px;background:#ffffffe6;box-shadow:0 3px 12px #3e63dd14;color:var(--ap-ink);font-size:16px!important;font-weight:600;line-height:1.2;letter-spacing:-.025em}
+#app[data-approved-ui] .ap-trends .ap-t-point-date{transform:translateX(-50%);font-size:12px!important;color:var(--ap-muted);line-height:1.5}
+.ap-t-point-detail{display:flex;justify-content:flex-end;border-top:.5px solid #a0b4de40;padding-top:2px}.ap-t-point-detail button{display:flex;align-items:center;gap:4px;min-height:44px;border:0;background:transparent;color:var(--ap-accent);font-size:12px!important;font-weight:600}.ap-t-point-detail svg{width:16px;height:16px}
+.ap-t-no-points{position:absolute;inset:30% 0 auto;text-align:center;font-size:12px;color:var(--ap-muted)}

@@ -1,0 +1,197 @@
+{
+  "assets": [
+    {
+      "stock_code": "600036",
+      "asset_url": "https://wwwcdn.cmbimg.cn/Images/logo.png",
+      "retrieved_utc": "2026-10-25T08:10:04.399370+00:00",
+      "sha256": "8ef0aa09b7c8a66e7ea715db4b72b10a1d44f7792ef2f057a27cf02d4f85a2fd",
+      "width": 132,
+      "height": 146,
+      "status": "downloaded",
+      "company": "China Merchants Bank",
+      "official_source_page": "https://www.cmbchina.com/",
+      "file": "600036.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication.",
+      "notes": "Official header combines CMB mark and All In One Net tagline; retain intact."
+    },
+    {
+      "stock_code": "600519",
+      "asset_url": "https://www.moutaichina.com/uiFramework/commonResource/image/2023082310401135056.png",
+      "retrieved_utc": "2026-10-25T08:12:02.383715+00:00",
+      "sha256": "0df1df30a45dbcd537265c6e55d5b8a783a25c73d671e6312c3b26cd2804303a",
+      "width": 359,
+      "height": 59,
+      "status": "downloaded",
+      "company": "Kweichow Moutai Co., Ltd.",
+      "official_source_page": "https://www.moutaichina.com/mtgf/index/index.html",
+      "file": "600519.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    },
+    {
+      "stock_code": "600900",
+      "asset_url": "https://www.cypc.com.cn/uiFramework/commonResource/image/2022090710402537518.png",
+      "retrieved_utc": "2026-10-25T08:10:03.876046+00:00",
+      "sha256": "4e964376731bd2e6cc12432fabde7bb0e61b079ecaf92ece57f1d25edae97472",
+      "width": 280,
+      "height": 72,
+      "status": "downloaded",
+      "company": "China Yangtze Power Co., Ltd.",
+      "official_source_page": "https://www.cypc.com.cn/",
+      "file": "600900.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    },
+    {
+      "stock_code": "601088",
+      "asset_url": "http://www.shenhuachina.com/zgshww/xhtml/images/logo_02.png",
+      "retrieved_utc": "2026-10-25T08:10:07.038009+00:00",
+      "sha256": "c34e623b525a48b077a817c0a1be0a494a19e6cf09b0f323e4c502e7c29836eb",
+      "width": 600,
+      "height": 174,
+      "status": "downloaded",
+      "company": "China Shenhua Energy Company Limited",
+      "official_source_page": "http://www.shenhuachina.com/",
+      "file": "601088.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication.",
+      "notes": "Official header includes CHN ENERGY parent brand and company wordmark; retain intact. HTTP download; HTTPS handshake failed. TLS verification never disabled."
+    },
+    {
+      "stock_code": "601138",
+      "asset_url": "https://www.fii-foxconn.com/js/app.59235a8d.js",
+      "asset_reference": "webpack module 5671, inline data:image/png;base64",
+      "retrieved_utc": "2026-10-25T08:10:07.045263+00:00",
+      "sha256": "d33b451f47d94eda045b7b419d929477410d1cfbaabcf6f1c1acc841dd418558",
+      "width": 180,
+      "height": 31,
+      "status": "downloaded",
+      "company": "Foxconn Industrial Internet Co., Ltd.",
+      "official_source_page": "https://www.fii-foxconn.com/",
+      "file": "601138.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    },
+    {
+      "stock_code": "601288",
+      "asset_url": "https://www.abchina.com/cn/images/logo_ue2.png",
+      "retrieved_utc": "2026-10-25T08:10:03.858018+00:00",
+      "sha256": "b0dc140a8bb52abcc1c13a523b010afad76a94af3e270d1fef1b47e15cba57cf",
+      "width": 220,
+      "height": 48,
+      "status": "downloaded",
+      "company": "Agricultural Bank of China Limited",
+      "official_source_page": "https://www.abchina.com/cn/",
+      "file": "601288.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    },
+    {
+      "stock_code": "601398",
+      "asset_url": "https://v.icbc.com.cn/userfiles/Resources/ICBC/shouye/images/2017/logo.png",
+      "retrieved_utc": "2026-10-25T08:10:03.859264+00:00",
+      "sha256": "24be2a6d6747c9b8ee2d602d448aeb65d233d1d3380bd2e0d1fc7d3e3df0a90e",
+      "width": 314,
+      "height": 41,
+      "status": "downloaded",
+      "company": "Industrial and Commercial Bank of China Limited",
+      "official_source_page": "https://www.icbc.com.cn/",
+      "file": "601398.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    },
+    {
+      "stock_code": "601628",
+      "asset_url": "https://www.e-chinalife.com/jw/plugin/com.chinalife.yunque.ChinaLifeTheme.ChinaLifeTheme/images/logo.png",
+      "retrieved_utc": "2026-10-25T08:10:03.974564+00:00",
+      "sha256": "499b6f454139fe5a622894b544f14a9921ad7fd961586873057d159d2ea4abf1",
+      "width": 195,
+      "height": 71,
+      "status": "downloaded",
+      "company": "China Life Insurance Company Limited",
+      "official_source_page": "https://www.e-chinalife.com/",
+      "file": "601628.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    },
+    {
+      "stock_code": "601857",
+      "company": "PetroChina Company Limited / 中国石油天然气股份有限公司",
+      "artifact": "601857.svg",
+      "source_type": "official group-company website; original shared PetroChina/CNPC emblem pixels",
+      "asset_url": "https://www.cnpcusa.com/en/pictures/logo.png",
+      "source_page": "https://www.cnpcusa.com/en/home.html",
+      "source_page_reference": "HTML img alt=\"CNPC USA Logo\" src=\"pictures/logo.png\"; fetched HTTP 200",
+      "identity_sources": [
+        {
+          "url": "https://www.petrochina.com.cn/ptr/xwxx/201404/59b8817299c54087b65d4d7d40438bd8.shtml",
+          "verification": "Official search index states PetroChina and CNPC jointly own the petal logo; direct page fetch returned 412, not bypassed"
+        },
+        {
+          "url": "https://www.petrochina.com.cn/petrochina/gsbs/gsjs_common.shtml",
+          "verification": "Official indexed description identifies the red/yellow ten-petal emblem; direct page fetch returned 412, not bypassed"
+        }
+      ],
+      "mark_scope": "Only the shared red/yellow petal emblem is retained; CNPC USA wording, star and bar excluded. Not a claim that 601857 is the CNPC USA entity.",
+      "original_sha256": "a307b2c3cb61f9258fdaca8c61612254e4add3796d44fa625d7dec789ce8e551",
+      "original_size": [
+        320,
+        320
+      ],
+      "crop_box_ltrb": [
+        56,
+        22,
+        264,
+        212
+      ],
+      "crop_size": [
+        208,
+        190
+      ],
+      "crop_png_sha256": "9cf3deec88123c6f1a4e28c181e348f09b6a5f3985b4411e14138cb6e6f8bddd",
+      "transform": "Exact-pixel rectangular crop, no resampling/recoloring/redrawing; embedded into a static local SVG image container to retain the existing 601857.svg path.",
+      "sha256": "ad5bd5f29cca05e37cf2a08ac4ad851ad80d7375b31ff31f6394c9c519c8efc3",
+      "bytes": 53813,
+      "retrieved_utc": "2026-10-25T09:08:18.462029+00:00",
+      "licensing": {
+        "rights_owner": "The shared emblem belongs to PetroChina and CNPC; source website footer reserves CNPC USA Corporation rights.",
+        "inspected_pages": [
+          "https://www.cnpcusa.com/en/home.html",
+          "https://www.cnpcusa.com/en/nav.html",
+          "https://www.cnpcusa.com/en/footer.html"
+        ],
+        "extra_personal_noncommercial_restriction_found": false,
+        "finding_scope": "No stock-logo marketplace or third-party personal/noncommercial-only terms attached to this direct corporate asset in the inspected pages. This is not an affirmative copyright or trademark reuse license.",
+        "usage_context": "Company identification in a competition app presentation; no endorsement implied. Trademark rights remain with owners; public availability is not automatic commercial authorization."
+      },
+      "rejected_alternative": {
+        "source": "https://www.petroineos.com/about-us/shareholders/petrochina/",
+        "terms": "https://www.petroineos.com/terms-conditions/",
+        "reason": "Explicit personal non-commercial restriction; not used"
+      },
+      "replaces": "Worldvectorlogo asset SHA256 83a04fa58c8c45c37c801c3dacce3540e81043a5bbe410b4c21048e8299ae0cc; not included in this patch",
+      "status": "downloaded_official_shared_emblem",
+      "file": "601857.svg"
+    },
+    {
+      "stock_code": "601988",
+      "asset_url": "https://www.boc.cn/images/boc2013_logo.png",
+      "retrieved_utc": "2026-10-25T08:10:04.578659+00:00",
+      "sha256": "a61810be66550d5d97b745636aa540a5fde60bc5576be0c95e0f6a49a7d780dc",
+      "width": 175,
+      "height": 49,
+      "status": "downloaded",
+      "company": "Bank of China Limited",
+      "official_source_page": "https://www.boc.cn/",
+      "file": "601988.png",
+      "pixel_review": "Reviewed contact-sheet.jpg; original aspect ratio preserved",
+      "trademark_notice": "Trademarks and copyright remain with respective owners. Public website availability does not grant reuse license or imply endorsement. Verify authorization before external/commercial publication."
+    }
+  ],
+  "summary": {
+    "downloaded": 9,
+    "missing": 1,
+    "source_policy": "9 official originals only; alternative Wikimedia source check authorized but yielded no verified asset; no hotlinks; no scripts executed; no user data uploaded"
+  }
+}

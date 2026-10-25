@@ -1,0 +1,412 @@
+[
+  {
+    "symbol": "600036",
+    "name": "招商银行",
+    "retrieved_at_utc": "2026-10-24T17:23:59.178141+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 33 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600036,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 41.7,
+      "high": 42.38,
+      "low": 41.42,
+      "close": 41.77,
+      "volume_lots": 1232174.0,
+      "volume": 123217400
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600036.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:57.716361+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 41.7,
+        "high": 42.38,
+        "low": 41.42,
+        "close": 41.77,
+        "volume": 123217367
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": 33
+    }
+  },
+  {
+    "symbol": "600519",
+    "name": "贵州茅台",
+    "retrieved_at_utc": "2026-10-24T17:23:59.180145+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 7 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600519,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 1311.84,
+      "high": 1343.88,
+      "low": 1310.0,
+      "close": 1335.0,
+      "volume_lots": 57686.0,
+      "volume": 5768600
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600519.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:56.638396+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 1311.84,
+        "high": 1343.88,
+        "low": 1310.0,
+        "close": 1335.0,
+        "volume": 5768593
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": 7
+    }
+  },
+  {
+    "symbol": "600900",
+    "name": "长江电力",
+    "retrieved_at_utc": "2026-10-24T17:23:59.181146+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 13 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600900,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 29.7,
+      "high": 29.99,
+      "low": 29.33,
+      "close": 29.45,
+      "volume_lots": 1799152.0,
+      "volume": 179915200
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600900.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:56.426014+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 29.7,
+        "high": 29.99,
+        "low": 29.33,
+        "close": 29.45,
+        "volume": 179915187
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": 13
+    }
+  },
+  {
+    "symbol": "601088",
+    "name": "中国神华",
+    "retrieved_at_utc": "2026-10-24T17:23:59.182142+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -41 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601088,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 49.07,
+      "high": 50.28,
+      "low": 49.0,
+      "close": 50.2,
+      "volume_lots": 419866.0,
+      "volume": 41986600
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601088.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:57.079687+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 49.07,
+        "high": 50.28,
+        "low": 49.0,
+        "close": 50.2,
+        "volume": 41986641
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": -41
+    }
+  },
+  {
+    "symbol": "601138",
+    "name": "工业富联",
+    "retrieved_at_utc": "2026-10-24T17:23:59.183145+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -13 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601138,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 47.0,
+      "high": 49.1,
+      "low": 45.55,
+      "close": 48.85,
+      "volume_lots": 1058205.0,
+      "volume": 105820500
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601138.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:56.865902+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 47.0,
+        "high": 49.1,
+        "low": 45.55,
+        "close": 48.85,
+        "volume": 105820513
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": -13
+    }
+  },
+  {
+    "symbol": "601288",
+    "name": "农业银行",
+    "retrieved_at_utc": "2026-10-24T17:24:02.050618+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 31 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601288,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 7.33,
+      "high": 7.42,
+      "low": 7.11,
+      "close": 7.19,
+      "volume_lots": 5904283.0,
+      "volume": 590428300
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601288.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:58.289288+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 7.33,
+        "high": 7.42,
+        "low": 7.11,
+        "close": 7.19,
+        "volume": 590428269
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": 31
+    }
+  },
+  {
+    "symbol": "601398",
+    "name": "工商银行",
+    "retrieved_at_utc": "2026-10-24T17:24:02.218084+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -27 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601398,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 8.6,
+      "high": 8.64,
+      "low": 8.27,
+      "close": 8.32,
+      "volume_lots": 6903334.0,
+      "volume": 690333400
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601398.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:59.523032+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 8.6,
+        "high": 8.64,
+        "low": 8.27,
+        "close": 8.32,
+        "volume": 690333427
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": -27
+    }
+  },
+  {
+    "symbol": "601628",
+    "name": "中国人寿",
+    "retrieved_at_utc": "2026-10-24T17:24:02.383217+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 32 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601628,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 33.86,
+      "high": 34.5,
+      "low": 33.15,
+      "close": 34.5,
+      "volume_lots": 252075.0,
+      "volume": 25207500
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601628.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:58.640258+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 33.86,
+        "high": 34.5,
+        "low": 33.15,
+        "close": 34.5,
+        "volume": 25207468
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": 32
+    }
+  },
+  {
+    "symbol": "601857",
+    "name": "中国石油",
+    "retrieved_at_utc": "2026-10-24T17:24:02.541688+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 19 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601857,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 12.58,
+      "high": 12.93,
+      "low": 12.49,
+      "close": 12.75,
+      "volume_lots": 1834282.0,
+      "volume": 183428200
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601857.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:59.848858+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 12.58,
+        "high": 12.93,
+        "low": 12.49,
+        "close": 12.75,
+        "volume": 183428181
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": 19
+    }
+  },
+  {
+    "symbol": "601988",
+    "name": "中国银行",
+    "retrieved_at_utc": "2026-10-24T17:24:03.026888+00:00",
+    "gaps": [
+      "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -36 shares on latest date."
+    ],
+    "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601988,day,,,250,qfq",
+    "kline_status": "ok",
+    "last_trade_date": "2026-10-23",
+    "latest": {
+      "date": "2026-10-23",
+      "open": 7.19,
+      "high": 7.23,
+      "low": 6.88,
+      "close": 6.93,
+      "volume_lots": 5003953.0,
+      "volume": 500395300
+    },
+    "adjustment": "forward-adjusted (qfq)",
+    "units": {
+      "OHLC": "CNY/share",
+      "volume_lots": "100 shares/lot",
+      "volume": "shares"
+    },
+    "crosscheck": {
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601988.SS?range=5d&interval=1d",
+      "retrieved_at_utc": "2026-10-24T17:25:59.155350+00:00",
+      "status": "ok",
+      "last_trade_date": "2026-10-23",
+      "values": {
+        "open": 7.19,
+        "high": 7.23,
+        "low": 6.88,
+        "close": 6.93,
+        "volume": 500395336
+      },
+      "OHLC_match": true,
+      "volume_difference_shares": -36
+    }
+  }
+]

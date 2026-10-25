@@ -1,0 +1,98 @@
+{
+  "symbol": "601138",
+  "name": "工业富联",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:23:59.183145+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -13 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "AI服务器、交换机高速增长",
+      "publisher": "中邮证券",
+      "published_at": "2026-09-21 00:00:00.000",
+      "info_code": "AP202609211829703958",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.673501+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609211829703958_1.pdf",
+      "local_file": "601138/research-latest.pdf",
+      "sha256": "d5f2b989e0493c0abd5dc0e849ecd0bee7f84c781ada1803b73681c858543054",
+      "download_status": "ok",
+      "pdf_pages": 4,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601138"
+    },
+    {
+      "type": "broker_research",
+      "title": "上半年净利润同比近翻倍，AI服务器与高速交换机持续高增",
+      "publisher": "国信证券",
+      "published_at": "2026-08-17 00:00:00.000",
+      "info_code": "AP202608171828040477",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.673501+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608171828040477_1.pdf"
+    },
+    {
+      "type": "broker_research",
+      "title": "AI服务器及高速交换机持续高增，盈利能力改善",
+      "publisher": "山西证券",
+      "published_at": "2026-08-17 00:00:00.000",
+      "info_code": "AP202608171828039084",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.673501+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608171828039084_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601138,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 47.0,
+    "high": 49.1,
+    "low": 45.55,
+    "close": 48.85,
+    "volume_lots": 1058205.0,
+    "volume": 105820500
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "工业富联2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-12/1225468066.PDF",
+      "retrieved_at_utc": "2026-10-24T17:25:55.364908+00:00",
+      "download_status": "ok",
+      "local_file": "601138/company-disclosure.pdf",
+      "sha256": "34d02741f6651eba443de0b3ec16562a43d22b31c12d548e4f17004ed618ba2d",
+      "stock_identity_verified": true,
+      "pdf_pages": 221,
+      "document_form": "full_report_pdf"
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601138.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:56.865902+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 47.0,
+      "high": 49.1,
+      "low": 45.55,
+      "close": 48.85,
+      "volume": 105820513
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": -13
+  }
+}

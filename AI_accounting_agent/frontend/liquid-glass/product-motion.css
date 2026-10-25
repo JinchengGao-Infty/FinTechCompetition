@@ -1,0 +1,29 @@
+@import url('./motion/motion.css');
+
+/* Dedicated decorative anchors only; existing Stitch cards retain all meaning. */
+.product-motion-decoration{pointer-events:none;user-select:none;width:112px;max-width:100%;height:88px;margin:0 auto;overflow:hidden;contain:layout paint;flex-shrink:0}
+.product-motion-decoration .fp-state-top,.product-motion-decoration .fp-state-copy,.product-motion-decoration .fp-facts,.product-motion-decoration .fp-action,.product-motion-decoration .fp-text-action,.product-motion-decoration .fp-caption,.product-motion-decoration .fp-error,.product-motion-decoration .fp-micro-mark,.product-motion-decoration .fp-field-chip,.product-motion-decoration .fp-ticket strong,.product-motion-decoration .fp-landing-chip{display:none!important}
+.product-motion-decoration .fp-ledger-destination{position:absolute;visibility:hidden;height:0;min-height:0;padding:0;border:0;overflow:hidden;pointer-events:none}
+.product-motion-task .fp-lens{width:280px;height:210px;transform:scale(.4);transform-origin:top left}
+/* 28px on the host canvas: the symbol stays crisp while the glass panes merge. */
+.product-motion-task .fp-seal{color:var(--indigo11);filter:none}
+.product-motion-task .fp-seal svg{width:70px;height:70px;stroke-width:2;filter:none}
+.product-motion-task .fp-pane-front{background:var(--indigo2);border:2.5px solid var(--indigo7)}
+.product-motion-task[data-state=succeeded] .fp-seal{color:var(--jade11)}
+.product-motion-task[data-state=succeeded] .fp-pane-front{background:var(--jade2);border-color:var(--jade7)}
+.product-motion-task[data-task-status=failed] .fp-seal{color:var(--ruby11)}
+.product-motion-task[data-task-status=failed] .fp-pane-front{background:var(--ruby2);border-color:var(--ruby7)}
+.product-motion-candidate .fp-capture-art{width:280px;height:225px;transform:scale(.4);transform-origin:top left}
+.fp-task:has(.product-motion-decoration) .fp-task-pending-mark,.fp-task:has(.product-motion-decoration) .fp-task-intro{display:none}
+/* Module primitives remain source-authentic; no new text, duplicate facts or UI. */
+@media(prefers-reduced-motion:reduce){.product-motion-decoration .fp-pane,.product-motion-decoration .fp-ticket{background:var(--fp-surface,#fff);box-shadow:none}.product-motion-decoration .fp-ray{display:none}}
+
+/* r2 amount travels to the host's actual, stationary confirmed bill row. */
+.product-motion-decoration .fp-field-b{display:flex!important;visibility:hidden;width:160px;height:60px}
+.product-motion-amount{font-size:14px;color:var(--indigo11);z-index:1200}
+.pc-receipt-row{display:flex;align-items:center;gap:10px;width:100%;padding:14px 0;border-top:.5px solid var(--fp-line);border-bottom:.5px solid var(--fp-line);text-align:left}
+.pc-receipt-object{flex:1;min-width:0}
+.pc-receipt-object strong,.pc-receipt-object small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-receipt-object strong{font-size:14px}.pc-receipt-object small{font-size:12px;color:var(--fp-muted);margin-top:4px}
+.pc-receipt-row>[data-motion-receipt-target]{font-size:16px;white-space:nowrap;position:relative}
+.product-capture:has(.product-motion-decoration) .pc-result-icon{display:none}

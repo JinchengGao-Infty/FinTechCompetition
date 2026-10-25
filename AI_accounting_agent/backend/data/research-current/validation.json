@@ -1,0 +1,16 @@
+{
+  "verified_at_utc": "2026-10-24T17:27:45.337658+00:00",
+  "stocks": 10,
+  "daily_bars": 2500,
+  "all_latest_20261023": true,
+  "all_yahoo_ohlc_match": true,
+  "research_metadata_count": 25,
+  "broker_pdfs_verified": 10,
+  "company_pdfs_verified": 10,
+  "all_250_date_sets_identical": true,
+  "all_ohlc_invariants_pass": true,
+  "source_range": [
+    "2025-10-14",
+    "2026-10-23"
+  ]
+}

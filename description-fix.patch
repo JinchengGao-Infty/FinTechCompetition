@@ -1,0 +1,125 @@
+--- a/AI_accounting_agent/frontend/liquid-glass/app.js
++++ b/AI_accounting_agent/frontend/liquid-glass/app.js
+@@ -1,4 +1,4 @@
+-import {createPrimaryPages} from './primary-pages.js';
++import {createPrimaryPages,billDescription,billDescriptionForSave} from './primary-pages.js';
+ import {createFeatures} from './features.js';
+ import {createNavigation,parseRoute,routes,primaryTabs} from './navigation.js';
+ import {createJourney} from './journey.js';
+@@ -116,16 +116,18 @@
+  if(explicit){const year=explicit[1]||selected.start_date.slice(0,4),month=Number(explicit[2]);return {start_date:`${year}-${String(month).padStart(2,'0')}-01`,end_date:dateISO(new Date(Number(year),month,0))};}
+  return selected;
+ }
++let editingBill;
+ function editBill(id){
+  const b=state.bills.find(x=>x.id===Number(id));if(!b)return;
++ editingBill={...b};
+  const opts=type=>(type==='income'?incomeCategories:expenseCategories).map(c=>`<option ${b.category===c?'selected':''}>${esc(c)}</option>`).join('');
+- modal('编辑账单',`<form id="bill-edit-form" data-id="${b.id}" data-version="${esc(b.version)}"><label class="field-label" for="edit-amount">金额（元）</label><input class="field" id="edit-amount" name="amount" type="number" min="0.01" step="0.01" max="999999999" required value="${b.amount}"><label class="field-label" for="edit-type">收支</label><select class="field" id="edit-type" name="type"><option value="expense" ${b.type==='expense'?'selected':''}>支出</option><option value="income" ${b.type==='income'?'selected':''}>收入</option></select><label class="field-label" for="edit-category">分类</label><select class="field" id="edit-category" name="category">${opts(b.type)}</select><label class="field-label" for="edit-date">日期</label><input class="field" id="edit-date" name="event_date" type="date" required value="${esc(b.event_date)}"><label class="field-label" for="edit-description">描述</label><input class="field" id="edit-description" name="description" maxlength="512" required value="${esc(b.description)}"><label class="field-label" for="edit-payment">支付方式</label><input class="field" id="edit-payment" name="payment_method" maxlength="40" value="${esc(b.metadata?.payment_method||'')}"><p class="field-feedback" role="alert"></p><div class="actions">${btn('取消','close-sheet','','type="button"')}<button type="submit" class="btn primary">保存修改</button></div></form>`);
++ modal('编辑账单',`<form id="bill-edit-form" data-id="${b.id}" data-version="${esc(b.version)}"><label class="field-label" for="edit-amount">金额（元）</label><input class="field" id="edit-amount" name="amount" type="number" min="0.01" step="0.01" max="999999999" required value="${b.amount}"><label class="field-label" for="edit-type">收支</label><select class="field" id="edit-type" name="type"><option value="expense" ${b.type==='expense'?'selected':''}>支出</option><option value="income" ${b.type==='income'?'selected':''}>收入</option></select><label class="field-label" for="edit-category">分类</label><select class="field" id="edit-category" name="category">${opts(b.type)}</select><label class="field-label" for="edit-date">日期</label><input class="field" id="edit-date" name="event_date" type="date" required value="${esc(b.event_date)}"><label class="field-label" for="edit-description">描述</label><input class="field" id="edit-description" name="description" maxlength="512" required value="${esc(billDescription(b))}"><label class="field-label" for="edit-payment">支付方式</label><input class="field" id="edit-payment" name="payment_method" maxlength="40" value="${esc(b.metadata?.payment_method||'')}"><p class="field-feedback" role="alert"></p><div class="actions">${btn('取消','close-sheet','','type="button"')}<button type="submit" class="btn primary">保存修改</button></div></form>`);
+ }
+ document.addEventListener('change',e=>{if(e.target.id==='edit-type')$('#edit-category').innerHTML=(e.target.value==='income'?incomeCategories:expenseCategories).map(c=>`<option>${esc(c)}</option>`).join('');});
+ document.addEventListener('submit',async e=>{
+  const form=e.target;if(form.id!=='bill-edit-form')return;e.preventDefault();
+  const button=form.querySelector('[type="submit"]');if(button.disabled)return;button.disabled=true;
+- try{const data=Object.fromEntries(new FormData(form));const result=await book('/bills/'+form.dataset.id,{method:'PUT',body:{...data,amount:Number(data.amount),currency:'CNY',expected_version:form.dataset.version}});ledgerContextPromise=null;closeSheet();await render();toast('账单已更新');}
++ try{const data=Object.fromEntries(new FormData(form));data.description=billDescriptionForSave(editingBill,data.description);const result=await book('/bills/'+form.dataset.id,{method:'PUT',body:{...data,amount:Number(data.amount),currency:'CNY',expected_version:form.dataset.version}});ledgerContextPromise=null;closeSheet();await render();toast('账单已更新');}
+  catch(error){form.querySelector('[role="alert"]').textContent=error.message;}
+  finally{if(button.isConnected)button.disabled=false;}
+ });
+--- a/AI_accounting_agent/frontend/liquid-glass/primary-pages.js
++++ b/AI_accounting_agent/frontend/liquid-glass/primary-pages.js
+@@ -9,6 +9,10 @@
+ export function billDescription(bill) {
+   const text=String(bill.description || bill.category || '收支记录');
+   return /^synthetic/.test(bill.source || '') ? text.replace(/\s*[·•]\s*(虚构演示|示例|模拟数据|合成数据|模拟|合成)$/u,'') : text;
++}
++export function billDescriptionForSave(bill,value) {
++  // Presentation cleanup must never become an implicit edit to the stored record.
++  return value===billDescription(bill) ? bill.description : value;
+ }
+ export function filterBills(rows,query) {
+   const q=query.trim().toLocaleLowerCase();
+@@ -89,8 +93,8 @@
+   function billModal(id) {
+     const bill=state.bills.find(b=>String(b.id)===String(id));
+     if(!bill)return;
+-    const source=/^synthetic/.test(bill.source||'')?'比赛样本账本':bill.source==='manual'?'手工录入':bill.source||'账本记录';
+-    modal('账单详情',`<p class="hero-amount center money">${bill.type==='income'?'+':'−'}${money(bill.amount,bill.currency)}</p><h3 class="break">${esc(billDescription(bill))}</h3><p class="primary-copy">${esc(bill.event_date)} · ${esc(bill.category)} · ${!isCashflow(bill)?'划转':bill.type==='income'?'收入':'支出'}</p><p class="primary-copy">${esc(bill.metadata?.payment_method||'未填写支付方式')}</p><div class="actions">${btn('编辑分类与明细','edit-bill','primary',`data-id="${bill.id}"`)}${btn('返回账本','close-sheet')}</div><details class="primary-details"><summary>记录信息</summary><p>记录 #${esc(bill.id)} · 来源：${esc(source)}</p><p class="break">原始描述：${esc(bill.description)}</p>${btn('删除账单','delete-prompt','danger small',`data-id="${bill.id}"`)}</details>`);
++    const source=/^synthetic/.test(bill.source||'')?'':bill.source==='manual'?'手工录入':bill.source||'账本记录';
++    modal('账单详情',`<p class="hero-amount center money">${bill.type==='income'?'+':'−'}${money(bill.amount,bill.currency)}</p><h3 class="break">${esc(billDescription(bill))}</h3><p class="primary-copy">${esc(bill.event_date)} · ${esc(bill.category)} · ${!isCashflow(bill)?'划转':bill.type==='income'?'收入':'支出'}</p><p class="primary-copy">${esc(bill.metadata?.payment_method||'未填写支付方式')}</p><div class="actions">${btn('编辑分类与明细','edit-bill','primary',`data-id="${bill.id}"`)}${btn('返回账本','close-sheet')}</div><details class="primary-details"><summary>记录信息</summary><p>记录 #${esc(bill.id)}${source?' · 来源：'+esc(source):''}</p>${btn('删除账单','delete-prompt','danger small',`data-id="${bill.id}"`)}</details>`);
+   }
+   async function visualizationPage(paint) {
+     const dates=selectedRange(),epoch=state.epoch;
+--- a/tests/primary_pages.test.mjs
++++ b/tests/primary_pages.test.mjs
+@@ -1,6 +1,7 @@
+ import assert from 'node:assert/strict';
+ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+-import {createPrimaryPages,cashflowTotals,filterBills,billDescription,spendingStory,previousRange} from '../AI_accounting_agent/frontend/liquid-glass/primary-pages.js';
++import {runInNewContext} from 'node:vm';
++import {createPrimaryPages,cashflowTotals,filterBills,billDescription,billDescriptionForSave,spendingStory,previousRange} from '../AI_accounting_agent/frontend/liquid-glass/primary-pages.js';
+ 
+ const data=JSON.parse(readFileSync(process.env.FINPILOT_UI_FIXTURE || '.runtime/ui-batch1-evidence/data-fixture.json','utf8'));
+ const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+@@ -30,6 +31,42 @@
+ assert.equal(billDescription({description:'房租 · 虚构演示',source:'synthetic_demo'}),'房租');
+ assert.equal(billDescription({description:'手工 · 示例',source:'manual'}),'手工 · 示例');
+ check('真实隔离 API 账本与汇总金额一致，内部划转和本金排除；上期为明确的等长区间。');
++
++{
++  const record={...data.rows.find(row=>row.category==='餐饮'),description:'午餐 · 虚构演示',source:'synthetic_demo',version:1};
++  const before=structuredClone(record),f=fixture({rows:[record]});f.state.route='ledger';
++  await f.app.pages.ledger(f.paint);f.app.actions['primary-bill']({dataset:{id:record.id}});
++  assert.match(f.dialog.body,/>午餐<\/h3>/);
++  assert.doesNotMatch(f.html+f.dialog.body,/虚构演示|比赛样本|原始描述|银行来源/);
++  const appSource=readFileSync('AI_accounting_agent/frontend/liquid-glass/app.js','utf8');
++  const start=appSource.indexOf('let editingBill;'),end=appSource.indexOf('function stockLink',start);
++  assert.ok(start>=0 && end>start);
++  const handlers={},writes=[],feedback={textContent:''},button={disabled:false,isConnected:true};
++  const form={id:'bill-edit-form',dataset:{id:String(record.id),version:'1'},values:{amount:String(record.amount),type:'expense',category:'其他',event_date:record.event_date,description:'午餐',payment_method:'微信支付'},querySelector:selector=>selector==='[type="submit"]'?button:feedback};
++  const editor={state:f.state,expenseCategories:['餐饮','其他'],incomeCategories:['工资'],esc:escape,btn:f.ctx.btn,modal:f.ctx.modal,billDescription,billDescriptionForSave,document:{addEventListener:(type,handler)=>{handlers[type]=handler;}},FormData:class {constructor(target){this.values=target.values;}*[Symbol.iterator](){yield* Object.entries(this.values);}},book:async(path,options)=>{writes.push({path,options});return {};},closeSheet:()=>{},render:async()=>{},toast:()=>{},$:()=>null,ledgerContextPromise:null};
++  runInNewContext(appSource.slice(start,end)+`\neditBill(${record.id});`,editor);
++  assert.match(f.dialog.body,/id="edit-description"[^>]*value="午餐"/);
++  assert.doesNotMatch(f.dialog.body,/虚构演示/);
++  assert.equal(writes.length,0,'opening detail/edit must not write the record');
++  await handlers.submit({target:form,preventDefault(){}});
++  assert.equal(feedback.textContent,'');
++  assert.equal(writes[0].options.body.description,record.description,'classification-only save retains the exact original description');
++  assert.equal(writes[0].options.body.category,'其他');
++  assert.equal(writes[0].options.body.expected_version,'1');
++  assert.ok(!('source' in writes[0].options.body),'editing must not invent a new source');
++  form.values.description='同事午餐';await handlers.submit({target:form,preventDefault(){}});
++  assert.equal(writes[1].options.body.description,'同事午餐','an explicit description change is saved as entered');
++  assert.deepEqual(record,before,'view formatting never mutates the record');
++  for(const source of ['manual','csv_import','syntheticSomethingElse']) {
++    const input={...record,source,description:'午餐示例 · 续记'};
++    assert.equal(billDescription(input),input.description);
++    assert.equal(billDescriptionForSave(input,input.description),input.description);
++  }
++  const manual={...record,source:'manual',description:'午餐 · 示例'};
++  assert.equal(billDescription(manual),manual.description);
++  assert.equal(billDescriptionForSave(manual,manual.description),manual.description);
++  check('样本记录列表、详情与真实编辑表单统一展示；只改分类保留原文，明确改写才提交新值，普通用户描述不截断且不伪造来源。');
++}
+ 
+ {
+   const f=fixture();await f.app.pages.home(f.paint);
+--- a/BATCH1-HANDOFF.md
++++ b/BATCH1-HANDOFF.md
+@@ -23,7 +23,7 @@
+ 
+ 账单详情是原生 dialog，关闭不重新加载列表，搜索、筛选与区间保留。清除搜索/分类时保留钻取日期；“按月查看”才退出自定义区间。现有导航仍负责返回、滚动及前进后退。
+ 
+-三页不展示反复的模拟/合成标签。对已知 synthetic 来源的种子描述，仅在展示时去掉末尾“· 示例/虚构演示”等后缀；原记录不改，来源及原始描述可在账单详情“记录信息”查看。没有宣称外部银行已连接、资金到账或获得第三方认证；比赛技术说明和账户页未改。
++三页及其账单详情、编辑框不展示反复的模拟/合成标签。对 synthetic 来源且匹配已知末尾标记的描述，仅做展示格式化；详情不显示开发来源标签或原始标记文本，不替换为银行来源。编辑时未改展示描述则提交原始 description；用户明确改写才提交新值。手工记录及普通正文不做全局替换。没有宣称外部银行已连接、资金到账或获得第三方认证；比赛技术说明和账户页未改。
+ 
+ ## 数据口径与可核验验证
+ 
+@@ -59,4 +59,6 @@
+ 
+ 测试：新增 `tests/test_primary_pages_data.py` 与 `tests/primary_pages.test.mjs`。补丁见 `review/batch1.patch`。没有修改后端、其他页面实现、权限、网络配置、凭证、运行账本或 GitHub。
+ 
++2026-10-18 小补丁补齐上述详情/编辑一致性，并在原页面回归中新增一组用例：验证实际编辑表单/提交代码在只改分类时保留原文、明确改写才保存新文字、正常用户描述不截断、不伪造来源。两份源码语法检查及更新后的 10 组页面检查通过；增量说明见 `DESCRIPTION-FIX.md`，日志见 `review/description-fix/`。本批原有 5 项隔离 API 和其他既有回归的结果未变，未无故重跑或增加审计。
++
+ 独立审核请先看三页职责/首屏，再分别核对交互与数据；截图仅作外观证据。若继续迭代，本批内修正即可，第二批仍待负责人安排。

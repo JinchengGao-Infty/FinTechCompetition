@@ -1,0 +1,77 @@
+/* Batch one: page responsibilities and responsive spacing, within the existing glass shell. */
+:is(.home-page,.ledger-page,.visualization-page) { min-width:0; }
+#app:is([data-route=home],[data-route=ledger],[data-route=visualization]) .tab-bar a { min-width:0; }
+.primary-workspace { display:grid; gap:16px; min-width:0; }
+.primary-workspace>* { min-width:0; }
+.primary-period,.primary-heading,.primary-secondary,.ledger-selection { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.primary-period>.row { flex-wrap:wrap; }
+.primary-eyebrow { font-size:13px; color:var(--muted); display:block; }
+.primary-dates { font-size:12px; color:var(--muted); margin-top:5px; font-variant-numeric:tabular-nums; }
+.primary-copy { font-size:14px; line-height:1.7; color:var(--muted); margin:10px 0 16px; overflow-wrap:anywhere; }
+.home-status { padding:24px; }
+.home-net { display:block; font-size:clamp(18px,8.5vw,36px); font-weight:600; line-height:1.35; margin:14px 0 22px; letter-spacing:-.04em; overflow-wrap:anywhere; }
+.home-totals { display:flex; flex-wrap:wrap; gap:12px 24px; font-size:12px; color:var(--muted); padding-top:16px; border-top:1px solid #bac9db55; }
+.home-totals span { display:grid; gap:4px; min-width:0; }
+.home-totals strong { font-size:17px; font-weight:500; color:var(--ink); overflow-wrap:anywhere; }
+.home-next h2 { font-size:23px; font-weight:600; line-height:1.45; margin-top:10px; }
+.home-next>.btn,.spending-story>.btn,.primary-empty .btn { width:100%; }
+.primary-secondary { justify-content:center; gap:14px; }
+.primary-secondary .btn { font-weight:500; background:transparent; box-shadow:none; }
+.primary-details { margin-top:14px; color:var(--muted); font-size:12px; line-height:1.8; }
+.primary-details p { margin:8px 0; overflow-wrap:anywhere; }
+.primary-details .btn { margin-top:8px; }
+.primary-empty h2 { margin-bottom:8px; }
+.ledger-workspace { gap:12px; }
+.primary-heading h2 { font-size:18px; font-weight:500; }
+.primary-heading>.btn { padding-inline:16px; }
+.ledger-search { position:relative; display:block; }
+.ledger-search>.icon { position:absolute; left:15px; top:15px; width:20px; z-index:1; color:var(--muted); }
+.ledger-search>.field { padding-left:44px; min-height:52px; }
+.ledger-selection { font-size:12px; color:var(--muted); }
+.ledger-result { display:flex; justify-content:space-between; gap:4px 12px; flex-wrap:wrap; font-size:12px; color:var(--muted); padding:3px 1px 9px; }
+.ledger-day { margin-bottom:20px; }
+.ledger-day h2 { font-size:12px; font-weight:500; color:var(--muted); margin-bottom:8px; }
+.ledger-workspace .bill-row { gap:12px; }
+.ledger-workspace .bill-row strong { overflow-wrap:anywhere; font-size:14px; font-weight:500; }
+.ledger-workspace .bill-row small { margin-top:5px; overflow-wrap:anywhere; }
+.ledger-workspace .bill-row .amount { font-size:15px; }
+.spending-story h2 { font-size:23px; line-height:1.45; margin-top:8px; }
+.story-value { font-size:clamp(18px,8vw,32px); font-weight:600; display:block; margin:6px 0; line-height:1.4; overflow-wrap:anywhere; }
+.primary-data>div { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #bac9db55; }
+.primary-data>div>span:last-child { text-align:right; overflow-wrap:anywhere; }
+.primary-workspace .analytics-card-heading { flex-wrap:wrap; }
+.primary-workspace .analytics-card-heading h2 { white-space:normal; }
+.primary-workspace .chart-toolbar { flex-wrap:wrap; }
+.primary-workspace .cashflow-chart { overflow:hidden; }
+.primary-workspace .donut-layout { min-width:0; }
+.primary-workspace .donut-chart { max-width:100%; height:auto; }
+.primary-workspace .donut-legend-row { flex-wrap:wrap; }
+.primary-workspace .legend-name { min-width:0; overflow-wrap:anywhere; }
+.primary-workspace :is(button,input,select,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.primary-workspace .surface-card { animation:primary-enter .2s ease-out both; }
+@keyframes primary-enter { from { opacity:.5; transform:translateY(5px); } to { opacity:1; transform:none; } }
+@media(max-width:320px) {
+  #app:is([data-route=home],[data-route=ledger],[data-route=visualization]) .topbar-inner { height:auto; min-height:64px; flex-wrap:wrap; padding-block:8px; }
+  #app:is([data-route=home],[data-route=ledger],[data-route=visualization]) .topbar-title { flex:1; }
+  .primary-workspace .surface-card { padding:16px; }
+  .primary-workspace .primary-heading { align-items:flex-start; }
+  .primary-workspace .bill-row { flex-wrap:wrap; }
+  .primary-workspace .bill-row .grow { flex-basis:100%; }
+  .primary-workspace .bill-row .amount { white-space:normal; overflow-wrap:anywhere; }
+  .primary-workspace .comparison-measure { grid-template-columns:minmax(0,1fr); gap:4px; }
+  .primary-workspace .comparison-heading { flex-wrap:wrap; }
+  .primary-workspace .date-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:260px) {
+  #app:is([data-route=ledger],[data-route=visualization]) .topbar-inner { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; }
+  #app:is([data-route=ledger],[data-route=visualization]) .topbar-title { flex-wrap:wrap; }
+  #app:is([data-route=ledger],[data-route=visualization]) .topbar-title h1 { white-space:normal; overflow:visible; text-overflow:clip; }
+  #app:is([data-route=ledger],[data-route=visualization]) .topbar-actions { justify-content:flex-end; flex-wrap:wrap; }
+  #app:is([data-route=home],[data-route=ledger],[data-route=visualization]) .tab-bar { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-radius:22px; }
+  #app:is([data-route=home],[data-route=ledger],[data-route=visualization]) .tab-bar a { min-height:50px; min-width:0; }
+  :is(.home-page,.ledger-page,.visualization-page) { padding-bottom:160px; }
+  .primary-workspace .segmented { flex-wrap:wrap; border-radius:20px; }
+  .primary-workspace .segmented button { flex:1 1 40%; }
+}
+@media(prefers-reduced-motion:reduce) { .primary-workspace .surface-card { animation:none; } }
+[data-reduce-motion=true] .primary-workspace .surface-card { animation:none; }

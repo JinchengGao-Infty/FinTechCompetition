@@ -1,0 +1,992 @@
+{
+  "generated_at_utc": "2026-10-24T17:24:04.766836+00:00",
+  "expected_last_session": "2026-10-23",
+  "purpose": "Public research data; demonstration holdings are separate simulated records.",
+  "stocks": [
+    {
+      "symbol": "600036",
+      "name": "招商银行",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:23:59.178141+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 33 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "招商银行2026年中报点评：财富管理带动中收提速，息差降幅收窄",
+          "publisher": "太平洋",
+          "published_at": "2026-09-28 00:00:00.000",
+          "info_code": "AP202609281829964281",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.513724+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609281829964281_1.pdf",
+          "local_file": "600036/research-latest.pdf",
+          "sha256": "7a92e7766a9c65ca345f422a110b2f37f7b9fce9924856ca4ba6244c83cf538f",
+          "download_status": "ok",
+          "pdf_pages": 5,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "600036"
+        },
+        {
+          "type": "broker_research",
+          "title": "公司简评报告：息差边际趋稳，财富管理修复延续",
+          "publisher": "东海证券",
+          "published_at": "2026-09-02 00:00:00.000",
+          "info_code": "AP202609021828933539",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.513724+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828933539_1.pdf"
+        },
+        {
+          "type": "broker_research",
+          "title": "点评报告：营收和利润增速持续改善",
+          "publisher": "万联证券",
+          "published_at": "2026-08-31 00:00:00.000",
+          "info_code": "AP202608311828821668",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.513724+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608311828821668_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600036,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 41.7,
+        "high": 42.38,
+        "low": 41.42,
+        "close": 41.77,
+        "volume_lots": 1232174.0,
+        "volume": 123217400
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=600036&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "招商银行2026年半年度报告",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-28/1225531453.PDF",
+          "retrieved_at_utc": "2026-10-24T17:25:55.173809+00:00",
+          "download_status": "ok",
+          "local_file": "600036/company-disclosure.pdf",
+          "sha256": "0194f5122575ee8576dbce941fcc10fb171e0cd17c627dd63330da952c52b57c",
+          "stock_identity_verified": true,
+          "pdf_pages": 247,
+          "document_form": "full_report_pdf"
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600036.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:57.716361+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 41.7,
+          "high": 42.38,
+          "low": 41.42,
+          "close": 41.77,
+          "volume": 123217367
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": 33
+      }
+    },
+    {
+      "symbol": "600519",
+      "name": "贵州茅台",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:23:59.180145+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 7 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "贵州茅台公司跟踪报告：以动销定投放，缓解市场压力，低速稳态发展",
+          "publisher": "诚通证券",
+          "published_at": "2026-09-21 00:00:00.000",
+          "info_code": "AP202609211829719676",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.193259+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609211829719676_1.pdf",
+          "local_file": "600519/research-latest.pdf",
+          "sha256": "8db286454e4d953e69f1d476ff5dc4647e598097f60d68fce754a996942709e2",
+          "download_status": "ok",
+          "pdf_pages": 15,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "600519"
+        },
+        {
+          "type": "broker_research",
+          "title": "2026年中报点评：茅台酒稳健，系列酒主动调整",
+          "publisher": "西南证券",
+          "published_at": "2026-08-21 00:00:00.000",
+          "info_code": "AP202608211828244348",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.193259+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608211828244348_1.pdf"
+        },
+        {
+          "type": "broker_research",
+          "title": "市场化改革带来短期业绩阵痛，公司改革成效显著，基本面仍具韧性",
+          "publisher": "中银证券",
+          "published_at": "2026-08-21 00:00:00.000",
+          "info_code": "AP202608211828236036",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.193259+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608211828236036_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600519,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 1311.84,
+        "high": 1343.88,
+        "low": 1310.0,
+        "close": 1335.0,
+        "volume_lots": 57686.0,
+        "volume": 5768600
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "贵州茅台2026年半年度报告",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225475868.PDF",
+          "retrieved_at_utc": "2026-10-24T17:25:55.139774+00:00",
+          "download_status": "ok",
+          "local_file": "600519/company-disclosure.pdf",
+          "sha256": "0e10aa26be46b1cf3cd03f06e834c7fb98d5dd0d661b96f8fddd4af7e846a4f6",
+          "stock_identity_verified": true,
+          "pdf_pages": 110,
+          "document_form": "full_report_pdf"
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600519.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:56.638396+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 1311.84,
+          "high": 1343.88,
+          "low": 1310.0,
+          "close": 1335.0,
+          "volume": 5768593
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": 7
+      }
+    },
+    {
+      "symbol": "600900",
+      "name": "长江电力",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:23:59.181146+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 13 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "2026年半年报点评：水电发电量创新高，分红增持红利价值彰显",
+          "publisher": "东吴证券",
+          "published_at": "2026-09-02 00:00:00.000",
+          "info_code": "AP202609021828925821",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600900&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.191742+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828925821_1.pdf",
+          "local_file": "600900/research-latest.pdf",
+          "sha256": "014d0fb54fa0018c73c460de6b9ca3644b7a1bfdc1e324c08b483cbc95af1e5e",
+          "download_status": "ok",
+          "pdf_pages": 3,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "600900"
+        },
+        {
+          "type": "broker_research",
+          "title": "主汛期来水改善，增持分红强化价值",
+          "publisher": "国金证券",
+          "published_at": "2026-08-30 00:00:00.000",
+          "info_code": "AP202608301828731421",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600900&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.191742+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608301828731421_1.pdf"
+        },
+        {
+          "type": "broker_research",
+          "title": "公司首次覆盖报告：水电龙头资产稀缺，低利率环境配置价值凸显",
+          "publisher": "开源证券",
+          "published_at": "2026-07-07 00:00:00.000",
+          "info_code": "AP202607071826771668",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=600900&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.191742+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202607071826771668_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600900,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 29.7,
+        "high": 29.99,
+        "low": 29.33,
+        "close": 29.45,
+        "volume_lots": 1799152.0,
+        "volume": 179915200
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=600900&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "长江电力2026年半年度报告",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-31/1225534923.PDF",
+          "retrieved_at_utc": "2026-10-24T17:25:55.172804+00:00",
+          "download_status": "ok",
+          "local_file": "600900/company-disclosure.pdf",
+          "sha256": "738de3b36a31646f344cefaf90b4f149d653c3f68e89f4f8d14bdf02fc9c65a2",
+          "stock_identity_verified": true,
+          "pdf_pages": 214,
+          "document_form": "full_report_pdf"
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600900.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:56.426014+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 29.7,
+          "high": 29.99,
+          "low": 29.33,
+          "close": 29.45,
+          "volume": 179915187
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": 13
+      }
+    },
+    {
+      "symbol": "601088",
+      "name": "中国神华",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:23:59.182142+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -41 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "公司深度报告：煤炭航母并购加码，盈利向上高股息红利龙头",
+          "publisher": "开源证券",
+          "published_at": "2026-09-23 00:00:00.000",
+          "info_code": "AP202609231829780296",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601088&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.030666+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609231829780296_1.pdf",
+          "local_file": "601088/research-latest.pdf",
+          "sha256": "d1353bcb2f4277e63e0979a3d18d86d953d45e1318e5e8d246b947388d792c35",
+          "download_status": "ok",
+          "pdf_pages": 27,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601088"
+        },
+        {
+          "type": "broker_research",
+          "title": "公司信息更新报告：资产注入规模增长，业绩兑现高分红彰显投资价值",
+          "publisher": "开源证券",
+          "published_at": "2026-08-31 00:00:00.000",
+          "info_code": "AP202608311828809448",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601088&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.030666+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608311828809448_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601088,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 49.07,
+        "high": 50.28,
+        "low": 49.0,
+        "close": 50.2,
+        "volume_lots": 419866.0,
+        "volume": 41986600
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601088&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "中国神华2026年半年度报告",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-29/1225531759.PDF",
+          "retrieved_at_utc": "2026-10-24T17:25:55.363400+00:00",
+          "download_status": "ok",
+          "local_file": "601088/company-disclosure.pdf",
+          "sha256": "ff4a670c7aa9e0309dc610a0e225d490970731dcc14eda234d73bb8c9b9b54f4",
+          "stock_identity_verified": true,
+          "pdf_pages": 230,
+          "document_form": "full_report_pdf"
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601088.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:57.079687+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 49.07,
+          "high": 50.28,
+          "low": 49.0,
+          "close": 50.2,
+          "volume": 41986641
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": -41
+      }
+    },
+    {
+      "symbol": "601138",
+      "name": "工业富联",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:23:59.183145+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -13 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "AI服务器、交换机高速增长",
+          "publisher": "中邮证券",
+          "published_at": "2026-09-21 00:00:00.000",
+          "info_code": "AP202609211829703958",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.673501+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609211829703958_1.pdf",
+          "local_file": "601138/research-latest.pdf",
+          "sha256": "d5f2b989e0493c0abd5dc0e849ecd0bee7f84c781ada1803b73681c858543054",
+          "download_status": "ok",
+          "pdf_pages": 4,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601138"
+        },
+        {
+          "type": "broker_research",
+          "title": "上半年净利润同比近翻倍，AI服务器与高速交换机持续高增",
+          "publisher": "国信证券",
+          "published_at": "2026-08-17 00:00:00.000",
+          "info_code": "AP202608171828040477",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.673501+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608171828040477_1.pdf"
+        },
+        {
+          "type": "broker_research",
+          "title": "AI服务器及高速交换机持续高增，盈利能力改善",
+          "publisher": "山西证券",
+          "published_at": "2026-08-17 00:00:00.000",
+          "info_code": "AP202608171828039084",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:01.673501+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608171828039084_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601138,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 47.0,
+        "high": 49.1,
+        "low": 45.55,
+        "close": 48.85,
+        "volume_lots": 1058205.0,
+        "volume": 105820500
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601138&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "工业富联2026年半年度报告",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-12/1225468066.PDF",
+          "retrieved_at_utc": "2026-10-24T17:25:55.364908+00:00",
+          "download_status": "ok",
+          "local_file": "601138/company-disclosure.pdf",
+          "sha256": "34d02741f6651eba443de0b3ec16562a43d22b31c12d548e4f17004ed618ba2d",
+          "stock_identity_verified": true,
+          "pdf_pages": 221,
+          "document_form": "full_report_pdf"
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601138.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:56.865902+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 47.0,
+          "high": 49.1,
+          "low": 45.55,
+          "close": 48.85,
+          "volume": 105820513
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": -13
+      }
+    },
+    {
+      "symbol": "601288",
+      "name": "农业银行",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:24:02.050618+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 31 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "农业银行2026年中报点评：非息收入拉动营收提速，县域贷款增速领先",
+          "publisher": "太平洋",
+          "published_at": "2026-09-21 00:00:00.000",
+          "info_code": "AP202609211829729594",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601288&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.346135+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609211829729594_1.pdf",
+          "local_file": "601288/research-latest.pdf",
+          "sha256": "135c9e5491c11f344a9f33a8bff0eeda6378edff7a1c612a7d0f00efe4229783",
+          "download_status": "ok",
+          "pdf_pages": 5,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601288"
+        },
+        {
+          "type": "broker_research",
+          "title": "资产增速回落，净息差企稳",
+          "publisher": "国信证券",
+          "published_at": "2026-09-02 00:00:00.000",
+          "info_code": "AP202609021828909996",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601288&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.346135+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828909996_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601288,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 7.33,
+        "high": 7.42,
+        "low": 7.11,
+        "close": 7.19,
+        "volume_lots": 5904283.0,
+        "volume": 590428300
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601288&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "农业银行2026年半年度报告",
+          "url": "https://www.abchina.com/cn/aboutabc/investor_relations/report/mm/202608/t20260828_2658912.htm",
+          "retrieved_at_utc": "2026-10-24T17:25:57.325101+00:00",
+          "download_status": "ok",
+          "local_file": "601288/company-disclosure.html",
+          "sha256": "0f90c384bc6ffa06518c835a43adf04e72ed9c5dd9d88fd25414f99a80b9ab18",
+          "stock_identity_verified": true,
+          "document_form": "official_landing_page"
+        },
+        {
+          "type": "company_disclosure",
+          "title": "农业银行2026年半年度报告（A股）",
+          "url": "https://www.abchina.com/cn/aboutabc/investor_relations/report/mm/202608/P020260924668950211207.pdf",
+          "retrieved_at_utc": "2026-10-24T17:27:12.396805+00:00",
+          "document_form": "full_report_pdf",
+          "download_status": "ok",
+          "local_file": "601288/company-verified.pdf",
+          "sha256": "d94e1793dfe065828107b8671a03eaaa3f57a7dce0a6ceb0cce6f96fe95ca1d5",
+          "stock_identity_verified": true,
+          "pdf_pages": 232
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601288.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:58.289288+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 7.33,
+          "high": 7.42,
+          "low": 7.11,
+          "close": 7.19,
+          "volume": 590428269
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": 31
+      }
+    },
+    {
+      "symbol": "601398",
+      "name": "工商银行",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:24:02.218084+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -27 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "consulting_research",
+          "title": "工商银行深度研究报告：全球资产规模最大商业银行，盈利稳健质量夯实，数智化转型重塑增长动能",
+          "publisher": "北京智研科信咨询",
+          "published_at": "2026-10-07 00:00:00.000",
+          "info_code": "AP202610061830166264",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601398&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.361803+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202610061830166264_1.pdf",
+          "local_file": "601398/research-latest.pdf",
+          "sha256": "15441630466cb7a7840135a3219a6d4ff6eca7ae3e28b37b1aef99097796de43",
+          "download_status": "ok",
+          "pdf_pages": 21,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601398"
+        },
+        {
+          "type": "broker_research",
+          "title": "工商银行2026年中报点评：信贷投放稳步扩容，中期分红比例提升",
+          "publisher": "太平洋",
+          "published_at": "2026-09-16 00:00:00.000",
+          "info_code": "AP202609161829466204",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601398&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.361803+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609161829466204_1.pdf",
+          "local_file": "601398/broker-research.pdf",
+          "download_status": "ok",
+          "sha256": "9e1053dac9c9ccee540e8a68e81b547bed0f9b526c80a679bbe6ae4faec04e80",
+          "pdf_pages": 5,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601398"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601398,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 8.6,
+        "high": 8.64,
+        "low": 8.27,
+        "close": 8.32,
+        "volume_lots": 6903334.0,
+        "volume": 690333400
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601398&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "工商银行2026年半年度报告",
+          "url": "https://www.icbc-ltd.com/page/1266821007844429824.html",
+          "retrieved_at_utc": "2026-10-24T17:25:58.928567+00:00",
+          "download_status": "ok",
+          "local_file": "601398/company-disclosure.html",
+          "sha256": "2dfe9f094b10d07acf0c161f6b8fd92121a9fbaeda85b1497ea24cd2dfd963b7",
+          "stock_identity_verified": true,
+          "document_form": "official_landing_page"
+        },
+        {
+          "type": "company_disclosure",
+          "title": "工商银行2026年半年度报告（A股）",
+          "url": "https://v.icbc.com.cn/userfiles/resources/icbcltd/download/2026/InterimReportA20260924.pdf",
+          "retrieved_at_utc": "2026-10-24T17:27:12.398616+00:00",
+          "document_form": "full_report_pdf",
+          "download_status": "ok",
+          "local_file": "601398/company-verified.pdf",
+          "sha256": "5e46724bf1e57c6c671350e4a4786e487f3c4f3f61c4b2a08e6e32afa861d4f1",
+          "stock_identity_verified": true,
+          "pdf_pages": 207
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601398.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:59.523032+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 8.6,
+          "high": 8.64,
+          "low": 8.27,
+          "close": 8.32,
+          "volume": 690333427
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": -27
+      }
+    },
+    {
+      "symbol": "601628",
+      "name": "中国人寿",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:24:02.383217+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 32 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "中报点评：投资收益靓丽，价值增长强劲",
+          "publisher": "国信证券",
+          "published_at": "2026-08-28 00:00:00.000",
+          "info_code": "AP202608281828623910",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.660314+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608281828623910_1.pdf",
+          "local_file": "601628/research-latest.pdf",
+          "sha256": "b4a66bb3bb885a7eff6608f2ba8b9bfee662c6b31b40f8d8991fb2f58051eea0",
+          "download_status": "ok",
+          "pdf_pages": 5,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601628"
+        },
+        {
+          "type": "broker_research",
+          "title": "中国人寿2026年中报点评：业绩和NBV表现优异，高股息资产增配明显",
+          "publisher": "开源证券",
+          "published_at": "2026-08-28 00:00:00.000",
+          "info_code": "AP202608281828618305",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.660314+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608281828618305_1.pdf"
+        },
+        {
+          "type": "broker_research",
+          "title": "2026年中报点评：归母净利润与NBV增速领先，资负两端表现均亮眼",
+          "publisher": "东吴证券",
+          "published_at": "2026-08-28 00:00:00.000",
+          "info_code": "AP202608281828565665",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:03.660314+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608281828565665_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601628,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 33.86,
+        "high": 34.5,
+        "low": 33.15,
+        "close": 34.5,
+        "volume_lots": 252075.0,
+        "volume": 25207500
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "中国人寿2026年半年度报告",
+          "url": "https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-08-28/601628_20260828_WB6O.pdf",
+          "retrieved_at_utc": "2026-10-24T17:25:57.907372+00:00",
+          "download_status": "invalid_response",
+          "local_file": "601628/company-disclosure.html",
+          "sha256": "8fa9ac256431f98228811eda43d6fd4ac97d0d01e889c3e2123cf6d4bcc2f0b5",
+          "stock_identity_verified": false,
+          "document_form": "official_landing_page",
+          "error": "Server returned HTML rather than requested company PDF; not a verified disclosure."
+        },
+        {
+          "type": "company_disclosure",
+          "title": "中国人寿2026年半年度报告摘要",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-27/1225519054.PDF",
+          "retrieved_at_utc": "2026-10-24T17:27:12.399629+00:00",
+          "document_form": "report_summary_pdf",
+          "download_status": "ok",
+          "local_file": "601628/company-verified.pdf",
+          "sha256": "27040c54917be20487f89941691d222c1713b5933ac6086b3d8d6c7b3c06e632",
+          "stock_identity_verified": true,
+          "pdf_pages": 21
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601628.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:58.640258+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 33.86,
+          "high": 34.5,
+          "low": 33.15,
+          "close": 34.5,
+          "volume": 25207468
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": 32
+      }
+    },
+    {
+      "symbol": "601857",
+      "name": "中国石油",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:24:02.541688+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 19 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "各板块利润同比增长，经营业绩创同期新高",
+          "publisher": "中银证券",
+          "published_at": "2026-09-03 00:00:00.000",
+          "info_code": "AP202609031828977081",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:04.289142+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609031828977081_1.pdf",
+          "local_file": "601857/research-latest.pdf",
+          "sha256": "5c4d6fa74fba7586d352acefeb09292150852f5185ae919dca0e4bf4f48c8f43",
+          "download_status": "ok",
+          "pdf_pages": 6,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601857"
+        },
+        {
+          "type": "broker_research",
+          "title": "上游业务利润同环比高增，第二季度归母净利润556亿",
+          "publisher": "国信证券",
+          "published_at": "2026-09-02 00:00:00.000",
+          "info_code": "AP202609021828916120",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:04.289142+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828916120_1.pdf"
+        },
+        {
+          "type": "broker_research",
+          "title": "全产业链盈利改善，上半年业绩创历史同期新高",
+          "publisher": "信达证券",
+          "published_at": "2026-09-01 00:00:00.000",
+          "info_code": "AP202609011828877133",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:04.289142+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202609011828877133_1.pdf"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601857,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 12.58,
+        "high": 12.93,
+        "low": 12.49,
+        "close": 12.75,
+        "volume_lots": 1834282.0,
+        "volume": 183428200
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "中国石油2026年半年度报告",
+          "url": "https://static.cninfo.com.cn/finalpage/2026-08-31/1225535179.PDF",
+          "retrieved_at_utc": "2026-10-24T17:25:58.039277+00:00",
+          "download_status": "ok",
+          "local_file": "601857/company-disclosure.pdf",
+          "sha256": "05e2f4240beebde9bb29acd8a0d39e4db3e8c474cc7727bdbe7c244177871aa1",
+          "stock_identity_verified": true,
+          "pdf_pages": 169,
+          "document_form": "full_report_pdf"
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601857.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:59.848858+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 12.58,
+          "high": 12.93,
+          "low": 12.49,
+          "close": 12.75,
+          "volume": 183428181
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": 19
+      }
+    },
+    {
+      "symbol": "601988",
+      "name": "中国银行",
+      "exchange": "SSE",
+      "retrieved_at_utc": "2026-10-24T17:24:03.026888+00:00",
+      "gaps": [
+        "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -36 shares on latest date."
+      ],
+      "research": [
+        {
+          "type": "broker_research",
+          "title": "2026年半年报点评：业绩提升，资产质量优质",
+          "publisher": "国信证券",
+          "published_at": "2026-08-31 00:00:00.000",
+          "info_code": "AP202608311828756249",
+          "source_url": "https://reportapi.eastmoney.com/report/list?code=601988&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+          "retrieved_at_utc": "2026-10-24T17:24:04.453383+00:00",
+          "url": "https://pdf.dfcfw.com/pdf/H3_AP202608311828756249_1.pdf",
+          "local_file": "601988/research-latest.pdf",
+          "sha256": "e97f549f1f3716cfa7d577f2dc1704cccc66487e3e59c63346a2eef139020b68",
+          "download_status": "ok",
+          "pdf_pages": 4,
+          "stock_identity_verified": true,
+          "verification": "PDF first three pages contain code or company name",
+          "identity_evidence": "601988"
+        }
+      ],
+      "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601988,day,,,250,qfq",
+      "kline_status": "ok",
+      "bars": 250,
+      "first_trade_date": "2025-10-14",
+      "last_trade_date": "2026-10-23",
+      "latest": {
+        "date": "2026-10-23",
+        "open": 7.19,
+        "high": 7.23,
+        "low": 6.88,
+        "close": 6.93,
+        "volume_lots": 5003953.0,
+        "volume": 500395300
+      },
+      "adjustment": "forward-adjusted (qfq)",
+      "units": {
+        "OHLC": "CNY/share",
+        "volume_lots": "100 shares/lot",
+        "volume": "shares"
+      },
+      "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601988&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "disclosures": [
+        {
+          "type": "company_disclosure",
+          "title": "中国银行2026年半年度报告",
+          "url": "https://www.boc.cn/investor/ir3/202608/t20260828_25688316.html",
+          "retrieved_at_utc": "2026-10-24T17:25:58.471783+00:00",
+          "download_status": "ok",
+          "local_file": "601988/company-disclosure.html",
+          "sha256": "08f6835879b3d37c869d4c54dfb75e38d84ab92aac8b98db172556bb4724be1b",
+          "stock_identity_verified": true,
+          "document_form": "official_landing_page"
+        },
+        {
+          "type": "company_disclosure",
+          "title": "中国银行2026年半年度报告（A股）",
+          "url": "https://pic.bankofchina.com/bocappd/report/202608/P020260828605977184329.pdf",
+          "retrieved_at_utc": "2026-10-24T17:27:12.400524+00:00",
+          "document_form": "full_report_pdf",
+          "download_status": "ok",
+          "local_file": "601988/company-verified.pdf",
+          "sha256": "b798a5056ed8ed888e6d8c89e061ab379c872095dd090b4b14b50e4c42f6186d",
+          "stock_identity_verified": true,
+          "pdf_pages": 183
+        }
+      ],
+      "crosscheck": {
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601988.SS?range=5d&interval=1d",
+        "retrieved_at_utc": "2026-10-24T17:25:59.155350+00:00",
+        "status": "ok",
+        "last_trade_date": "2026-10-23",
+        "values": {
+          "open": 7.19,
+          "high": 7.23,
+          "low": 6.88,
+          "close": 6.93,
+          "volume": 500395336
+        },
+        "OHLC_match": true,
+        "volume_difference_shares": -36
+      }
+    }
+  ],
+  "verified_at_utc": "2026-10-24T17:26:00.309583+00:00",
+  "master_verified_sha": "599b6d26cf26f2215946beaf7c60eacd266add10",
+  "master_source_url": "https://api.github.com/repos/gr-peng/FinTechathon/branches/master"
+}

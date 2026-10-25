@@ -1,0 +1,473 @@
+--- a/AI_accounting_agent/frontend/liquid-glass/primary-pages.js
++++ b/AI_accounting_agent/frontend/liquid-glass/primary-pages.js
+@@ -62,7 +62,7 @@
+     const story=spendingStory(report);
+     state.homeRange={...dates};state.homeCategory=story.top?.name||'';
+     const next=story.top?`<span class="primary-eyebrow">下一步</span><h2>看看${esc(story.top.name)}支出</h2><p class="primary-copy">本期最多的一类，共 ${money(story.top.value)}。</p>${primary('查看这类账单 '+icon('next'),'home-review')}`:story.hasCurrent?`<span class="primary-eyebrow">下一步</span><h2>把收支记录完整</h2><p class="primary-copy">本期已有收入，暂未记下支出。</p>${primary('记一笔支出','entry')}`:`<span class="primary-eyebrow">从第一笔开始</span><h2>记录这段时间的收支</h2><p class="primary-copy">记下收入或支出后，就能看到结余与变化。</p>${primary('记第一笔','entry')}`;
+-    paint(`<div class="primary-workspace home-focus">${periodStrip(dates)}${card(`<div class="primary-eyebrow">本期结余 · CNY</div><p class="primary-dates">${esc(datesLabel(dates))}</p><strong class="home-net money">${story.hasCurrent?money(report.net.current):'暂无记录'}</strong>${story.hasCurrent?`<div class="home-totals"><span>收入 <strong>${money(report.summary.income_total)}</strong></span><span>支出 <strong>${money(report.summary.expense_total)}</strong></span></div>`:''}`,'home-status')}${card(next,'home-next')}<div class="primary-secondary">${btn('查看账本','home-ledger','small')}${btn('收支图表','home-charts','small')}</div></div>`);
++    paint(`<div class="primary-workspace home-focus">${periodStrip(dates)}${card(`<div class="primary-eyebrow">本期结余 · CNY</div><p class="primary-dates">${esc(datesLabel(dates))}</p><strong class="home-net money">${story.hasCurrent?money(report.net.current):'暂无记录'}</strong>${story.hasCurrent?`<div class="home-totals"><span>收入 <strong>${money(report.summary.income_total)}</strong></span><span>支出 <strong>${money(report.summary.expense_total)}</strong></span></div>`:''}`,'home-status')}${card(next,'home-next')}<div class="primary-secondary">${btn('查看账本','home-ledger','small')}${btn('收支图表','home-charts','small')}${btn('操作保护','protection-open','small','aria-label="操作保护：查看确认规则与结果查询"')}</div></div>`);
+   }
+   function billRows(rows) {
+     return rows.map(b=>`<button type="button" class="bill-row" data-action="primary-bill" data-id="${b.id}"><span class="grow"><strong>${esc(billDescription(b))}</strong><small>${esc(b.category)}${!isCashflow(b)?' · 划转':''}${b.metadata?.payment_method?' · '+esc(b.metadata.payment_method):''}</small></span><span class="amount money ${b.type==='income'?'good':''}">${b.type==='income'?'+':'−'}${money(b.amount,b.currency)}</span></button>`).join('');
+@@ -122,6 +122,7 @@
+   return {pages:{home:homePage,ledger:ledgerPage,visualization:visualizationPage},renderBillList,errorHTML,actions:{
+     'primary-bill':button=>billModal(button.dataset.id),
+     'primary-reset-filter':resetFilter,'reset-filter':resetFilter,
++    'protection-open':()=>go('security'),
+     'home-review':()=>openLedger(state.homeRange,state.homeCategory),
+     'home-ledger':()=>openLedger(state.homeRange),
+     'home-charts':()=>{state.visualPeriod='month';state.visualRange=null;go('visualization');},
+--- a/AI_accounting_agent/frontend/liquid-glass/banking.js
++++ b/AI_accounting_agent/frontend/liquid-glass/banking.js
+@@ -1,3 +1,4 @@
++import {protectionReason} from './protection.js';
+ import {finance} from './finance-api.js';
+ import {billDescription} from './primary-pages.js';
+ 
+@@ -50,7 +51,7 @@
+   }
+   function operationHTML() {
+     const op=operation,needs=['needs_confirmation','needs_mfa'].includes(op.status);
+-    return card(`<div class="row between"><h2>${esc(title(current))}</h2><span class="tag">${esc(operationNames[op.status]||'待处理')}</span></div><strong class="banking-main-amount money">${minor(op.params?.amount_minor)}</strong><h3 class="banking-target">${visible(op.kind==='redeem'?'FinPilot账户':op.target_name||'操作对象待核对')}</h3><p class="banking-copy">${visible(['subscribe','redeem'].includes(op.kind)?'本金划转':op.target_detail||'')}</p>${['unknown','blocked','expired'].includes(op.status)&&op.message?`<p class="banking-operation-message">${visible(op.message)}</p>`:''}${op.status==='unknown'?'<p class="banking-operation-message">请先核实结果，勿重新发起同一笔操作。</p>':''}${needs||op.status==='unknown'?btn(op.status==='unknown'?'核实结果':op.status==='needs_mfa'?'继续身份验证':'继续确认','banking-operation','primary finance-wide',busy?'disabled':''):btn('开始新需求','banking-new','primary finance-wide')}<div class="banking-secondary">${!needs&&op.status!=='unknown'?btn('查看操作详情','banking-operation','small'):''}</div>`,'banking-current-step');
++    return card(`<div class="row between"><h2>${esc(title(current))}</h2><span class="tag">${esc(operationNames[op.status]||'待处理')}</span></div><strong class="banking-main-amount money">${minor(op.params?.amount_minor)}</strong><h3 class="banking-target">${visible(op.kind==='redeem'?'FinPilot账户':op.target_name||'操作对象待核对')}</h3><p class="banking-copy">${visible(['subscribe','redeem'].includes(op.kind)?'本金划转':op.target_detail||'')}</p><p class="protection-reason">${esc(protectionReason(op,{hidden:prefs.mask}))}</p>${needs||op.status==='unknown'?btn(op.status==='unknown'?'核实结果':op.status==='needs_mfa'?'继续身份验证':'继续确认','banking-operation','primary finance-wide',busy?'disabled':''):btn('开始新需求','banking-new','primary finance-wide')}<div class="banking-secondary">${!needs&&op.status!=='unknown'?btn('查看操作详情','banking-operation','small'):''}</div>`,'banking-current-step');
+   }
+   function currentHTML() {
+     if(!current)return '<div class="banking-welcome"><h2>想查账单，还是办一笔业务？</h2></div>';
+@@ -81,7 +82,7 @@
+     const selection=focused?[doc.activeElement.selectionStart,doc.activeElement.selectionEnd]:null;
+     const openFolds=[...(doc?.querySelectorAll?.('[data-banking-fold][open]')||[])].map(el=>el.dataset.bankingFold);
+     const showComposer=!current||!operation&&(current.status!=='ready'&&current.status!=='completed'||editing||Boolean(input)||Boolean(pending));
+-    const more=current?`<div class="banking-secondary">${!operation&&['ready','completed'].includes(current.status)&&!showComposer?btn(current.status==='completed'?'继续追问':'修改需求','banking-edit','small'):''}${!operation&&active(current)?btn('取消任务','banking-cancel','small',busy?'disabled':''):''}${btn('新需求','banking-new','small',busy?'disabled':'')}</div>`:'';
++    const more=current&&!operation?`<div class="banking-secondary">${!operation&&['ready','completed'].includes(current.status)&&!showComposer?btn(current.status==='completed'?'继续追问':'修改需求','banking-edit','small'):''}${!operation&&active(current)?btn('取消任务','banking-cancel','small',busy?'disabled':''):''}${btn('新需求','banking-new','small',busy?'disabled':'')}</div>`:'';
+     const errorHTML=error?`<div class="error banking-error" role="alert"><p>这一步暂时未完成，输入已保留。</p><details data-banking-fold="error"><summary>查看原因</summary><p>${esc(error)}</p></details><div class="banking-secondary">${pending?btn('重试这一步','banking-retry','small',busy?'disabled':''):btn('重新读取','banking-refresh','small',busy?'disabled':'')}</div></div>`:'';
+     paintCurrent(`<div class="banking-workspace">${currentHTML()}${busy?'<div class="banking-busy" role="status"><span class="spinner" aria-hidden="true"></span>正在处理这一步…</div>':''}${errorHTML}${showComposer?composerHTML():''}${!current?`<div class="banking-prompts">${[['查账单','本月收支是多少'],['转账','给小林转账'],['办理理财','买200元灵活现金']].map(([label,text])=>`<button data-action="banking-example" data-text="${esc(text)}"><span>${label}</span>${icon('next')}</button>`).join('')}</div>`:''}${more}${historyHTML()}<details class="banking-history" data-banking-fold="tasks"><summary>最近任务（${tasks.length}）</summary>${tasks.length?tasks.map(task=>`<button class="banking-history-row" data-action="banking-resume" data-id="${esc(task.id)}" ${busy?'disabled':''}><span><strong>${esc(title(task))}</strong><small>${visible(task.history?.find(item=>item.role==='user')?.content||'查看任务')}</small></span><span>${esc(status(task))}</span></button>`).join(''):'<p class="banking-copy">还没有任务，从上方输入开始。</p>'}</details></div>`);
+     for(const name of openFolds){const el=doc?.querySelector?.(`[data-banking-fold="${name}"]`);if(el)el.open=true;}
+--- a/AI_accounting_agent/frontend/liquid-glass/journey.js
++++ b/AI_accounting_agent/frontend/liquid-glass/journey.js
+@@ -1,3 +1,4 @@
++import {protectionStatus,protectionReason,operationRecordHTML,protectionPageHTML,protectionRecoveryHTML,protectionErrorHTML} from './protection.js';
+ import {helpButton} from './learning.js';
+ import {finance as financeRequest} from './finance-api.js';
+ import {investmentNavigation} from './investment-shell.js';
+@@ -63,21 +64,20 @@
+   }
+ 
+   function confirmationView(op) {
+-    operation=op;
+-    bankingFlow?.onOperation?.(op);
+-    const bankStatuses={needs_confirmation:'确认后执行',needs_mfa:'需身份验证',succeeded:'已完成',unknown:'结果待核实',blocked:'已拦截',cancelled:'操作已取消',expired:'确认已失效'};
+-    const status=(bankingFlow?bankStatuses:statuses)[op.status]||'待处理',needs=['needs_confirmation','needs_mfa'].includes(op.status);
+-    const hidden=prefs.mask&&!revealed;
+-    const accountName=id=>id==='acct-user'?(bankingFlow?'FinPilot账户':'FinPilot体验账户'):id==='fund-reserve'?'灵活现金':id==='fund-growth'?'长期均衡':snapshot?.recipients.find(r=>r.id===id)?.name||(bankingFlow?'FinPilot账户':'体验账户');
+-    const targetName=bankingFlow&&op.kind==='redeem'?'FinPilot账户':op.target_name;
+-    const targetDetail=bankingFlow&&['subscribe','redeem'].includes(op.kind)?'本金划转':op.target_detail;
++    operation=op;bankingFlow?.onOperation?.(op);
++    const status=protectionStatus(op),needs=['needs_confirmation','needs_mfa'].includes(op.status),hidden=prefs.mask&&!revealed;
++    const accountName=id=>id==='acct-user'?'FinPilot账户':id==='fund-reserve'?'灵活现金':id==='fund-growth'?'长期均衡':snapshot?.recipients.find(r=>r.id===id)?.name||'当前账户';
++    const targetName=op.kind==='redeem'?'FinPilot账户':op.target_name,targetDetail=['subscribe','redeem'].includes(op.kind)?'本金划转':op.target_detail;
+     const detail=hidden?'已隐藏':`${esc(targetName)}<br>${esc(targetDetail)}`;
+-    const product=bankingFlow?snapshot?.products.find(p=>p.id===op.product_id):null;
+-    const label=bankingFlow?({transfer:'转账',subscribe:'理财申购',redeem:'理财赎回'}[op.kind]||op.label):op.label;
+-    const details=bankingFlow?`<details class="banking-technical"><summary>操作详情</summary><p class="break">操作编号 ${esc(op.handle)}</p>${op.receipt_hash?`<p class="break">回执 ${esc(op.receipt_hash)}</p>`:''}${btn('操作记录','journey-security','small')}</details>`:'';
+-    const confirmActions=bankingFlow?`<button type="submit" class="btn primary finance-wide" ${hidden||op.status==='needs_mfa'&&!snapshot?.mfa_enabled?'disabled':''}>${op.status==='needs_mfa'?'验证并确认':'确认执行'}</button><div class="banking-secondary">${btn('返回修改','journey-edit-operation','','type="button"')}${btn('取消操作','journey-cancel','','type="button"')}</div>`:`<div class="actions">${btn('取消操作','journey-cancel','','type="button"')}<button type="submit" class="btn primary" ${hidden||op.status==='needs_mfa'&&!snapshot?.mfa_enabled?'disabled':''}>${op.status==='needs_mfa'?'验证并确认':'确认操作'}</button></div>`;
+-    const next=needs?`<form id="finance-confirm-form">${op.status==='needs_mfa'?(snapshot?.mfa_enabled?field('动态验证码','finance-code',input('finance-code','','inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required')):btn('配置动态验证码','journey-mfa','glass finance-wide')):''}${feedback('finance-confirm-error')}${confirmActions}</form>`:op.status==='unknown'?`<p class="dialog-message">请先核实结果，勿重复发起。</p>${btn('核实操作结果','journey-reconcile','primary finance-wide')}`:`${!bankingFlow?`<div class="confirmation-receipt">${op.receipt_hash?`<span>回执</span><code>${esc(op.receipt_hash.slice(0,16))}</code>`:''}</div>`:''}${btn('完成','journey-done','primary finance-wide')}`;
+-    modal(needs?(bankingFlow?status:'核对操作'):status,`${bankingFlow?'<div class="banking-operation-step">':''}<div class="confirmation-status ${op.status==='succeeded'?'good':''}">${icon(op.status==='succeeded'?'check':'shield')}<strong>${status}</strong>${bankingFlow?'':'<span class="tag">体验</span>'}</div><p class="hero-amount center money">${hidden?'••••':plainCash(op.params.amount_minor)}</p><dl class="confirmation-details"><dt>操作</dt><dd>${esc(label)}</dd><dt>转出账户</dt><dd>${hidden?'已隐藏':esc(accountName(op.params.from_account))}</dd><dt>转入</dt><dd>${detail}</dd>${product?`<dt>风险等级</dt><dd>R${esc(product.risk)}</dd>`:''}</dl>${hidden?btn('显示完整参数','journey-reveal','glass finance-wide'):''}${['unknown','blocked','expired'].includes(op.status)&&op.message?`<p class="dialog-message">${esc(op.message)}</p>`:''}${next}${details}${bankingFlow?'</div>':''}`);
++    const product=snapshot?.products.find(p=>p.id===op.product_id),label={transfer:'转账',subscribe:'理财申购',redeem:'理财赎回'}[op.kind]||op.label;
++    const confirmActions=`<button type="submit" class="btn primary finance-wide" ${hidden||op.status==='needs_mfa'&&!snapshot?.mfa_enabled?'disabled':''}>${op.status==='needs_mfa'?'验证并确认':'确认执行'}</button><div class="banking-secondary">${btn('返回修改','journey-edit-operation','','type="button"')}${btn('取消操作','journey-cancel','','type="button"')}</div>`;
++    let next;
++    if(needs)next=`<form id="finance-confirm-form">${op.status==='needs_mfa'?(snapshot?.mfa_enabled?field('动态验证码','finance-code',input('finance-code','','inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required')):btn('配置动态验证码','journey-mfa','glass finance-wide')):''}${feedback('finance-confirm-error')}${confirmActions}</form>`;
++    else if(op.status==='unknown')next=btn('核实操作结果','journey-reconcile','primary finance-wide');
++    else if(op.status==='blocked')next=btn('重新查询状态','journey-operation','primary finance-wide',`data-handle="${esc(op.handle)}"`)+`<div class="banking-secondary">${btn('核对账户条件','journey-bank','small')}${btn('重新说明需求','protection-new','small')}</div>`;
++    else if(op.status==='expired')next=btn('重新说明需求','protection-new','primary finance-wide');
++    else next=btn('完成','journey-done','primary finance-wide');
++    modal(status,`<div class="protection-operation ${bankingFlow?'banking-operation-step':''}"><div class="confirmation-status ${op.status==='succeeded'?'good':''}"><strong>${esc(status)}</strong></div><p class="hero-amount center money">${hidden?'••••':plainCash(op.params.amount_minor)}</p><dl class="confirmation-details"><dt>操作</dt><dd>${esc(label)}</dd><dt>转出账户</dt><dd>${hidden?'已隐藏':esc(accountName(op.params.from_account))}</dd><dt>转入</dt><dd>${detail}</dd>${product?`<dt>风险等级</dt><dd>R${esc(product.risk)}</dd>`:''}</dl><p class="protection-reason">${esc(protectionReason(op,{hidden}))}${hidden&&needs?' 当前对象和金额已隐藏，请先显示完整参数后核对。':''}</p>${hidden?btn('显示完整参数','journey-reveal','glass finance-wide'):''}${next}${operationRecordHTML(ctx,op,{hidden})}</div>`);
+   }
+ 
+   async function reviewDraft() {
+@@ -87,7 +87,7 @@
+   }
+   async function openOperation(handle,flow=null) {
+     bankingFlow=flow;await load();const op=await finance('/operations/'+encodeURIComponent(handle));
+-    if(flow)draft={kind:op.kind,recipient_id:op.kind==='transfer'?op.params.to_account:undefined,product_id:op.product_id||null,amount:(op.params.amount_minor/100).toFixed(2),request_id:uuid()};
++    draft={kind:op.kind,recipient_id:op.kind==='transfer'?op.params.to_account:undefined,product_id:op.product_id||null,amount:(op.params.amount_minor/100).toFixed(2),request_id:uuid()};
+     revealed=false;confirmationView(op);
+   }
+ 
+@@ -103,8 +103,7 @@
+   }
+ 
+   async function securityPage(paint) {
+-    paint(loading());const s=await load();
+-    paint(card(`<div class="row between"><h2>操作保护</h2>${icon('shield')}</div><div class="security-steps"><span>${icon('check')}核对完整参数</span><span>${icon('check')}申购及大额验证</span><span>${icon('check')}防止重复划转</span></div><div class="setting-row"><strong>动态验证码</strong>${s.mfa_enabled?'<span class="tag good">已开启</span>':btn('开启','journey-mfa','small primary')}</div>${s.protection_locked?`<div class="setting-row"><strong>资金操作已暂停</strong>${btn('核实后恢复','journey-recovery','small primary')}</div>`:''}`)+card(`<h2 class="mb">保护记录</h2>${operationRows(s.operations)}`));
++    paint(loading());try{const s=await load();paint(protectionPageHTML(ctx,s));}catch(error){paint(protectionErrorHTML(ctx,error));}
+   }
+ 
+   async function comparePage(paint) {
+@@ -138,7 +137,7 @@
+         const body={challenge:operation.challenge};if(operation.status==='needs_mfa')body.code=val('finance-code');
+         try {operation=await finance(`/operations/${operation.handle}/confirm`,{method:'POST',body,timeout:25000});}
+         catch(e) {if(e.message.includes('超时')||e.message.includes('无法连接')) {operation={...operation,status:'unknown',message:'确认请求未取得结果，请核实后再继续。'};confirmationView(operation);}throw e;}
+-        snapshot=await load();confirmationView(operation);
++        try{snapshot=await load();}catch{toast('操作结果已返回，账户概况可稍后重新查询');}confirmationView(operation);
+       } else if(form.id==='finance-recovery-form') {
+         await finance('/protection/recover',{method:'POST',body:{challenge:form.dataset.challenge,code:val('finance-recovery-code')}});closeSheet();toast('资金操作已恢复');render();
+       } else {
+@@ -178,7 +177,7 @@
+     'journey-reconcile':async b=>{b.disabled=true;try{operation=await finance(`/operations/${operation.handle}/reconcile`,{method:'POST',body:{}});confirmationView(operation);}finally{b.disabled=false;}},
+     'journey-done':()=>{draft=null;storage.set('QINGCAI_FINANCE_DRAFT',null);closeSheet();render();},
+     'journey-mfa':setupMFA,
+-    'journey-recovery':async()=>{const data=await finance('/protection/recovery');if(data.unresolved){toast('请先逐笔核实待核实操作');return;}if(!snapshot?.mfa_enabled){await setupMFA();return;}modal('恢复资金操作',`<form id="finance-recovery-form" data-challenge="${esc(data.challenge)}"><p class="dialog-message">已核实此前记录。输入动态验证码后，恢复后续操作；历史操作不会重新执行。</p>${field('验证码','finance-recovery-code',input('finance-recovery-code','','inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required'))}${feedback('finance-recovery-error')}<button type="submit" class="btn primary finance-wide">确认恢复</button></form>`);},
++    'journey-recovery':async()=>{operation=null;const data=await finance('/protection/recovery');if(data.unresolved){try{snapshot=await load();modal('先核实操作结果',protectionRecoveryHTML(ctx,snapshot)+btn('返回操作保护','journey-security','small'));}catch{modal('先核实操作结果',`<p class="protection-note">还有 ${esc(data.unresolved)} 笔结果待核实，暂时无法读取列表，请重新查询。</p>${btn('重新查询操作保护','journey-security','primary finance-wide')}`);}return;}if(!data.locked){toast('资金操作当前未暂停');render();return;}if(!snapshot?.mfa_enabled){toast('恢复需要动态验证码，请先配置');await setupMFA();return;}modal('恢复资金操作',`<form id="finance-recovery-form" data-challenge="${esc(data.challenge)}"><p class="dialog-message">当前没有待核实操作。输入动态验证码后恢复后续操作，历史操作不会重新执行。</p>${field('动态验证码','finance-recovery-code',input('finance-recovery-code','','inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required'))}${feedback('finance-recovery-error')}<button type="submit" class="btn primary finance-wide">验证并恢复</button></form>`);},
+     'journey-ask-plan':()=>ask('请帮我看看目前的资金安排，目标和应急金该怎么兼顾？','finance'),
+     'journey-chat-draft':async b=>{bankingFlow=null;draftMessageIndex=Number(b.dataset.index);const data=state.chats.finance[Number(b.dataset.index)]?.action_draft;if(!data)return;await load();if(!data.request_id){data.request_id=uuid();storage.set('QINGCAI_CHATS',state.chats);}draft={...data,product_id:data.product_id||null};draftForm(data.kind,data.product_id||null);},
+     'journey-chat-template':b=>{closeSheet();ask(b.dataset.text,'finance');}
+--- a/AI_accounting_agent/frontend/liquid-glass/app.js
++++ b/AI_accounting_agent/frontend/liquid-glass/app.js
+@@ -157,6 +157,7 @@
+ const learning=createLearning(featureContext);
+ const actions={
+  'home':()=>go('home'),'ledger':()=>go('ledger'),'entry':()=>go('entry'),'insights':()=>go('insights'),'settings':()=>go('settings'),
++ 'protection-new':()=>{if(banking.start('')!==false)closeSheet();},
+  'back':()=>navigation.back(),'refresh':()=>render(),'close-sheet':closeSheet,
+  'mask':()=>{prefs.mask=!prefs.mask;persistPrefs();render();},
+  'ask':()=>ask(`${range().start_date} 至 ${range().end_date} 的收支情况怎么样？`),
+--- a/AI_accounting_agent/frontend/liquid-glass/index.html
++++ b/AI_accounting_agent/frontend/liquid-glass/index.html
+@@ -1,2 +1,2 @@
+ <!doctype html>
+-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f6f9"><title>FinPilot · 银行智能体</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2317212b'/%3E%3Ctext x='9' y='29' fill='white' font-size='26'%3EF%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="./tokens.css"><link rel="stylesheet" href="./app.css"><link rel="stylesheet" href="./features.css"><link rel="stylesheet" href="./journey.css"><link rel="stylesheet" href="./analytics.css"><link rel="stylesheet" href="./investment.css"><link rel="stylesheet" href="./wealth.css"><link rel="stylesheet" href="./glass.css"><link rel="stylesheet" href="./banking.css"><link rel="stylesheet" href="./primary-pages.css"><script src="/runtime-config.js"></script><script type="module" src="./app.js"></script></head><body><div id="app" class="app-shell"></div><dialog id="sheet" class="sheet"><div id="sheet-content"></div></dialog><div id="toast" role="status" aria-live="polite"></div><noscript>请启用 JavaScript 使用FinPilot。</noscript></body></html>
++<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f6f9"><title>FinPilot · 银行智能体</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2317212b'/%3E%3Ctext x='9' y='29' fill='white' font-size='26'%3EF%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="./tokens.css"><link rel="stylesheet" href="./app.css"><link rel="stylesheet" href="./features.css"><link rel="stylesheet" href="./journey.css"><link rel="stylesheet" href="./analytics.css"><link rel="stylesheet" href="./investment.css"><link rel="stylesheet" href="./wealth.css"><link rel="stylesheet" href="./glass.css"><link rel="stylesheet" href="./banking.css"><link rel="stylesheet" href="./primary-pages.css"><link rel="stylesheet" href="./protection.css"><script src="/runtime-config.js"></script><script type="module" src="./app.js"></script></head><body><div id="app" class="app-shell"></div><dialog id="sheet" class="sheet"><div id="sheet-content"></div></dialog><div id="toast" role="status" aria-live="polite"></div><noscript>请启用 JavaScript 使用FinPilot。</noscript></body></html>
+--- /dev/null
++++ b/AI_accounting_agent/frontend/liquid-glass/protection.js
+@@ -0,0 +1,37 @@
++const labels={needs_confirmation:'确认后执行',needs_mfa:'需身份验证',succeeded:'已完成',unknown:'结果待核实',blocked:'已拦截',cancelled:'操作已取消',expired:'确认已失效'};
++export const protectionStatus=op=>labels[op.status]||'状态待查询';
++export function protectionReason(op,{hidden=false}={}) {
++  if(op.status==='needs_confirmation')return '这一步会变更账户资金，请先核对对象与金额，再由你确认。';
++  if(op.status==='needs_mfa')return op.kind==='subscribe'?'理财申购需要核对产品与金额，并用动态验证码确认。':'本次资金操作需要额外验证，规则也会考虑当天累计金额。';
++  if(op.status==='unknown')return '本次结果尚未核实。先查询这笔结果，不要重新发起同一笔操作。';
++  if(op.status==='blocked')return hidden?'操作已拦截。详细原因已隐藏，显示完整参数后再查看。':/[\u3400-\u9fff]/.test(op.message||'')?op.message:'执行前条件未满足，操作已停止。请核对当前条件或重新查询状态。';
++  if(op.status==='expired')return '旧确认已失效。请重新说明需求并核对，不沿用这份旧授权。';
++  if(op.status==='cancelled')return '已取消，本次没有继续执行。';
++  if(op.status==='succeeded')return op.evidence==='backend_reconciliation'?'已按账户持久记录核实此操作。':'本次操作已返回完成结果，可查看记录或核对账户。';
++  return '状态还不明确，请重新查询本次操作。';
++}
++const timeLabel=value=>Number.isFinite(value)&&value>0?new Date(value*1000).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'未提供时间';
++export function operationRecordHTML(ctx,op,{hidden=false}={}) {
++  const {esc,btn}=ctx,record=op.confirmation_record;
++  const recorded=Number.isFinite(record?.confirmed_at)&&record.confirmed_at>0;
++  const confirmation=recorded?(record.method==='dynamic_code'?'本人确认与动态验证码已核对':'已记录本人确认'):op.status==='needs_mfa'?'等待动态验证码与本人确认':op.status==='needs_confirmation'?'等待本人确认':'这条记录未提供独立确认明细';
++  const execution={needs_confirmation:'尚未执行',needs_mfa:'尚未执行',unknown:'结果待核实，不能认定失败',succeeded:'已返回完成结果',blocked:'已拦截，未继续执行',cancelled:'已取消，未继续执行',expired:'旧确认已失效'}[op.status]||'请重新查询状态';
++  const receipt=op.evidence==='backend_reconciliation'?'已按账户记录核实':op.receipt_hash?'已提供审计回执标识':'尚未提供审计回执标识';
++  return `<details class="protection-record"><summary>本次确认与结果记录</summary><dl class="protection-record-list"><div><dt>核对记录</dt><dd>${op.handle?'已生成操作记录':'未提供操作编号'}<small>${esc(timeLabel(op.created_at))}</small></dd></div><div><dt>确认与验证</dt><dd>${esc(confirmation)}${recorded?`<small>${esc(timeLabel(record.confirmed_at))}</small>`:''}</dd></div><div><dt>执行结果</dt><dd>${esc(execution)}</dd></div><div><dt>回执 / 核实</dt><dd>${esc(receipt)}</dd></div></dl><details class="protection-reference"><summary>操作编号与原始原因</summary><p>操作编号</p><code>${hidden?'已隐藏':esc(op.handle||'未提供')}</code>${op.receipt_hash?`<p>审计回执标识（不代表到账）</p><code>${hidden?'已隐藏':esc(op.receipt_hash)}</code>`:''}${op.message?`<p>返回说明</p><p>${hidden?'内容已隐藏':esc(op.message)}</p>`:''}</details>${['unknown','blocked'].includes(op.status)?'<p class="protection-note">持续无法核实时，请保留操作编号，交由维护此系统的人员核查，勿重复提交。</p>':''}${btn('查看操作保护','journey-security','small')}</details>`;
++}
++export function protectionRecoveryHTML(ctx,snapshot) {
++  const {esc,money,btn,prefs}=ctx;
++  const pending=Array.isArray(snapshot.unresolved_operations)?snapshot.unresolved_operations:(snapshot.operations||[]).filter(op=>op.status==='unknown');
++  if(!pending.length)return '';
++  return `<section class="protection-pending"><h3>先核实待定结果</h3><p class="protection-note">这些操作尚未取得明确结果。核实不会重新发起扣款。</p>${pending.map(op=>`<button class="protection-operation-row" data-action="journey-operation" data-handle="${esc(op.handle)}"><span><strong>${prefs.mask?'对象已隐藏':esc(op.label||'资金操作')}</strong><small>结果待核实</small></span><strong>${money(op.params.amount_minor/100)}</strong></button>`).join('')}</section>`;
++}
++export function protectionPageHTML(ctx,snapshot) {
++  const {esc,card,btn,money,prefs}=ctx;
++  const pending=Array.isArray(snapshot.unresolved_operations)?snapshot.unresolved_operations:(snapshot.operations||[]).filter(op=>op.status==='unknown');
++  const rows=(snapshot.operations||[]).map(op=>`<button class="protection-operation-row" data-action="journey-operation" data-handle="${esc(op.handle)}"><span><strong>${prefs.mask?'对象已隐藏':esc(op.label||'资金操作')}</strong><small>${esc(protectionStatus(op))}</small></span><strong>${money(op.params.amount_minor/100)}</strong></button>`).join('');
++  const rules=snapshot.policy_version==='2026.1.0'?'<p>转账按日累计分级：不超过1000元需本人确认，超过需额外动态验证码；任意金额理财申购均需动态验证码。赎回沿用累计资金规则。</p><p>累计资金口径包含本系统的申购和赎回，仍受单笔与日限额约束。</p>':'<p>具体确认与验证要求以本次操作返回状态为准。</p>';
++  return `<div class="protection-page-content">${card(`<h2>哪些步骤由你决定</h2><div class="protection-explanations"><section><h3>查询不多一步</h3><p>账单、余额和持仓查询不需要资金确认。助手给出的建议不能直接授权资金操作。</p></section><section><h3>动用资金，先核对</h3><p>执行前核对对象与金额。需要额外验证时，当前操作会说明原因并要求动态验证码。</p></section><section><h3>结果不明，先查询</h3><p>未知结果先核实，不重新发起同一笔。已有状态与回执可从操作记录查看。</p></section></div><details class="protection-reference"><summary>当前确认规则</summary>${rules}<p>金额可隐藏；资金确认前仍需显示并核对完整对象与金额。</p></details>`)}${card(`<h2>当前账户设置</h2><div class="setting-row"><span>动态验证码</span>${snapshot.mfa_enabled?'<strong>已配置</strong>':btn('配置动态验证码','journey-mfa','small')}</div><div class="setting-row"><span>资金操作</span><strong>${snapshot.protection_locked?'已暂停':'当前未暂停'}</strong></div>${snapshot.protection_locked?`<p class="protection-note">${pending.length?'请先逐笔核实待定结果，再查看恢复条件。':'请查看恢复条件；恢复仍需动态验证码，不会重放历史操作。'}</p>${btn('查看恢复条件','journey-recovery',pending.length?'small':'primary finance-wide')}`:''}`)}${protectionRecoveryHTML(ctx,snapshot)}${card(`<h2>最近操作</h2>${rows||'<p class="protection-note">还没有资金操作记录。上方是可用保护说明，不代表已执行检查。</p>'}`)}</div>`;
++}
++export function protectionErrorHTML(ctx,error) {
++  return ctx.card(`<div role="alert"><h2>暂时无法读取操作保护</h2><p class="protection-note">没有把未读取的状态标为通过，请重新查询。</p></div>${ctx.btn('重新查询','refresh','primary finance-wide')}<details class="protection-reference"><summary>查看原因</summary><p>${ctx.esc(error.message||error)}</p></details>`);
++}
+--- /dev/null
++++ b/AI_accounting_agent/frontend/liquid-glass/protection.css
+@@ -0,0 +1,45 @@
++/* Clear, evidence-based protection copy; no decorative assurance badges. */
++.protection-page-content { display:grid; gap:16px; min-width:0; }
++.protection-page-content>* { min-width:0; }
++.protection-explanations { display:grid; gap:18px; margin:20px 0 12px; }
++.protection-explanations h3 { font-size:15px; font-weight:500; }
++.protection-explanations p,.protection-note,.protection-reason { color:var(--muted); font-size:13px; line-height:1.8; margin:7px 0; overflow-wrap:anywhere; }
++.protection-reason { color:#465b78; margin:12px 0 18px; }
++.protection-reference,.protection-record { font-size:12px; color:var(--muted); margin-top:14px; min-width:0; }
++.protection-reference p { margin:8px 0; line-height:1.8; overflow-wrap:anywhere; }
++.protection-reference code { display:block; white-space:normal; overflow-wrap:anywhere; font-size:11px; user-select:text; }
++.protection-record summary,.protection-reference summary { min-height:44px; }
++.protection-record-list { display:grid; gap:15px; margin:14px 0; }
++.protection-record-list>div { display:grid; grid-template-columns:85px minmax(0,1fr); gap:10px; }
++.protection-record-list dt { font-size:12px; }
++.protection-record-list dd { margin:0; color:var(--ink); font-size:13px; overflow-wrap:anywhere; }
++.protection-record-list small { display:block; margin-top:5px; }
++.protection-pending { padding:18px; border-radius:22px; background:var(--glass-sheen),var(--glass-bg); border:1px solid var(--glass-edge); }
++.protection-operation-row { display:flex; width:100%; justify-content:space-between; align-items:center; text-align:left; gap:12px; padding:16px 0; min-height:52px; }
++.protection-operation-row+.protection-operation-row { border-top:1px solid #bac9db55; }
++.protection-operation-row>span { min-width:0; }
++.protection-operation-row strong { font-size:14px; font-weight:500; overflow-wrap:anywhere; }
++.protection-operation-row small { display:block; margin-top:5px; }
++.protection-operation { min-width:0; animation:protection-enter .18s ease-out; }
++.protection-operation .hero-amount { overflow-wrap:anywhere; }
++.protection-operation .confirmation-details { grid-template-columns:minmax(0,auto) minmax(0,1fr); }
++.protection-operation .confirmation-details dd { min-width:0; overflow-wrap:anywhere; }
++.protection-operation .banking-secondary { margin-top:8px; }
++.protection-operation :is(button,input,summary):focus-visible,.protection-page-content :is(button,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
++.protection-page-content details[open]>:not(summary),.protection-operation details[open]>:not(summary) { animation:protection-enter .14s ease-out; }
++#app[data-route=security] .tab-bar a { min-width:0; }
++@keyframes protection-enter { from { opacity:.55; } to { opacity:1; } }
++@media(max-width:320px) {
++  .protection-operation-row { flex-wrap:wrap; }
++  .protection-record-list>div { grid-template-columns:minmax(0,1fr); gap:3px; }
++  .protection-page-content .setting-row { flex-wrap:wrap; padding-block:10px; }
++  #app[data-route=security] .topbar-inner { height:auto; min-height:64px; flex-wrap:wrap; padding-block:8px; }
++}
++@media(max-width:260px) {
++  #app[data-route=security] .tab-bar { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-radius:22px; }
++  #app[data-route=security] .tab-bar a { min-height:50px; }
++  .security-page { padding-bottom:160px; }
++  .protection-operation .confirmation-details { grid-template-columns:minmax(0,1fr); }
++}
++@media(prefers-reduced-motion:reduce) { .protection-operation,.protection-operation *,.protection-page-content * { animation:none!important; transition:none!important; } }
++[data-reduce-motion=true] .protection-operation,[data-reduce-motion=true] .protection-operation *,[data-reduce-motion=true] .protection-page-content * { animation:none!important; transition:none!important; }
+--- a/AI_accounting_agent/backend/finance_workspace.py
++++ b/AI_accounting_agent/backend/finance_workspace.py
+@@ -640,6 +640,7 @@
+         with self.store._lock:
+             mfa = self.store._db.execute('SELECT secret FROM app_mfa WHERE actor=?', (ACTOR,)).fetchone()
+             operations = self.store._db.execute('SELECT * FROM app_operations ORDER BY created DESC LIMIT 12').fetchall()
++            unresolved = self.store._db.execute("SELECT * FROM app_operations WHERE json_extract(result,'$.status')='unknown' ORDER BY created DESC").fetchall()
+         return {'mode': 'simulated_bank', 'cash_minor': cash,
+                 'assets_minor': cash + sum(p['holding_minor'] for p in products), 'profile': profile.model_dump(),
+                 'cashflow': flow, 'planning': planning, 'wealth': self.wealth_overview(planning, profile),
+@@ -651,7 +652,8 @@
+                 'bill_checks': bill_checks(rows),
+                 'mfa_enabled': bool(mfa and mfa['secret']), 'policy_version': '2026.1.0',
+                 'protection_locked': self.gateway.circuit.snapshot(ACTOR)['locked'],
+-                'operations': [self.public_operation(row, include_challenge=False) for row in operations]}
++                'operations': [self.public_operation(row, include_challenge=False) for row in operations],
++                'unresolved_operations': [self.public_operation(row, include_challenge=False) for row in unresolved]}
+ 
+     def resolve_params(self, data: OperationInput) -> tuple[dict, dict]:
+         amount = minor(data.amount)
+@@ -820,7 +822,9 @@
+                     session_id=sid, target=handle, binding=view['action_digest']), key_id='v1', ttl=60)
+                 self.gateway.approve(credential, handle, proof)
+             # Persist uncertainty before dispatch; lost response never means retry.
+-            self.update_result(handle, {'status': 'unknown', 'message': '正在核实执行结果，请勿重复提交'})
++            self.update_result(handle, {'status': 'unknown', 'message': '正在核实执行结果，请勿重复提交',
++                'confirmation_record': {'confirmed_at': time.time(),
++                                        'method': 'dynamic_code' if op['status'] == 'needs_mfa' else 'confirmation'}})
+             try:
+                 result = self.gateway.execute(credential, handle)
+             except Exception:
+--- /dev/null
++++ b/tests/protection_view.test.mjs
+@@ -0,0 +1,106 @@
++import assert from 'node:assert/strict';
++import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
++import {runInNewContext} from 'node:vm';
++import {protectionReason,operationRecordHTML,protectionPageHTML} from '../AI_accounting_agent/frontend/liquid-glass/protection.js';
++import {createJourney} from '../AI_accounting_agent/frontend/liquid-glass/journey.js';
++import {createPrimaryPages} from '../AI_accounting_agent/frontend/liquid-glass/primary-pages.js';
++
++const data=name=>JSON.parse(readFileSync(`.runtime/protection-view/${name}.json`,'utf8'));
++const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
++const output='review/security-batch4',checks=[];mkdirSync(output,{recursive:true});
++const check=text=>{checks.push(text);console.log('PASS:',text);};
++function fixture({snapshot=data('empty'),op=data('needs-confirmation'),confirmed=data('reconciled')}={}) {
++  const calls=[],pages=[],saved=new Map(),fields=new Map(),toasts=[];
++  let html='',dialog=null,failRead=false,recovery={locked:false,unresolved:0,challenge:'deterministic-recovery-challenge'};
++  const ctx={state:{route:'security',epoch:1,filter:{}},prefs:{mask:false},esc,storage:{get:(k,d)=>saved.get(k)??d,set:(k,v)=>saved.set(k,v)},money:value=>ctx.prefs.mask?'••••':'¥'+Number(value).toFixed(2),number:String,icon:()=>'<svg aria-hidden="true"></svg>',card:(body,cls='')=>`<section class="surface-card ${cls}">${body}</section>`,btn:(label,action,cls='',extra='')=>`<button class="btn ${cls}" data-action="${action}" ${extra}>${label}</button>`,loading:()=>'<p>读取中</p>',modal:(title,body)=>{dialog={title,body};},closeSheet:()=>{dialog=null;},toast:text=>toasts.push(text),render:()=>{},go:route=>pages.push(route)};
++  globalThis.document={getElementById:id=>({value:fields.get(id)||''}),activeElement:null,querySelectorAll:()=>[],querySelector:()=>null};
++  const request=async(path,options)=>{
++    calls.push({path,options:structuredClone(options)});
++    if(path==='/overview'){if(failRead)throw new Error('<账户概况读取失败>');return structuredClone(snapshot);}
++    if(path==='/protection/recovery')return structuredClone(recovery);
++    if(path===`/operations/${op.handle}`)return {...structuredClone(op),challenge:'deterministic-operation-challenge'};
++    if(path===`/operations/${op.handle}/confirm`){assert.equal(options.body.challenge,'deterministic-operation-challenge');if(op.status==='needs_mfa')assert.equal(options.body.code,'123456');return {...structuredClone(confirmed),handle:op.handle};}
++    if(path===`/operations/${op.handle}/reconcile`)return {...data('reconciled'),handle:op.handle};
++    throw new Error('unexpected '+path);
++  };
++  const journey=createJourney(ctx,{request});
++  const paint=value=>{html=value;};
++  async function submit(values={}) {
++    for(const [k,v] of Object.entries(values))fields.set(k,v);
++    const feedback={textContent:'',isConnected:true},button={disabled:false,isConnected:true};
++    await journey.onSubmit({target:{id:'finance-confirm-form',querySelector:selector=>selector==='button[type="submit"]'?button:feedback},preventDefault(){}});
++    return feedback.textContent;
++  }
++  return {ctx,journey,calls,pages,paint,submit,toasts,get html(){return html;},get dialog(){return dialog;},set failRead(v){failRead=v;},set recovery(v){recovery=v;}};
++}
++function snapshot(name,body,route='security') {
++  writeFileSync(`${output}/${name}.html`,`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>静态证据 · 操作保护</title>${['tokens','app','features','journey','glass','banking','protection'].map(n=>`<link rel="stylesheet" href="../../AI_accounting_agent/frontend/liquid-glass/${n}.css">`).join('')}<body><div id="app" class="app-shell" data-route="${route}"><main class="page-content ${route}-page">${body}<p class="hint">真实模块静态输出；无交互脚本，非截图，未做浏览器视觉验收。</p></main></div></body></html>`);
++}
++
++{
++  const f=fixture(),primary=createPrimaryPages(f.ctx);primary.actions['protection-open']();assert.deepEqual(f.pages,['security']);
++  const home=readFileSync('AI_accounting_agent/frontend/liquid-glass/primary-pages.js','utf8');
++  assert.match(home,/btn\('操作保护','protection-open','small'/);
++  await f.journey.pages.security(f.paint);
++  for(const text of ['查询不多一步','动用资金，先核对','结果不明，先查询','配置动态验证码','还没有资金操作记录','不代表已执行检查'])assert.ok(f.html.includes(text),text);
++  assert.doesNotMatch(f.html,/全程安全|银行级|认证通过|已拦截\d|已通过\d|操作保护.*%/);
++  assert.ok(f.calls.every(c=>!c.options));snapshot('01-empty-first-entry',f.html);
++  check('首页紧凑次级入口直达保护说明；空记录只描述已有能力和实际设置，不伪造保护次数或已通过检查，查询无资金确认。');
++}
++{
++  const f=fixture();await f.journey.openOperation(data('needs-confirmation').handle);
++  assert.match(f.dialog.body,/本人确认|核对对象与金额|等待本人确认|尚未执行/);assert.doesNotMatch(f.dialog.body,/finance-code/);
++  snapshot('02-confirmation-reason',f.dialog.body,'banking');
++  const g=fixture({snapshot:data('after-mfa'),op:data('needs-mfa'),confirmed:data('mfa-succeeded')});await g.journey.openOperation(data('needs-mfa').handle);
++  assert.match(g.dialog.body,/理财申购需要核对产品与金额|finance-code|等待动态验证码与本人确认|验证并确认/);
++  assert.doesNotMatch(g.dialog.body,/本人确认与动态验证码已核对/);snapshot('03-verification-reason',g.dialog.body,'banking');
++  assert.equal(await g.submit({'finance-code':'123456'}),'');
++  assert.match(g.dialog.body,/本人确认与动态验证码已核对|已完成/);snapshot('04-actual-verification-record',g.dialog.body,'banking');
++  const legacy=operationRecordHTML(f.ctx,{...data('mfa-succeeded'),confirmation_record:undefined});assert.match(legacy,/未提供独立确认明细/);assert.doesNotMatch(legacy,/本人确认与动态验证码已核对/);
++  check('本人确认与动态验证码按实际状态说明原因；真实确认事实才显示完成记录，旧记录不补造通过信息；现有 challenge/code 传递不变。');
++}
++{
++  const f=fixture();f.ctx.prefs.mask=true;await f.journey.openOperation(data('needs-confirmation').handle);
++  assert.match(f.dialog.body,/显示完整参数/);assert.match(f.dialog.body,/<button type="submit"[^>]*disabled/);
++  assert.doesNotMatch(f.dialog.body,/小林|\$|￥10|CNY|核对完整参数已完成/);
++  const record=operationRecordHTML(f.ctx,data('reconciled'),{hidden:true});assert.ok(!record.includes(data('reconciled').handle));
++  f.journey.actions['journey-reveal']();assert.doesNotMatch(f.dialog.body,/<button type="submit"[^>]*disabled/);assert.match(f.dialog.body,/小林|10\.00/);
++  assert.equal(f.calls.filter(c=>c.options).length,0);snapshot('05-mask-before-reveal',record);
++  check('隐藏模式不泄露对象/金额/操作编号，执行按钮先禁用；显示完整参数仅改变展示，不提交或伪造核对结果。');
++}
++{
++  const unknown=data('unknown'),f=fixture({snapshot:data('pending-with-older-operation'),op:unknown});
++  await f.journey.pages.security(f.paint);assert.ok(f.html.includes(unknown.handle));assert.match(f.html,/先核实待定结果|结果待核实/);snapshot('06-older-unresolved-operation',f.html);
++  await f.journey.openOperation(unknown.handle);assert.match(f.dialog.body,/尚未核实|不要重新发起|核实操作结果|不能认定失败/);
++  assert.doesNotMatch(f.dialog.body,/finance-confirm-form|data-action="protection-new"|journey-edit-operation/);snapshot('07-unknown-recovery',f.dialog.body,'banking');
++  await f.journey.actions['journey-reconcile']({disabled:false});assert.match(f.dialog.body,/账户持久记录核实|已按账户记录核实/);
++  assert.equal(f.calls.filter(c=>c.path.endsWith('/reconcile')).length,1);assert.ok(!f.calls.some(c=>c.path.endsWith('/confirm')||c.path.endsWith('/review')));
++  f.recovery={locked:true,unresolved:1};await f.journey.actions['journey-recovery']();assert.match(f.dialog.body,/核实不会重新发起扣款/);assert.doesNotMatch(f.dialog.body,/finance-recovery-form|验证并恢复/);
++  assert.ok(!f.calls.some(c=>c.path.endsWith('/recover')));
++  check('超过最近12条的未决操作仍可找到；未知结果只核实同一笔，恢复先列待核实操作，不重试扣款、不展示恢复捷径。');
++}
++{
++  // Explicitly synthetic blocked renderer fixture; not a claim of a new detected attack.
++  const blocked={...data('needs-confirmation'),status:'blocked',message:'可用余额不足，请核对账户条件'};
++  const f=fixture({op:blocked});await f.journey.openOperation(blocked.handle);
++  assert.match(f.dialog.body,/可用余额不足|重新查询状态|核对账户条件|重新说明需求/);assert.doesNotMatch(f.dialog.body,/finance-confirm-form|>继续执行<|忽略限制/);snapshot('08-blocked-conditions',f.dialog.body,'banking');
++  assert.match(protectionReason({...blocked,message:'non-user-facing reason'}),/执行前条件未满足/);
++  const appSource=readFileSync('AI_accounting_agent/frontend/liquid-glass/app.js','utf8');
++  const actionSource=appSource.match(/'protection-new':(\(\)=>\{[^\n]+\}),/)[1];
++  let opened=0,closed=0,busy=false;
++  const newIntent=runInNewContext(`(${actionSource})`,{banking:{start:text=>{assert.equal(text,'');opened++;return !busy;}},closeSheet:()=>{closed++;}});
++  newIntent();assert.equal(opened,1);assert.equal(closed,1,'same banking route must also close the old blocked sheet');
++  busy=true;newIntent();assert.equal(closed,1,'busy guard retains the current sheet');
++  const g=fixture();await g.journey.pages.security(g.paint);g.failRead=true;await g.journey.pages.security(g.paint);
++  assert.match(g.html,/暂时无法读取|重新查询|&lt;账户概况读取失败&gt;/);assert.doesNotMatch(g.html,/当前未暂停|已配置/);snapshot('09-read-error',g.html);
++  g.failRead=false;g.recovery={locked:false,unresolved:0};await g.journey.actions['journey-recovery']();assert.equal(g.dialog,null);assert.match(g.toasts.at(-1),/当前未暂停/);
++  check('受阻理由保留实际条件并给查询/修改出口，无绕过确认；读取失败不显示旧设置为通过，未暂停时不增加恢复验证码。');
++}
++{
++  const f=fixture();await f.journey.openOperation(data('needs-confirmation').handle);f.failRead=true;
++  assert.equal(await f.submit(),'');assert.match(f.dialog.body,/已完成|按账户持久记录核实/);assert.match(f.toasts.at(-1),/操作结果已返回/);
++  assert.equal(f.calls.filter(c=>c.path.endsWith('/confirm')).length,1);
++  check('确认已经返回结果时，随后账户概况读取失败不会掩盖该真实结果，也不会触发重试。');
++}
++writeFileSync(`${output}/checks.json`,JSON.stringify({checks,fixture:'real temporary API records; blocked variant and browser/DOM transport are explicitly deterministic stubs',browser_validation:'pending; browser path not retried',live_operations:false},null,2));
++console.log(`PASS: ${checks.length} visible protection groups.`);
+--- /dev/null
++++ b/tests/test_protection_view.py
+@@ -0,0 +1,103 @@
++"""Visible protection facts, using temporary accounts and the real API boundary."""
++import json
++from pathlib import Path
++
++import pytest
++
++from test_finance_workspace import workspace, draft, confirm
++
++
++def evidence(name, value):
++    # Operation challenges and enrollment secrets are never part of review artifacts.
++    def clean(item):
++        if isinstance(item, dict):
++            return {k: clean(v) for k, v in item.items() if k not in {'challenge', 'secret', 'otpauth_uri'}}
++        if isinstance(item, list):
++            return [clean(v) for v in item]
++        return item
++    folder = Path('.runtime/protection-view')
++    folder.mkdir(parents=True, exist_ok=True)
++    (folder / f'{name}.json').write_text(json.dumps(clean(value), ensure_ascii=False, indent=2), encoding='utf-8')
++
++
++def test_confirmation_fact_is_recorded_only_after_actual_verification(workspace):
++    client, module = workspace
++    before = client.get('/finance/overview').json()
++    evidence('empty', before)
++    op = client.post('/finance/operations/review', json={
++        'kind': 'subscribe', 'product_id': 'reserve', 'amount': '80.00',
++        'request_id': 'visible-mfa-subscribe'}).json()
++    assert op['status'] == 'needs_mfa' and op['level'] == 'red'
++    assert 'confirmation_record' not in op
++    evidence('needs-mfa', op)
++    assert confirm(client, op, code='000000').status_code == 409
++    assert 'confirmation_record' not in client.get(f"/finance/operations/{op['handle']}").json()
++    setup = client.post('/finance/mfa/setup', json={}).json()
++    service = module.finance_router.workspace()
++    code = service.totp(setup['secret'])
++    assert client.post('/finance/mfa/activate', json={'code': code}).json()['enabled']
++    assert confirm(client, op, code=code).status_code == 409
++    assert 'confirmation_record' not in client.get(f"/finance/operations/{op['handle']}").json()
++    import finance_workspace
++    stamp = finance_workspace.time.time() + 31
++    with pytest.MonkeyPatch.context() as mp:
++        mp.setattr(finance_workspace.time, 'time', lambda: stamp)
++        result = confirm(client, op, code=service.totp(setup['secret'])).json()
++        assert result['status'] == 'succeeded'
++        assert result['confirmation_record'] == {'confirmed_at': stamp, 'method': 'dynamic_code'}
++        assert confirm(client, op).json()['confirmation_record'] == result['confirmation_record']
++    after = client.get('/finance/overview').json()
++    assert after['cash_minor'] == before['cash_minor'] - 8000
++    assert after['products'][0]['holding_minor'] == 8000
++    assert after['assets_minor'] == before['assets_minor']
++    assert after['operations'][0]['confirmation_record'] == result['confirmation_record']
++    assert not after['unresolved_operations']
++    assert all('challenge' not in item for item in after['operations'])
++    evidence('mfa-succeeded', result)
++    evidence('after-mfa', after)
++
++
++def test_unknown_result_is_listed_and_reconciled_without_a_second_effect(workspace, monkeypatch):
++    client, module = workspace
++    service = module.finance_router.workspace()
++    original = service.gateway.execute
++    before = client.get('/finance/overview').json()['cash_minor']
++    op = draft(client, 'visible-unknown')
++    evidence('needs-confirmation', op)
++    assert 'confirmation_record' not in op
++
++    def post_commit_fault(*args, **kwargs):
++        original(*args, **kwargs)
++        raise RuntimeError('lost response after durable posting')
++
++    monkeypatch.setattr(service.gateway, 'execute', post_commit_fault)
++    unknown = confirm(client, op).json()
++    assert unknown['status'] == 'unknown'
++    assert unknown['confirmation_record']['method'] == 'confirmation'
++    assert unknown['confirmation_record']['confirmed_at'] > 0
++    assert client.get('/finance/overview').json()['cash_minor'] == before - 1000
++    assert confirm(client, op).json()['status'] == 'unknown'
++    # Populate later historical rows to prove unresolved discovery is not capped by recent 12.
++    with service.store._lock:
++        row = service.store._db.execute('SELECT * FROM app_operations WHERE handle=?', (op['handle'],)).fetchone()
++        columns = list(row.keys())
++        for index in range(13):
++            values = dict(row)
++            values.update(handle=f'isolated-history-{index}', request_id=f'history-{index}',
++                          action_id=f'history-action-{index}', created=row['created'] + index + 1,
++                          result=json.dumps({'status': 'cancelled', 'params': unknown['params']}))
++            service.store._db.execute(f"INSERT INTO app_operations ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})", tuple(values[k] for k in columns))
++        service.store._db.commit()
++    snapshot = client.get('/finance/overview').json()
++    assert len(snapshot['operations']) == 12
++    assert not any(item['handle'] == op['handle'] for item in snapshot['operations'])
++    assert [item['handle'] for item in snapshot['unresolved_operations']] == [op['handle']]
++    assert 'challenge' not in snapshot['unresolved_operations'][0]
++    evidence('unknown', unknown)
++    evidence('pending-with-older-operation', snapshot)
++    result = client.post(f"/finance/operations/{op['handle']}/reconcile", json={}).json()
++    assert result['status'] == 'succeeded' and result['evidence'] == 'backend_reconciliation'
++    assert result['confirmation_record'] == unknown['confirmation_record']
++    assert client.get('/finance/overview').json()['unresolved_operations'] == []
++    assert client.get('/finance/overview').json()['cash_minor'] == before - 1000
++    evidence('reconciled', result)

@@ -1,0 +1,25 @@
+/* C2 source-calibrated optical corrections from four independent C1 findings. */
+body[data-approved-ui]{background:radial-gradient(ellipse at 87% 12%,#c8d9ff99,transparent 60%),radial-gradient(ellipse at 0% 68%,#eef7ff,transparent 63%),linear-gradient(132deg,#e7f0ff,#cbdcff 49%,#eef5fd 80%,#d8e4ff)}
+body[data-approved-ui]::before{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20390%20844%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%2217%22/%3E%3C/filter%3E%3ClinearGradient%20id%3D%22r%22%3E%3Cstop%20stop-color%3D%22%23b2c7fa%22%20stop-opacity%3D%22.5%22/%3E%3Cstop%20offset%3D%22.48%22%20stop-color%3D%22white%22%20stop-opacity%3D%22.65%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b7c9fd%22%20stop-opacity%3D%22.3%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg%20filter%3D%22url%28%23blur%29%22%20fill%3D%22none%22%20stroke%3D%22url%28%23r%29%22%20stroke-width%3D%2255%22%3E%3Cpath%20d%3D%22M-80%20-10C110%208%2055%20137%20220%20160S330%20150%20450%20240%22/%3E%3Cpath%20d%3D%22M-50%20225C15%20140%2070%20176%20115%20260S210%20350%20300%20277S415%20335%20455%20390%22/%3E%3Cpath%20d%3D%22M-70%20400C25%20330%2055%20515%20165%20496S270%20330%20430%20490%22/%3E%3Cpath%20d%3D%22M-50%20700C80%20610%20110%20769%20230%20749S330%20624%20440%20720%22/%3E%3C/g%3E%3Cpath%20d%3D%22M260-30C205%2080%20240%20150%20412%20235%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-opacity%3D%22.6%22%20stroke-width%3D%221%22/%3E%3Cpath%20d%3D%22M-35%20625C110%20660%20145%20748%20288%20852%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-opacity%3D%22.65%22%20stroke-width%3D%221%22/%3E%3C/svg%3E");background-size:100% 100%;opacity:.95}
+#app[data-approved-ui]{padding-top:34px}
+#app[data-approved-ui=assistant]{padding-top:46px}
+#app[data-approved-ui] .ap-header h1{font-weight:700}
+#app[data-approved-ui] :is(.ap-home-card,.ap-o-card,.ap-l-glass,.ap-t-card,.ap-b-card){background:linear-gradient(120deg,#ffffff99,#e8edff60 56%,#ffffff80);border:.75px solid #ffffffee;box-shadow:inset 1px 1px 3px #fffffff0,inset -1px -1px 4px #b9c9ef50,0 5px 22px #7a9fd011;backdrop-filter:blur(12px) saturate(125%)}
+#app[data-approved-ui] .ap-home-balance,#app[data-approved-ui] .ap-o-money{font-size:40px;line-height:1.15;font-weight:700;letter-spacing:-.045em}
+#app[data-approved-ui] :is(.ap-home h2,.ap-home-copy strong,.ap-o-flows h2){font-weight:700}
+#app[data-approved-ui] .ap-home-month h2{font-size:22px}
+#app[data-approved-ui] .ap-home-recent{margin-top:12px;gap:16px}
+#app[data-approved-ui] .ap-home-asset:before{width:180px;height:280px;right:-62px;top:-140px;background:linear-gradient(90deg,transparent,#ffffff90 38%,#c2d2fa60 48%,transparent 58%);border:1px solid #ffffffbd;filter:blur(.5px)}
+#app[data-approved-ui] .ap-o-hero{gap:8px;padding:16px;min-height:220px}
+#app[data-approved-ui] .ap-o-composition{width:146px;gap:4px}
+#app[data-approved-ui] .ap-o-ring{width:142px;height:142px;filter:drop-shadow(0 3px 7px #29a38330)}
+#app[data-approved-ui] .ap-o-ring>span{inset:27%;background:radial-gradient(ellipse at 35% 24%,#ffffffaa,#dcf8ec44 70%);box-shadow:inset 1px 1px 4px #ffffff,0 0 2px #f3fffa}
+#app[data-approved-ui] .ap-o-ring>span svg{width:32px;height:32px}
+#app[data-approved-ui] .ap-o-category{height:44px;min-height:44px}
+#app[data-approved-ui] .ap-nav a[aria-current=page]{background:linear-gradient(130deg,#ffffffa0,#cfdaff70);box-shadow:inset .5px .5px 4px #ffffffd0,0 2px 10px #7e9fe41a}
+#app[data-approved-ui] .ap-assistant-greeting{top:42vh}
+#app[data-approved-ui] .ap-assistant-greeting h2{font-weight:600}
+#app[data-approved-ui] .ap-assistant-suggestions button{font-size:12px;min-height:44px}
+#app[data-approved-ui] .ap-assistant-composer{height:56px}
+#app[data-approved-ui] .ap-assistant-composer button{width:40px;height:40px;min-width:44px;min-height:44px}
+@media(max-width:340px){#app[data-approved-ui] .ap-home-balance,#app[data-approved-ui] .ap-o-money{font-size:32px}#app[data-approved-ui] .ap-o-composition{width:112px}#app[data-approved-ui] .ap-o-ring{width:110px;height:110px}#app[data-approved-ui] .ap-o-ring>span svg{width:26px;height:26px}#app[data-approved-ui] .ap-home-month h2{font-size:16px}}

@@ -1,0 +1,47 @@
+{
+  "verified_date_client_timezone": "2026-10-15 Asia/Shanghai",
+  "method": "Public website rendered using Playwright; no authentication or form submissions",
+  "sources": [
+    {
+      "url": "https://fintechathon.g-ican.com/#/",
+      "location": "Homepage, domestic AI task; click 赛题解析 to open dialog",
+      "files": [
+        "home.txt",
+        "home.html",
+        "analysis.txt",
+        "analysis.html"
+      ]
+    },
+    {
+      "url": "https://fintechathon.g-ican.com/#/rule",
+      "location": "Domestic rules, submission flow, scoring",
+      "files": [
+        "rules.txt",
+        "rules.html"
+      ]
+    },
+    {
+      "url": "https://apply.g-ican.com/",
+      "location": "Public login landing; inaccessible authenticated materials not checked",
+      "files": [
+        "application-public.txt"
+      ]
+    }
+  ],
+  "unverified": [
+    "official mock-bank API or SDK",
+    "model whitelist or external-model restriction",
+    "official tool protocol",
+    "hidden evaluation test set",
+    "submission deadline hour"
+  ],
+  "checksums": {
+    "analysis.txt": "34b33c2dcc0945792ff3978f6b802866023152340f410a4bea6abb38e9e13c5a",
+    "home.txt": "9c2140f67343aea46ca03b528e77a55e2c1334ddbb94e83c3756db942ab7eeaa",
+    "rules.txt": "5e76787a77954dbd632d5a3ea0faaeac96ec4029f03c4d184d9eb54d9b9bcfbd",
+    "analysis.html": "da93b002b1f885de48b4890256ecd52e20d3a885e5e59ac478311d21e64b63e9",
+    "rules.html": "6d63784985cb71bf47430a22d128cce62df7f25c4752e2fe08275cbfd2727e0c",
+    "home.html": "2d7e707b41e97132775b569b6b83519227af0bab6d0fb84d8b1edcd813385761",
+    "application-public.txt": "f4654fcb331d9be5a2e18ecd14315fcf6ab403078b4765353fab57010d6e2317"
+  }
+}

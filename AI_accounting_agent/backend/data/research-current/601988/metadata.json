@@ -1,0 +1,89 @@
+{
+  "symbol": "601988",
+  "name": "中国银行",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:24:03.026888+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by -36 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "2026年半年报点评：业绩提升，资产质量优质",
+      "publisher": "国信证券",
+      "published_at": "2026-08-31 00:00:00.000",
+      "info_code": "AP202608311828756249",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601988&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:04.453383+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608311828756249_1.pdf",
+      "local_file": "601988/research-latest.pdf",
+      "sha256": "e97f549f1f3716cfa7d577f2dc1704cccc66487e3e59c63346a2eef139020b68",
+      "download_status": "ok",
+      "pdf_pages": 4,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601988"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601988,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 7.19,
+    "high": 7.23,
+    "low": 6.88,
+    "close": 6.93,
+    "volume_lots": 5003953.0,
+    "volume": 500395300
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601988&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "中国银行2026年半年度报告",
+      "url": "https://www.boc.cn/investor/ir3/202608/t20260828_25688316.html",
+      "retrieved_at_utc": "2026-10-24T17:25:58.471783+00:00",
+      "download_status": "ok",
+      "local_file": "601988/company-disclosure.html",
+      "sha256": "08f6835879b3d37c869d4c54dfb75e38d84ab92aac8b98db172556bb4724be1b",
+      "stock_identity_verified": true,
+      "document_form": "official_landing_page"
+    },
+    {
+      "type": "company_disclosure",
+      "title": "中国银行2026年半年度报告（A股）",
+      "url": "https://pic.bankofchina.com/bocappd/report/202608/P020260828605977184329.pdf",
+      "retrieved_at_utc": "2026-10-24T17:27:12.400524+00:00",
+      "document_form": "full_report_pdf",
+      "download_status": "ok",
+      "local_file": "601988/company-verified.pdf",
+      "sha256": "b798a5056ed8ed888e6d8c89e061ab379c872095dd090b4b14b50e4c42f6186d",
+      "stock_identity_verified": true,
+      "pdf_pages": 183
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601988.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:59.155350+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 7.19,
+      "high": 7.23,
+      "low": 6.88,
+      "close": 6.93,
+      "volume": 500395336
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": -36
+  }
+}

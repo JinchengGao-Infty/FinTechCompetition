@@ -1,206 +1,48 @@
-# 本地 AI 记账助手服务
+> **26fincom_v1 预览运行：请先阅读 [RUNNING.md](RUNNING.md)。此分支复现 65271 的 preview.py 演示；下方启动与安全描述保留为历史记录，不代表本次验证。**
 
-## 系统提示词
+# FinPilot · FinTechathon 2026 银行智能体
 
-存放于 `prompts.py` 的 `DEFAULT_SYSTEM_PROMPT` 会作为默认 System Prompt 注入模型，可覆盖至 `/chat` 请求的 `system_prompt` 字段。
+基于 2026-10-04 FinPilot 发布版，面向 **2026 深圳国际金融科技大赛 · 微众银行金融科技大学生挑战赛（人工智能国内赛道）** 的独立开发项目。基线、复制范围及提交哈希见 [PROJECT-BASELINE.json](PROJECT-BASELINE.json)。原 FinPilot 和财知有度目录不随本项目改变。
 
-核心目标：
-- 将自然语言、票据等信息抽取为结构化账单；
-- 基于本地账单数据库进行分析与建议；
-- 全程使用简体中文；
-- 输出结构化数据时必须返回有效 JSON。
+首轮重点是把现有能力串成可核对的银行任务：转账、账单分析、理财操作；保持 430px 竖版单列和 Liquid Glass。所有资金均为本地模拟银行本金，账本演示记录明确标记为虚构。未接真实银行，也不是官方提供的沙箱。
 
-## 完整运行步骤
+- [官方要求](docs/competition/REQUIREMENTS.md) · [差距分析与开发顺序](docs/competition/FINTECHATHON-GAP-ANALYSIS.md)
+- [本轮技术与安全说明](docs/competition/FINTECHATHON-TECHNICAL-SECURITY.md)
+- [验证记录](docs/competition/VALIDATION-20261015.md)
 
-### 快速启动（推荐）
+## 首轮优化
 
-使用提供的启动脚本一键启动：
+1. 新增统一银行助手 `#/banking`：持久任务、补槽、金额改口、取消、刷新后恢复、版本冲突和请求幂等。模型生成的草稿必须进入原参数表单，另行确认。
+2. 账单事实由服务端以整数分计算，展示区间、分类、上期对比及源账单；退款单列，内部划转和投资本金排除，空区间明确为没有记录。
+3. 独立比赛策略：小额转账日累计不超过 1000 元需确认，超过需多因子验证；**每笔理财申购均需多因子验证**。沿用动态口令、参数绑定、重放防护、未知结果核账及防重复扣款。
+4. 独立端口、账本、资金状态和浏览器 Cookie；保留同源请求及过期只读会话恢复修复。
 
-```bash
-cd /home/bld/data/data4/admin/fintechcom/stitch_bill_auto_scan_entry/server
-./start.sh
-```
+这只是首轮可运行版本。复杂 DAG、多场景协作、卡片/订阅、官方银行接口及完整对抗评测仍待实现或确认；目前任务完成状态仅表示查询完成，资金草稿整理完成不等于交易成功。交易以独立操作记录为准。
 
-脚本会自动：
-- 检查并停止占用 8010 端口的进程
-- 激活虚拟环境
-- 设置环境变量
-- 启动服务
+## 运行
 
-### 手动启动步骤
-
-### 1. 停止占用端口的进程（如需要）
-
-如果端口 8010 已被占用，先停止相关进程：
+Python 3.11+，无需 Node 构建。首次启动自动安装基础依赖：
 
 ```bash
-# 查找占用 8010 端口的进程
-lsof -ti:8010
-
-# 停止进程（将 PID 替换为实际进程号）
-kill -9 $(lsof -ti:8010)
-
-# 或者使用 fuser（如果可用）
-fuser -k 8010/tcp
+python run.py --demo
 ```
 
-### 2. 启动后端服务
+本机入口 `http://127.0.0.1:5503/#/banking`。后端只监听本机 `28210/28220`；前端可用 `--host` 指定服务器局域网地址。`--demo` 使用 `.runtime/demo-bookkeeper` 独立账本，写入当前月及之前六个月的虚构流水，重复启动不会重复导入。
+
+已安装依赖可运行 `python run.py --demo --no-install --no-browser`。基础模式的模型默认关闭，账单确定性查询和手工操作仍可使用；资金自然语言理解会明确提示模型不可用。
+
+启用模型：复制 `.env.example` 为 `.env`，设置 `LLM_PROVIDER=api`、`LLM_BASE_URL`（含 `/v1`）和 `LLM_MODEL`；需要时填写服务端密钥。当前开发服务器连接已部署的本地 `qingcai-qwen3-4b-finance-v4` 服务，没有重新训练；仓库含历史 LoRA 适配器，基座模型另备。不要把 `.env`、账本或 `.runtime` 放入发布包。
+
+## 测试
 
 ```bash
-# 进入服务目录
-cd /home/bld/data/data4/admin/fintechcom/stitch_bill_auto_scan_entry/server
-
-# 激活虚拟环境
-source .venv/bin/activate
-
-# 设置环境变量
-export QWEN_MODEL_DIR="/home/bld/data/data4/admin/fintechcom/Qwen2.5-VL-3B-Instruct/model"
-export PORT=8010
-
-# 启动服务
-python app.py
+python -m pip install -r AI_accounting_agent/backend/requirements-core.txt -r tests/requirements.txt
+python -m pytest -q tests/test_banking_tasks.py tests/test_bill_facts.py tests/test_finance_workspace.py tests/test_finance_planning.py
+node tests/navigation.test.mjs
+node tests/banking_frontend.test.mjs
 ```
 
-服务启动后，你应该看到类似输出：
-```
-INFO:     Started server process [PID]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8010 (Press CTRL+C to quit)
-```
+本轮测试结果和真实模型验证范围见验证记录。`VALIDATION.json`、`materials/` 内 PPT/PDF/压缩包、旧 `docs/competition/TECHNICAL.md` 等为 **10 月 4 日基线历史材料，不是本届新版本提交材料或新验证结果**；没有执行赛事提交或推送新的 GitHub 仓库。
 
-### 3. 验证服务运行
-
-在另一个终端窗口测试服务：
-
-```bash
-# 健康检查
-curl http://localhost:8010/health
-
-# 或使用浏览器访问
-# http://10.120.17.24:8010/health
-```
-
-### 4. 启动前端静态服务器（可选）
-
-如果需要访问前端页面，在项目根目录启动 HTTP 服务器：
-
-```bash
-# 进入项目根目录
-cd /home/bld/data/data4/admin/fintechcom/stitch_bill_auto_scan_entry/stitch_bill_auto_scan_entry
-fuser -k 5500/tcp
-# 启动静态服务器（端口 5500）
-python3 -m http.server 5500 --bind 0.0.0.0
-```
-
-然后在浏览器访问：
-- 财务报告：`http://10.120.17.24:5500/visualization/code.html`
-- 财务顾问：`http://10.120.17.24:5500/financial_advice/code.html`
-- 交易列表：`http://10.120.17.24:5500/transaction_list/code.html`
-
-### 5. 后台运行（生产环境）
-
-如果需要后台运行服务：
-
-```bash
-# 使用 nohup 后台运行
-cd /home/bld/data/data4/admin/fintechcom/stitch_bill_auto_scan_entry/server
-source .venv/bin/activate
-export QWEN_MODEL_DIR="/home/bld/data/data4/admin/fintechcom/Qwen2.5-VL-3B-Instruct/model"
-export PORT=8010
-nohup python app.py > server.log 2>&1 &
-
-# 查看日志
-tail -f server.log
-
-# 停止服务
-pkill -f "python app.py"
-```
-
-默认数据目录：`server/data/bills.db`，可通过环境变量 `AI_BOOKKEEPER_DATA_DIR` 自定义。
-
-## REST 接口
-
-### 健康检查
-```
-GET /health
-```
-返回模型设备、账单数量、数据库路径。
-
-### 账单管理
-```
-GET /bills?limit=100&category=餐饮&type=expense&start_date=2025-11-01&end_date=2025-11-07
-POST /bills
-GET /bills/summary
-```
-
-`POST /bills` 请求体：
-```json
-{
-  "event_date": "2025-11-07",
-  "category": "餐饮",
-  "type": "expense",
-  "amount": 48.00,
-  "currency": "CNY",
-  "description": "午餐",
-  "source": "ocr",
-  "metadata": {"raw": "原始文本"}
-}
-```
-
-### 聊天接口
-```
-POST /chat
-```
-- `system_prompt` 可选，默认使用 `DEFAULT_SYSTEM_PROMPT`
-- `include_bill_context` 默认为 `true`，会把最新 20 条账单以系统消息注入模型上下文
-
-示例：
-```json
-{
-  "messages": [
-    {"role": "user", "content": "总结最近的餐饮支出"}
-  ],
-  "max_new_tokens": 256
-}
-```
-
-### 财务报告接口
-```
-GET /reports/aggregate
-```
-- 数据来源：`server/data/synthetic_bank_bills.jsonl` 过去一年的账单
-- 返回内容：
-  - `week` / `month` / `year` 三个维度的收入、支出柱状图数据
-  - 本期净储蓄与上一期对比
-  - 支出类别（餐饮 / 出行 / 购物 / 生活缴费 / 娱乐 / 其他）本期与上一期对比
-  - 支出占比饼图数据
-- 前端可直接根据 `bars`、`net`、`categories`、`pie`、`summary` 字段渲染图表
-- 自定义报表：可携带 `start_date=YYYY-MM-DD&end_date=YYYY-MM-DD` 查询参数，接口会根据时间跨度自动决定按日 / 周 / 月聚合，并返回 `custom` 字段
-
-### 财务建议接口
-```
-GET /advice/context
-```
-- 数据来源：`server/data/bills.db` 数据库
-- 返回内容：
-  - `overview`：最近30天的财务概览数据（收入、支出、净储蓄、分类变化等）
-  - `behavior`：过去180天的消费行为分析数据（月度统计、风险标志、波动性等）
-  - `advice`：最近90天的财务建议数据（收入/支出结构、储蓄率、压力点等）
-- 前端可基于这些数据调用 `/chat` 接口生成 AI 总览、行为分析和财务建议
-
-## 前端集成
-
-所有页面可通过 `localStorage.setItem('AI_BOOKKEEPER_API', 'http://HOST:PORT')` 或在"设置与集成"页面中的"后端服务"卡片配置后端地址。
-- `bill_auto-scan_&_entry_1`：三种录入方式会调用 `/chat` → `/bills` 自动解析并入库。
-- `transaction_list/code.html`：加载 `/bills` 与 `/bills/summary`，支持搜索筛选与 AI 总结。
-- `visualization/code.html`：使用 `/reports/aggregate` 渲染周 / 月 / 年财务报告及储蓄目标。
-- `financial_advice/code.html`：使用 `/advice/context` 获取数据，调用 `/chat` 生成 AI 总览、行为分析和财务建议。
-- `welcome_&_setup_4`：聊天页面默认自动带入账单上下文。
-
-静态页面访问示例：
-```
-python3 -m http.server 5500 --bind 0.0.0.0
-# Windows 浏览器访问 http://10.120.17.24:5500/welcome_%26_setup_4/code.html
-```
+源自 [FinPilot](https://github.com/gr-peng/gonghang) 和 [FinTechathon](https://github.com/gr-peng/FinTechathon)，保留 [原始归属与许可](docs/competition/ATTRIBUTION.md)；MOSAIC Guard、Qwen 等第三方组件不宣称为自研算法。原 README 保存在 [历史目录](docs/legacy/README-FINPILOT-20261004.md)。
 

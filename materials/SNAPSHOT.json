@@ -1,0 +1,46 @@
+{
+  "version": "2026-10-04-FinPilot-wealth-overview",
+  "repository": "https://github.com/gr-peng/gonghang",
+  "branch": "main",
+  "upstream": "https://github.com/gr-peng/FinTechathon",
+  "upstream_base_commit": "8a68b0ce23047aa0fb11e1ed5484af7e4010d9aa",
+  "upstream_note": "Current working application includes later changes beyond this historical commit.",
+  "model": "qingcai-qwen3-4b-finance-v4",
+  "adapter_sha256": "b7445ac2453391471483c4f4ed73a797e8380dcb314c49646bda7024b9b01e9e",
+  "portrait_max_width_px": 430,
+  "route_count": 20,
+  "presentation_slides": 15,
+  "retrained_during_publication": false,
+  "includes": [
+    "current application",
+    "training and evaluation scripts",
+    "synthetic datasets",
+    "finance-v4 adapter and tokenizer",
+    "historical research fixtures",
+    "tests",
+    "PPT and PDF",
+    "competition documents",
+    "validation and file manifests"
+  ],
+  "excludes": [
+    "private ledgers",
+    "runtime state",
+    "environment credentials",
+    "access tokens",
+    "financial sessions",
+    "TOTP secrets",
+    "base model weights"
+  ],
+  "publishing_changes": [
+    "manual personal assets and liabilities with net worth and available cash",
+    "personal ledger emergency reserve comparison",
+    "12 contextual glossary entries and hypothetical fee/price scenario",
+    "two-member team and updated 15-slide materials"
+  ],
+  "name": "FinPilot",
+  "subtitle": "可解释财富管理智能体",
+  "icbc_track": "财富管理服务",
+  "previous_publication_commit": "5542f2373c6af03283781167e2d9875267f67059",
+  "original_portable_source_bundle_sha256": "68f4651088a2c2b9686652e0b40f4b9f681b49391714f4b6d28eb9928e853bef",
+  "team_members": 2
+}

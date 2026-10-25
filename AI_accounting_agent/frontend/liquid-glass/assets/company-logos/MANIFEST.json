@@ -1,0 +1,22 @@
+{
+  "official_site_assets": 10,
+  "total_company_logos": 10,
+  "third_party_hosted_asset": null,
+  "no_hotlinks": true,
+  "no_generated_logos": true,
+  "official_crops": "exact original pixels; sources and crop rectangles recorded",
+  "files": {
+    "600036.png": "a4fffb8937a2d2f0c13f161252e776d18d413702e976a4fb025db03ab6fe02af",
+    "600519.png": "c82f9ff39b420a5eb1aaedb8695f7ab685554799f8cb35addfd9cd9aeae0cc42",
+    "600900.png": "6b839bf35b36bb5d5ea03e28b0fcb37f3b7983e0417c280ce4596d5aaf7c9bb6",
+    "601088.png": "d6c40339c37cac02ee9da918c97a221cf3e933360529c469d27d0558bd1efda5",
+    "601138.png": "6d9bab7ca5f0996a440e0c16b3529483550f7d07740b9658cf73a2a2fdc2bb83",
+    "601288.png": "247dfdb21b27598ddc2434f59eee0075a75c9d1a41b1c12881743c631c1e6049",
+    "601398.png": "6e30ee9ea4dba06ff6241e2d33ca6bb2a492f5b816335d8f099a7e141e1749ec",
+    "601628.png": "41f98d0f2ff00fa559afd9a3ecb970b296e9f39346546c2ddaff4d46fcfdda78",
+    "601988.png": "588e19a8ff36c95f1e54790f34f62571401c0abee24b99cf103128d81db0b334",
+    "601857.svg": "ad5bd5f29cca05e37cf2a08ac4ad851ad80d7375b31ff31f6394c9c519c8efc3"
+  },
+  "official_601857": "Direct CNPC USA corporate website shared PetroChina/CNPC emblem crop; see PETROCHINA-SOURCE.json",
+  "rights_notice": "Official public sourcing does not grant commercial reuse rights. Trademarks remain with their respective owners."
+}

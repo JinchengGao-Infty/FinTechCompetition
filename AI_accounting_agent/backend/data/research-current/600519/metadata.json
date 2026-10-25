@@ -1,0 +1,98 @@
+{
+  "symbol": "600519",
+  "name": "贵州茅台",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:23:59.180145+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 7 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "贵州茅台公司跟踪报告：以动销定投放，缓解市场压力，低速稳态发展",
+      "publisher": "诚通证券",
+      "published_at": "2026-09-21 00:00:00.000",
+      "info_code": "AP202609211829719676",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.193259+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609211829719676_1.pdf",
+      "local_file": "600519/research-latest.pdf",
+      "sha256": "8db286454e4d953e69f1d476ff5dc4647e598097f60d68fce754a996942709e2",
+      "download_status": "ok",
+      "pdf_pages": 15,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "600519"
+    },
+    {
+      "type": "broker_research",
+      "title": "2026年中报点评：茅台酒稳健，系列酒主动调整",
+      "publisher": "西南证券",
+      "published_at": "2026-08-21 00:00:00.000",
+      "info_code": "AP202608211828244348",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.193259+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608211828244348_1.pdf"
+    },
+    {
+      "type": "broker_research",
+      "title": "市场化改革带来短期业绩阵痛，公司改革成效显著，基本面仍具韧性",
+      "publisher": "中银证券",
+      "published_at": "2026-08-21 00:00:00.000",
+      "info_code": "AP202608211828236036",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:01.193259+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608211828236036_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600519,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 1311.84,
+    "high": 1343.88,
+    "low": 1310.0,
+    "close": 1335.0,
+    "volume_lots": 57686.0,
+    "volume": 5768600
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=600519&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "贵州茅台2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-15/1225475868.PDF",
+      "retrieved_at_utc": "2026-10-24T17:25:55.139774+00:00",
+      "download_status": "ok",
+      "local_file": "600519/company-disclosure.pdf",
+      "sha256": "0e10aa26be46b1cf3cd03f06e834c7fb98d5dd0d661b96f8fddd4af7e846a4f6",
+      "stock_identity_verified": true,
+      "pdf_pages": 110,
+      "document_form": "full_report_pdf"
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/600519.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:56.638396+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 1311.84,
+      "high": 1343.88,
+      "low": 1310.0,
+      "close": 1335.0,
+      "volume": 5768593
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": 7
+  }
+}

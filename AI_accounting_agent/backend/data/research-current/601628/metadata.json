@@ -1,0 +1,110 @@
+{
+  "symbol": "601628",
+  "name": "中国人寿",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:24:02.383217+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 32 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "中报点评：投资收益靓丽，价值增长强劲",
+      "publisher": "国信证券",
+      "published_at": "2026-08-28 00:00:00.000",
+      "info_code": "AP202608281828623910",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.660314+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608281828623910_1.pdf",
+      "local_file": "601628/research-latest.pdf",
+      "sha256": "b4a66bb3bb885a7eff6608f2ba8b9bfee662c6b31b40f8d8991fb2f58051eea0",
+      "download_status": "ok",
+      "pdf_pages": 5,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601628"
+    },
+    {
+      "type": "broker_research",
+      "title": "中国人寿2026年中报点评：业绩和NBV表现优异，高股息资产增配明显",
+      "publisher": "开源证券",
+      "published_at": "2026-08-28 00:00:00.000",
+      "info_code": "AP202608281828618305",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.660314+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608281828618305_1.pdf"
+    },
+    {
+      "type": "broker_research",
+      "title": "2026年中报点评：归母净利润与NBV增速领先，资负两端表现均亮眼",
+      "publisher": "东吴证券",
+      "published_at": "2026-08-28 00:00:00.000",
+      "info_code": "AP202608281828565665",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:03.660314+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202608281828565665_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601628,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 33.86,
+    "high": 34.5,
+    "low": 33.15,
+    "close": 34.5,
+    "volume_lots": 252075.0,
+    "volume": 25207500
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601628&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "中国人寿2026年半年度报告",
+      "url": "https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-08-28/601628_20260828_WB6O.pdf",
+      "retrieved_at_utc": "2026-10-24T17:25:57.907372+00:00",
+      "download_status": "invalid_response",
+      "local_file": "601628/company-disclosure.html",
+      "sha256": "8fa9ac256431f98228811eda43d6fd4ac97d0d01e889c3e2123cf6d4bcc2f0b5",
+      "stock_identity_verified": false,
+      "document_form": "official_landing_page",
+      "error": "Server returned HTML rather than requested company PDF; not a verified disclosure."
+    },
+    {
+      "type": "company_disclosure",
+      "title": "中国人寿2026年半年度报告摘要",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-27/1225519054.PDF",
+      "retrieved_at_utc": "2026-10-24T17:27:12.399629+00:00",
+      "document_form": "report_summary_pdf",
+      "download_status": "ok",
+      "local_file": "601628/company-verified.pdf",
+      "sha256": "27040c54917be20487f89941691d222c1713b5933ac6086b3d8d6c7b3c06e632",
+      "stock_identity_verified": true,
+      "pdf_pages": 21
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601628.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:58.640258+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 33.86,
+      "high": 34.5,
+      "low": 33.15,
+      "close": 34.5,
+      "volume": 25207468
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": 32
+  }
+}

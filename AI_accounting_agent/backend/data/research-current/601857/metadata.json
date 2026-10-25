@@ -1,0 +1,98 @@
+{
+  "symbol": "601857",
+  "name": "中国石油",
+  "exchange": "SSE",
+  "retrieved_at_utc": "2026-10-24T17:24:02.541688+00:00",
+  "gaps": [
+    "Tencent volume rounded to whole lots; Yahoo exact share volume differs by 19 shares on latest date."
+  ],
+  "research": [
+    {
+      "type": "broker_research",
+      "title": "各板块利润同比增长，经营业绩创同期新高",
+      "publisher": "中银证券",
+      "published_at": "2026-09-03 00:00:00.000",
+      "info_code": "AP202609031828977081",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:04.289142+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609031828977081_1.pdf",
+      "local_file": "601857/research-latest.pdf",
+      "sha256": "5c4d6fa74fba7586d352acefeb09292150852f5185ae919dca0e4bf4f48c8f43",
+      "download_status": "ok",
+      "pdf_pages": 6,
+      "stock_identity_verified": true,
+      "verification": "PDF first three pages contain code or company name",
+      "identity_evidence": "601857"
+    },
+    {
+      "type": "broker_research",
+      "title": "上游业务利润同环比高增，第二季度归母净利润556亿",
+      "publisher": "国信证券",
+      "published_at": "2026-09-02 00:00:00.000",
+      "info_code": "AP202609021828916120",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:04.289142+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609021828916120_1.pdf"
+    },
+    {
+      "type": "broker_research",
+      "title": "全产业链盈利改善，上半年业绩创历史同期新高",
+      "publisher": "信达证券",
+      "published_at": "2026-09-01 00:00:00.000",
+      "info_code": "AP202609011828877133",
+      "source_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+      "retrieved_at_utc": "2026-10-24T17:24:04.289142+00:00",
+      "url": "https://pdf.dfcfw.com/pdf/H3_AP202609011828877133_1.pdf"
+    }
+  ],
+  "kline_source_url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601857,day,,,250,qfq",
+  "kline_status": "ok",
+  "bars": 250,
+  "first_trade_date": "2025-10-14",
+  "last_trade_date": "2026-10-23",
+  "latest": {
+    "date": "2026-10-23",
+    "open": 12.58,
+    "high": 12.93,
+    "low": 12.49,
+    "close": 12.75,
+    "volume_lots": 1834282.0,
+    "volume": 183428200
+  },
+  "adjustment": "forward-adjusted (qfq)",
+  "units": {
+    "OHLC": "CNY/share",
+    "volume_lots": "100 shares/lot",
+    "volume": "shares"
+  },
+  "research_api_url": "https://reportapi.eastmoney.com/report/list?code=601857&qType=0&beginTime=2026-07-01&endTime=2026-10-24&pageSize=3&pageNo=1",
+  "disclosures": [
+    {
+      "type": "company_disclosure",
+      "title": "中国石油2026年半年度报告",
+      "url": "https://static.cninfo.com.cn/finalpage/2026-08-31/1225535179.PDF",
+      "retrieved_at_utc": "2026-10-24T17:25:58.039277+00:00",
+      "download_status": "ok",
+      "local_file": "601857/company-disclosure.pdf",
+      "sha256": "05e2f4240beebde9bb29acd8a0d39e4db3e8c474cc7727bdbe7c244177871aa1",
+      "stock_identity_verified": true,
+      "pdf_pages": 169,
+      "document_form": "full_report_pdf"
+    }
+  ],
+  "crosscheck": {
+    "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/601857.SS?range=5d&interval=1d",
+    "retrieved_at_utc": "2026-10-24T17:25:59.848858+00:00",
+    "status": "ok",
+    "last_trade_date": "2026-10-23",
+    "values": {
+      "open": 12.58,
+      "high": 12.93,
+      "low": 12.49,
+      "close": 12.75,
+      "volume": 183428181
+    },
+    "OHLC_match": true,
+    "volume_difference_shares": 19
+  }
+}

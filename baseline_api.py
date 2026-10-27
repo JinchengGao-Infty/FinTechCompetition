@@ -1,6 +1,7 @@
 """Adapter for copied 65271 owner-position components. No network or bank tools."""
 from pathlib import Path
 from urllib.parse import urlsplit
+import json
 from baseline_backend.personal_positions import PersonalPositionStore, PositionConflict
 from baseline_backend.market_reference import MarketReference
 
@@ -16,6 +17,21 @@ def services():
     if _market is None:
         _market = MarketReference(ROOT / 'web' / 'assets' / 'research')
     return _positions, _market
+
+
+def create_demo_db(target):
+    """Write the synthetic fixture to a new database; return None if one already exists."""
+    target = Path(target).resolve()
+    if target.exists():
+        return None
+    fixture = json.loads((ROOT / 'demo' / 'positions.synthetic.json').read_text(encoding='utf-8'))
+    if fixture.get('kind') != 'synthetic-demo':
+        raise SystemExit('Expected explicit synthetic fixture')
+    store = PersonalPositionStore(target)
+    revision = store.list()['revision']
+    for position in fixture['positions']:
+        revision = store.save(position, revision)['revision']
+    return {'synthetic_positions': len(store.list()['holdings']), 'database_created': True}
 
 
 def read(path):

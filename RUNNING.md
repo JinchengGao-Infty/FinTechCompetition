@@ -1,35 +1,40 @@
-# 运行与预览
+# 运行说明
 
-## 本地启动
-
-```sh
-python tools/init_demo.py
-python server.py --port 65281
-```
-
-正常入口：<http://127.0.0.1:65281/?session=demo#/today>
-
-原材质回退：<http://127.0.0.1:65281/?session=demo&material=off#/today>
-
-首轮初始化生成4条明确合成的持仓，不复制任何用户SQLite；重复运行不会覆盖既有数据库。删除或更改自己的数据之前应自行备份，初始化脚本不提供强制重置。
-
-## 桌面预览居中
-
-App最大宽390px，桌面按页面可用宽度居中，外围纯白。若物理窗口很宽而页面仍贴在左侧，先检查是否遗留浏览器的移动测试视口覆盖：本次问题实测外窗1707但innerWidth390，页面zoom/visualViewport.scale均1；App/导航/画布在390内实际居中。使用支持的viewport API显式恢复1707×932后，三层中心均845.333，与clientWidth/2差不到1px，无需改CSS。
-
-页面代码不会擅自改变浏览器窗口或清除开发者工具设置。响应式测试必须在finally收尾中恢复正常桌面视口，并重新检查innerWidth及App/导航/画布中心。仅调用reset但innerWidth仍390不算恢复成功；本轮reset返回成功却没有效果，随后通过受支持的显式桌面设置恢复。不要为测试覆盖问题改页面缩放或偏移内容。
-
-iframe中的App相对于iframe自己的视口居中。320/390窄屏保留原布局、导航与触控区域。不要保留 `material-audit=1`、`material-fail=webgl` 或 `material-fail=compile` 作为正常演示入口。
-
-## 可选连接
-
-不加额外参数时仅本地场景。仅在独立配置外部模型时使用 `python server.py --port 65281 --allow-api`；不要在命令行、文件或URL中放API key。模型不能直接执行资金工具；没有真实金融接口。
-
-## 测试
+## 启动
 
 ```sh
-node --test tests/*.test.mjs
-python -m unittest discover -s tests -p "test_*.py"
+python server.py                 # 默认端口 65281
+python server.py --port 8080     # 端口被占用时换一个
 ```
 
-`.runtime/` 中生成的SQLite与预算、浏览器localStorage及密钥均不属于源码。`.gitignore` 只允许该目录中的空占位文件进入版本控制。首次干净克隆中默认保守预算为0；这不代表任何提供商可用余额。
+终端保持运行，`Ctrl+C` 停止。服务只监听 127.0.0.1，局域网内其他设备访问不到。
+
+首次启动会在 `.runtime/positions.sqlite3` 写入 4 条合成持仓；之后不会覆盖这份数据。想回到初始持仓，停掉服务后删除这个文件再启动。也可以单独执行 `python tools/init_demo.py`。
+
+## 入口
+
+| 地址 | 用途 |
+| --- | --- |
+| `http://127.0.0.1:65281/` | 宽屏打开是展示页（介绍、演示路线、手机外框）；窄屏直接进入 App |
+| `http://127.0.0.1:65281/?app=1&session=demo#/today` | 跳过展示页，全屏打开 App |
+| 在以上地址的 `?` 后加 `material=off` | 关闭液态玻璃材质，用于性能较弱的机器或投影仪 |
+
+`session` 参数决定浏览器本地状态的命名空间：换一个名字就是一套全新的任务、账本和对话。展示页的「重置演示」会清空 `session=demo` 的本地状态。
+
+## 接入大模型（可选）
+
+默认 Bot 用本地规则回复，离线即可完整演示。需要真实模型对话时：
+
+```sh
+python server.py --allow-api
+```
+
+然后在 App 的「我的 → 模型与连接」里填入密钥。密钥只保存在服务进程内存中，不写文件、日志或浏览器存储，服务重启即失效。代理目标为 `https://www.micuapi.ai/v1/chat/completions`，模型 `deepseek-v4-flash-0731`；`API-CONFIG.example.json` 只是说明，服务不会读取它。
+
+模型只能解释和整理任务，不能直接执行任何资金操作；授权、确认和验证仍由任务引擎控制。
+
+## 常见问题
+
+- **投资页提示「持仓暂时无法载入」**：页面不是通过 `server.py` 打开的（例如直接双击了 `index.html`，或用了别的静态服务器）。持仓和研究数据都需要本机接口。
+- **桌面上 App 贴在左边或只有 390px 宽**：检查浏览器开发者工具是否还开着移动设备模拟。
+- **动画卡顿**：加 `material=off`，或在「我的 → 消息偏好」里打开「减少动画」。

@@ -44,7 +44,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('Referrer-Policy', 'no-referrer')
         self.send_header('Cache-Control', 'no-store')
-        self.send_header('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        self.send_header('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'")
         super().end_headers()
 
     def reply(self, data, code=200, cookie=None):
@@ -303,6 +303,14 @@ if __name__ == '__main__':
                         SESSIONS[token]['key'] = None
                         SESSIONS.pop(token, None)
     threading.Thread(target=purge_expired, daemon=True).start()
+    if baseline_api.create_demo_db(ROOT / '.runtime' / 'positions.sqlite3'):
+        print('首次启动：已写入合成演示持仓', flush=True)
+    # 页面并发加载几十个 ES 模块和样式表；默认 backlog 只有 5，会被重置连接。
+    ThreadingHTTPServer.request_queue_size = 128
     server = ThreadingHTTPServer(('127.0.0.1', PORT), Handler)
-    print(json.dumps({'origin': f'http://127.0.0.1:{PORT}', 'external_api_enabled': ALLOW_API, 'bank_connected': False}), flush=True)
+    origin = f'http://127.0.0.1:{PORT}'
+    print(f'FinPilot 已启动（外部模型{"开启" if ALLOW_API else "关闭"}，未连接任何银行）', flush=True)
+    print(f'  桌面演示  {origin}/', flush=True)
+    print(f'  手机视图  {origin}/?app=1&session=demo#/today', flush=True)
+    print('Ctrl+C 停止', flush=True)
     server.serve_forever()

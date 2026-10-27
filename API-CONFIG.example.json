@@ -1,0 +1,8 @@
+{
+  "external_api_enabled": false,
+  "base_url": "https://www.micuapi.ai/v1",
+  "model": "deepseek-v4-flash-0731",
+  "api_key": "",
+  "storage": "temporary server memory only",
+  "note": "Documentation example; not automatically loaded by server.py."
+}

@@ -1,10 +1,5 @@
-# Preserve reviewed bytes and dataset hashes across platforms.
+# Preserve the verified source/reference byte hashes across clone platforms.
 * -text
 *.png binary
-*.webp binary
 *.jpg binary
-*.jpeg binary
 *.pdf binary
-*.pptx binary
-*.zip binary
-*.safetensors binary

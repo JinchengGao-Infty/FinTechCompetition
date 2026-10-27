@@ -1,0 +1,52 @@
+@import url('assets/radix/slate.css');
+@import url('assets/radix/indigo.css');
+@import url('assets/radix/blue.css');
+@import url('assets/radix/iris.css');
+@import url('assets/radix/violet.css');
+@import url('assets/radix/cyan.css');
+@import url('assets/radix/amber.css');
+@import url('assets/radix/green.css');
+@import url('assets/radix/red.css');
+@import url('assets/radix/slate-alpha.css');
+@import url('assets/radix/indigo-alpha.css');
+@import url('assets/radix/blue-alpha.css');
+@import url('assets/radix/iris-alpha.css');
+@import url('assets/radix/white-alpha.css');
+@import url('assets/radix/black-alpha.css');
+/* Radix Colors 3.0.0. Semantic roles follow the official 12-step scale.
+   Opaque white is the Radix light-theme canvas/foreground primitive. */
+:root {
+ --white: #fff;
+ --canvas: var(--indigo-2);
+ --ink: var(--slate-12);
+ --muted: var(--slate-11);
+ --accent: var(--indigo-11);
+ --surface: var(--white-a9);
+ --surface-strong: var(--white-a11);
+ --edge: var(--indigo-a6);
+ --separator: var(--slate-a6);
+ --control: var(--indigo-3);
+ --control-hover: var(--indigo-4);
+ --control-selected: var(--indigo-5);
+ --control-border: var(--indigo-7);
+ --control-border-hover: var(--indigo-8);
+ --solid: var(--indigo-9);
+ --solid-hover: var(--indigo-10);
+ --success: var(--green-11);
+ --danger: var(--red-11);
+ --chart-1: var(--indigo-9);
+ --chart-2: var(--iris-9);
+ --chart-3: var(--blue-9);
+ --chart-4: var(--violet-9);
+ --chart-5: var(--cyan-9);
+ --chart-6: var(--amber-9);
+ --chart-7: var(--slate-9);
+ --text-small: 12px;
+ --text-body: 14px;
+ --text-title: 20px;
+ --text-value: 28px;
+ --hairline: .5px;
+ --radius-card: 24px;
+ --radius-control: 12px;
+ --transition: 250ms ease-out;
+}

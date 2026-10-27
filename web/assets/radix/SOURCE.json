@@ -1,0 +1,72 @@
+{
+  "package": "@radix-ui/colors",
+  "version": "3.0.0",
+  "url": "https://registry.npmjs.org/@radix-ui/colors/-/colors-3.0.0.tgz",
+  "integrity": "sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==",
+  "files": [
+    {
+      "path": "slate.css",
+      "sha256": "bb43cc7c9d444eead943972afb8926e73878b2df5b98f06f6e8b46c6d2e662d8"
+    },
+    {
+      "path": "indigo.css",
+      "sha256": "d15d5e51e151783896f698cb17b904bbe453bc42bee5f341329e9bb66247a75e"
+    },
+    {
+      "path": "blue.css",
+      "sha256": "01862cc2b3c61bc4d7724d764b919124ae83fb2b00c0aaa55bf9c7d94557459f"
+    },
+    {
+      "path": "iris.css",
+      "sha256": "54a143c0edd3869d98093f1e5573e909d3addb060a4457e080a41429e1d68b13"
+    },
+    {
+      "path": "violet.css",
+      "sha256": "9cea56f1c78c2d0c7e3050facb62f39dec761dd711cb11a09538da9435225c6f"
+    },
+    {
+      "path": "cyan.css",
+      "sha256": "8f94f1846f8f2a28e07f3ad4121a57de050569ebbace4f053984016937fb0e20"
+    },
+    {
+      "path": "amber.css",
+      "sha256": "18ec7c43c6f21b3747aeecbac362ae0096dabef0a9f68095f676b57be7af6150"
+    },
+    {
+      "path": "green.css",
+      "sha256": "65e22a890eeacb3ac9853430fdd0233f0b86bcaa74a786763fb3069d283d95aa"
+    },
+    {
+      "path": "red.css",
+      "sha256": "b6ff5723edb3161efb8e0217ee373d0d4f844f63f921f0fd88fe970754a9b7a2"
+    },
+    {
+      "path": "slate-alpha.css",
+      "sha256": "b9cc7516fa13193ce6270368cfea52540925732a573d2b4a6275589dbbc253d9"
+    },
+    {
+      "path": "indigo-alpha.css",
+      "sha256": "a4c3d4a9f7a5f0e5402f261be15dcb8268851fcafd4a75394f62d56312e88296"
+    },
+    {
+      "path": "blue-alpha.css",
+      "sha256": "359da590e653bc3624ed0584d28756fd667b9c4c61fc6ab7f247dbf3011c0aa3"
+    },
+    {
+      "path": "iris-alpha.css",
+      "sha256": "d1f5989479c94475b11ed161ebd78a3a5e65c691c826b545e6a7fbad6b81b031"
+    },
+    {
+      "path": "white-alpha.css",
+      "sha256": "52474300017ba6f0537943b81397632a17556f9fc1525926fffe4dbe78f66b48"
+    },
+    {
+      "path": "black-alpha.css",
+      "sha256": "e6b71542a09980c154a1eb0e6d34ccf6401af0781076087478572d6bee4f6098"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "9c400881b9139571aa7acc3bd6e422a4f05223b4519169fb661298fb44bf228e"
+    }
+  ]
+}

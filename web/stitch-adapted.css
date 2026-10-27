@@ -1,0 +1,15 @@
+/* Actual source: design/stitch/home/code.html, exported from screen
+ b68f7a7688ab47cc9d2352439baa24a1 in project11578715648375688240.
+ Rebuilt without Tailwind CDN/remote fonts. Retains salary action bar,
+ two-column status glance, and promise/goal rows from Stitch; approved65271
+ background, Chinese system font and restrained accent remain authoritative. */
+.stitch-salary{border-radius:24px;background:linear-gradient(135deg,var(--white-a11),var(--white-a9) 65%,var(--indigo-a3));backdrop-filter:blur(18px);padding:20px;box-shadow:none}
+.stitch-salary .salary-title{display:flex;align-items:center;gap:10px;margin-top:16px}
+.stitch-salary .salary-amount{font-size:var(--text-value);font-weight:600;color:var(--accent);letter-spacing:-1px;margin:16px 0 6px}
+.stitch-salary .salary-action{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stitch-salary .salary-action small{max-width:120px}
+.stitch-goal{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;padding:16px 0;border-bottom:.5px solid var(--separator)}
+.stitch-goal:last-child{border:0}.stitch-goal strong{font-size:var(--text-body);font-weight:500}.stitch-goal .goal-track{grid-column:1/-1;margin-top:0}
+.stitch-goal .goal-track small{display:flex;justify-content:space-between;margin-top:8px}
+.stitch-status{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-small);color:var(--accent);border-radius:20px;background:var(--white-a7);padding:6px 10px}
+@media(max-width:350px){.stitch-salary{padding:16px}.stitch-salary .salary-amount{font-size:var(--text-value)}.stitch-salary .salary-action{align-items:flex-start;flex-direction:column}.stitch-salary .salary-action small{max-width:none}.stitch-goal{column-gap:9px}}

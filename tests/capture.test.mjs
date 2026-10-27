@@ -1,0 +1,45 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {fresh} from '../web/engine.mjs';
+import {financialFacts,ensureFinance} from '../web/finance-state.mjs';
+import {createCaptureStore} from '../web/capture-store.mjs';
+import {createCaptureFlow,captureFields} from '../web/baseline/capture-flow.js';
+const setup=()=>{const state=fresh();ensureFinance(state);let persisted;return {state,get persisted(){return persisted},request:createCaptureStore({getState:()=>state,save:()=>persisted=JSON.parse(JSON.stringify(state))})}};
+const bill={event_date:'2026-11-02',amount:'28.45',type:'expense',category:'餐饮',description:'录入测试午餐',movement:'cashflow'};
+const create=(r,id='manual-test',value=bill)=>r('/capture/manual',{method:'POST',body:{request_id:id,bill:value}});
+const confirm=(r,b)=>r('/capture/'+b.id+'/confirm',{method:'POST',body:{challenge:b.challenge,rows:b.rows.map(captureFields)}});
+test('candidate review never posts until confirmed; confirmation and reload are idempotent; undo affects only its rows',async()=>{
+ const x=setup(),before=financialFacts(x.state),b=await create(x.request);
+ assert.equal(x.state.balance,50000);assert.equal((await x.request('/capture')).batches.length,1);
+ await confirm(x.request,b);await confirm(x.request,b);
+ assert.equal(x.state.balance,49971.55);assert.equal(financialFacts(x.state).expenseMinor,before.expenseMinor+2845);
+ assert.equal(x.state.ledger.filter(r=>r.captureId===b.id).length,1);
+ const reloaded=JSON.parse(JSON.stringify(x.persisted)),r=createCaptureStore({getState:()=>reloaded,save:()=>{}});
+ await confirm(r,b);assert.equal(reloaded.balance,49971.55);
+ await r('/capture/'+b.id+'/undo',{method:'POST',body:{challenge:b.challenge}});
+ assert.equal(reloaded.balance,50000);assert.equal(financialFacts(reloaded).expenseMinor,before.expenseMinor);
+});
+test('edit invalidates old confirmation; duplicates need keep/skip; discarded and invalid candidates do not post',async()=>{
+ const x=setup(),b=await create(x.request);
+ const edited=await x.request('/capture/'+b.id,{method:'PUT',body:{rows:[{...b.rows[0],amount:'30'}]}});
+ await assert.rejects(confirm(x.request,b),e=>e.status===409);await confirm(x.request,edited);
+ const duplicate=await create(x.request,'dupe',{...bill,amount:'30'});
+ await assert.rejects(confirm(x.request,duplicate),e=>e.status===409);
+ const kept=await x.request('/capture/'+duplicate.id,{method:'PUT',body:{rows:[{...duplicate.rows[0],duplicate_decision:'keep'}]}});await confirm(x.request,kept);
+ const bad=await create(x.request,'bad',{...bill,amount:'0',event_date:'2026-02-30'});
+ await assert.rejects(confirm(x.request,bad),e=>e.status===422);
+ await x.request('/capture/'+bad.id,{method:'DELETE',body:{challenge:bad.challenge}});
+ assert.equal(x.state.ledger.filter(r=>r.captureId).length,2);
+ await assert.rejects(create(x.request,'manual-test',{...bill,amount:'45'}),e=>e.status===409);
+});
+test('original flow imports UTF8 CSV and keeps internal/principal/refund accounting distinct',async()=>{
+ const x=setup(),before=financialFacts(x.state);
+ const csv='日期,收支,金额,分类,备注,资金性质\n2026-11-02,支出,20,其他,"测试,双引号""备注",internal_transfer\n2026-11-02,支出,100,理财本金,本金记录,principal\n2026-11-02,收入,5,退款,退款记录,cashflow';
+ const content=Buffer.from(csv).toString('base64');
+ const b=await x.request('/capture/csv',{method:'POST',body:{request_id:'csv1',content}});
+ assert.equal(b.rows[0].description,'测试,双引号"备注');await confirm(x.request,b);
+ assert.equal(x.state.balance,49905);assert.equal(x.state.invested,100);
+ const f=financialFacts(x.state);assert.equal(f.expenseMinor,before.expenseMinor);assert.equal(f.refundMinor,before.refundMinor+500);
+ const store={get:()=>({}),set:()=>{}};const flow=createCaptureFlow({request:x.request,store});
+ await flow.text('午餐32元','2026-11-02');await flow.confirm();assert.equal(x.state.balance,49873);
+});

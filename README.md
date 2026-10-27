@@ -1,48 +1,43 @@
-> **26fincom_v1 预览运行：请先阅读 [RUNNING.md](RUNNING.md)。此分支复现 65271 的 preview.py 演示；下方启动与安全描述保留为历史记录，不代表本次验证。**
+# FinPilot R5
 
-# FinPilot · FinTechathon 2026 银行智能体
+以持续委托的 Bot 为核心的本地金融交互作品。五页为今天、Bot、财务、投资、我的，任务位于 Bot 内。保留原版布局、图表与投资研究，接入统一液态玻璃材质。
 
-基于 2026-10-04 FinPilot 发布版，面向 **2026 深圳国际金融科技大赛 · 微众银行金融科技大学生挑战赛（人工智能国内赛道）** 的独立开发项目。基线、复制范围及提交哈希见 [PROJECT-BASELINE.json](PROJECT-BASELINE.json)。原 FinPilot 和财知有度目录不随本项目改变。
+## 快速运行
 
-首轮重点是把现有能力串成可核对的银行任务：转账、账单分析、理财操作；保持 430px 竖版单列和 Liquid Glass。所有资金均为本地模拟银行本金，账本演示记录明确标记为虚构。未接真实银行，也不是官方提供的沙箱。
+Python 3.12，启动不需要安装依赖、npm 或前端构建。
 
-- [官方要求](docs/competition/REQUIREMENTS.md) · [差距分析与开发顺序](docs/competition/FINTECHATHON-GAP-ANALYSIS.md)
-- [本轮技术与安全说明](docs/competition/FINTECHATHON-TECHNICAL-SECURITY.md)
-- [验证记录](docs/competition/VALIDATION-20261015.md)
-
-## 首轮优化
-
-1. 新增统一银行助手 `#/banking`：持久任务、补槽、金额改口、取消、刷新后恢复、版本冲突和请求幂等。模型生成的草稿必须进入原参数表单，另行确认。
-2. 账单事实由服务端以整数分计算，展示区间、分类、上期对比及源账单；退款单列，内部划转和投资本金排除，空区间明确为没有记录。
-3. 独立比赛策略：小额转账日累计不超过 1000 元需确认，超过需多因子验证；**每笔理财申购均需多因子验证**。沿用动态口令、参数绑定、重放防护、未知结果核账及防重复扣款。
-4. 独立端口、账本、资金状态和浏览器 Cookie；保留同源请求及过期只读会话恢复修复。
-
-这只是首轮可运行版本。复杂 DAG、多场景协作、卡片/订阅、官方银行接口及完整对抗评测仍待实现或确认；目前任务完成状态仅表示查询完成，资金草稿整理完成不等于交易成功。交易以独立操作记录为准。
-
-## 运行
-
-Python 3.11+，无需 Node 构建。首次启动自动安装基础依赖：
-
-```bash
-python run.py --demo
+```sh
+python tools/init_demo.py
+python server.py --port 65281
 ```
 
-本机入口 `http://127.0.0.1:5503/#/banking`。后端只监听本机 `28210/28220`；前端可用 `--host` 指定服务器局域网地址。`--demo` 使用 `.runtime/demo-bookkeeper` 独立账本，写入当前月及之前六个月的虚构流水，重复启动不会重复导入。
+打开 <http://127.0.0.1:65281/?session=demo#/today>。服务只监听127.0.0.1，终端需保持运行。端口被占用可指定其他端口，并在URL中使用相同端口，不应关闭不明进程。
 
-已安装依赖可运行 `python run.py --demo --no-install --no-browser`。基础模式的模型默认关闭，账单确定性查询和手工操作仍可使用；资金自然语言理解会明确提示模型不可用。
+初始化只创建新的合成持仓数据库，已有数据库原样保留。任务、账本和对话使用当前浏览器独立的本地场景；所有金额和银行动作都是演示状态。仓库不包含个人数据库、浏览器状态或真实账单。历史行情/报告仅供研究展示，不代表实时行情。
 
-启用模型：复制 `.env.example` 为 `.env`，设置 `LLM_PROVIDER=api`、`LLM_BASE_URL`（含 `/v1`）和 `LLM_MODEL`；需要时填写服务端密钥。当前开发服务器连接已部署的本地 `qingcai-qwen3-4b-finance-v4` 服务，没有重新训练；仓库含历史 LoRA 适配器，基座模型另备。不要把 `.env`、账本或 `.runtime` 放入发布包。
+## 界面与操作
 
-## 测试
+- 今天查看工资和待关注事项；Bot接收指令、展示任务；任务首次操作需授权，修改参数使旧确认失效。
+- 财务有账户、账本、分类环图、趋势与预算；投资有合成持仓、银行理财和十股研究/K线/报告。
+- 我的包含权限、消息偏好、减少动画、模型连接和工作方式。语音/OCR是固定结果演示，不是真实识别。
+- 液态玻璃仅折射受控背景，文字和控件保持原生DOM；导航的透明模糊层保证后景文字不压住标签。一个共享WebGL context，失败时降级为可读表面。
+- 同一完整App原材质：URL加 `material=off`。详细运行与预览居中说明见 [RUNNING.md](RUNNING.md)。
 
-```bash
-python -m pip install -r AI_accounting_agent/backend/requirements-core.txt -r tests/requirements.txt
-python -m pytest -q tests/test_banking_tasks.py tests/test_bill_facts.py tests/test_finance_workspace.py tests/test_finance_planning.py
-node tests/navigation.test.mjs
-node tests/banking_frontend.test.mjs
+## 验证
+
+Node.js 24 已验证，仅测试需要Node；无npm依赖。
+
+```sh
+node --test tests/*.test.mjs
+python -m unittest discover -s tests -p "test_*.py"
 ```
 
-本轮测试结果和真实模型验证范围见验证记录。`VALIDATION.json`、`materials/` 内 PPT/PDF/压缩包、旧 `docs/competition/TECHNICAL.md` 等为 **10 月 4 日基线历史材料，不是本届新版本提交材料或新验证结果**；没有执行赛事提交或推送新的 GitHub 仓库。
+共50项：JavaScript39、Python11，涵盖权限、修改失效、幂等对账、流水/图表同源、采集预览/确认/撤销、代理错误/取消/密钥脱敏和光学/渲染调度边界。测试使用合成数据和mock，不请求真实模型或银行。
 
-源自 [FinPilot](https://github.com/gr-peng/gonghang) 和 [FinTechathon](https://github.com/gr-peng/FinTechathon)，保留 [原始归属与许可](docs/competition/ATTRIBUTION.md)；MOSAIC Guard、Qwen 等第三方组件不宣称为自研算法。原 README 保存在 [历史目录](docs/legacy/README-FINPILOT-20261004.md)。
+## 外部模型
 
+默认外部连接关闭，离线场景可直接演示。`API-CONFIG.example.json` 是无密钥说明，不由服务器自动读取。可选代理目的地为 `https://www.micuapi.ai/v1/chat/completions`、模型 `deepseek-v4-flash-0731`；如单独启用 `--allow-api`，密钥只通过设置页提交到本机服务内存，服务重启失效，不写文件/日志/localStorage。不要把真实key写进示例或提交。
+
+## 验证边界
+
+独立Chrome检查覆盖320/390/桌面五页、导航可读性、核心金额、图表/月份/日期虚线、十logo/K线、弹窗键盘、本地流式/取消、App减少动画、WebGL失败及context恢复。后台生命周期和操作系统减少动效媒体偏好未完成实机验证；不宣称真实手机、60fps、优于CSS或真实银行能力。模型不具备直接资金执行权限。

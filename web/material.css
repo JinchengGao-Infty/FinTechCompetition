@@ -1,0 +1,49 @@
+/* R1.1 material only. Layout, typography and business components remain R4.2. */
+body[data-fp-material-enabled] {
+  --fp-glass-readability-blur:24px;
+  --fp-glass-panel:#edf2fe;
+  --fp-glass-contact:0 1px 2px #37547d08,0 6px 20px #37547d0d;
+}
+body[data-fp-material-enabled] #app > .fp-material-canvas {
+  position:fixed;top:0;z-index:0;pointer-events:none;
+  display:block;max-width:none;isolation:isolate;
+}
+body[data-fp-material-enabled] #app > .fp-material-canvas[hidden] {display:none!important}
+body[data-fp-material-enabled] #app > main.page {position:relative;z-index:1}
+body[data-fp-material-enabled] #app[data-approved-ui] [data-fp-painted=true] {
+  background:transparent!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  border-color:transparent!important;box-shadow:none!important;
+}
+body[data-fp-material-enabled] #app[data-approved-ui] .ap-home-asset[data-fp-painted=true]::before {display:none}
+
+/* Retained verbatim in geometry and blur strength from approved R1.1.
+   This native-DOM readability plane is not arbitrary-DOM physical refraction. */
+body[data-fp-material-enabled] #app[data-approved-ui] nav[data-fp-optical=nav][data-fp-painted=true]::before {
+  content:"";position:absolute;inset:3px;border-radius:inherit;pointer-events:none;z-index:0;
+  background:transparent;
+  backdrop-filter:blur(var(--fp-glass-readability-blur));
+  -webkit-backdrop-filter:blur(var(--fp-glass-readability-blur));
+}
+body[data-fp-material-enabled] #app[data-approved-ui] nav[data-fp-optical=nav] > a {
+  position:relative;z-index:1;
+}
+/* Dense information and controls retain the original material and focus states. */
+body[data-fp-material-enabled] #overlay .sheet {
+  box-shadow:var(--fp-glass-contact),0 -8px 32px #37547d0d;
+}
+body[data-fp-material-enabled][data-fp-material-opaque=true] #app[data-approved-ui] :is([data-fp-optical],[data-fp-surface=readable],.composer),
+body[data-fp-material-enabled][data-fp-material-opaque=true] #overlay .sheet {
+  background:var(--fp-glass-panel)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+
+/* Optional diagnostics; absent from the product's default interface. */
+#fp-material-audit {
+  position:fixed;right:8px;top:8px;z-index:1000;max-width:min(360px,calc(100vw - 16px));
+  max-height:75vh;overflow:auto;background:#fff;color:#243454;border:.5px solid #c2cde1;
+  border-radius:12px;padding:8px;box-shadow:0 4px 16px #22335516;font:12px/1.5 system-ui;
+}
+#fp-material-audit summary {cursor:pointer;min-height:32px;display:flex;align-items:center}
+#fp-material-audit button {font:inherit;min-height:44px;padding:8px;margin:3px;border:.5px solid #c2cde1;border-radius:8px;background:#f4f7ff}
+#fp-material-audit pre {font:11px/1.4 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0}

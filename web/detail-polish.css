@@ -1,0 +1,42 @@
+/* Local detail refinements; baseline/ remains a byte-for-byte 65271 copy. */
+#app[data-approved-ui] :is(.money,.salary-amount,.plan-row strong,.task-card .amount,.ap-home-balance,.ap-home-parts strong,.ap-home-summary strong,.ap-o-money,.ap-o-pair strong,.ap-o-selected-amount,.ap-l-total,.ap-l-value,.ap-t-total,.ap-t-point-value,.ap-t-point-date,.ap-t-summary strong,.ap-w-total,.ap-r-price),
+#overlay .sheet :is(.money,.plan-row strong,input[inputmode=decimal],input[type=number]) {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Balance semantic headings only, preserving paragraphs, labels and amounts. */
+#app[data-approved-ui] :is(.ap-header h1,.greeting h2,.task-card h3,.research-report h3),
+#overlay .sheet > .row > h2 {
+  text-wrap: balance;
+}
+
+/* Actual nested panel geometry: 30px sheet, 20px inset, 10px field radius.
+   Independent pill CTAs, company art and native chart geometry stay intact. */
+#overlay .sheet { --detail-sheet-radius:30px; --detail-sheet-inset:20px; }
+#overlay .sheet .form :is(input,select,textarea) {
+  border-radius:calc(var(--detail-sheet-radius) - var(--detail-sheet-inset));
+  border-width:.5px;
+  box-shadow:inset 0 .5px 1px #ffffffb0,0 1px 2px #37547d05,0 3px 8px #37547d08;
+}
+#app[data-dot-page] .task-card {
+  border-width:.5px;
+  box-shadow:inset .5px .5px 2px #ffffffc7,inset -.5px -.5px 4px #8faee31a,0 1px 2px #7a9fd008,0 5px 16px #7a9fd00a;
+}
+
+/* Only newly inserted semantic content receives a short one-shot entrance.
+   History, navigation, full cards/pages and streamed text updates never replay. */
+@keyframes detail-content-in {
+  from { opacity:.65; transform:translateY(3px); }
+  to { opacity:1; transform:translateY(0); }
+}
+#app[data-dot-page] .detail-content-in {
+  animation:detail-content-in 250ms ease-out both;
+  animation-delay:var(--detail-delay,0ms);
+}
+#app[data-dot-page] .detail-live-enter > .companion { animation:detail-content-in 250ms ease-out both; }
+#app[data-dot-page] .detail-live-enter > .bubble { animation:detail-content-in 250ms ease-out 40ms both; }
+@media(prefers-reduced-motion:reduce) {
+  #app .detail-content-in,#app .detail-live-enter > :is(.companion,.bubble) { animation:none!important; }
+}
+html[data-motion=reduce] #app .detail-content-in,
+html[data-motion=reduce] #app .detail-live-enter > :is(.companion,.bubble) { animation:none!important; }

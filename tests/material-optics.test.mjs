@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {normalize,refract,tracePlate} from '../web/material/optics.mjs';
+const near=(a,b)=>a.forEach((v,i)=>assert.ok(Math.abs(v-b[i])<1e-9,`${a} vs ${b}`));
+test('normal incidence exits toward background without lateral offset',()=>{const r=tracePlate();assert.equal(r.tir,false);near(r.exit,[0,0,-1]);near(r.back,[0,0,0]);near(r.hit,[0,0,-28])});
+test('parallel plate preserves outgoing direction and gives expected lateral shift',()=>{const I=normalize([.4,0,-1]),r=tracePlate({incident:I});near(r.exit,I);assert.ok(r.back[0]>0);assert.ok(r.back[0]<4);assert.ok(r.hit[0]>r.back[0])});
+test('oblique curved front changes direction; Snell ratios remain finite',()=>{const r=tracePlate({normal:normalize([.4,-.2,1])});assert.equal(r.tir,false);assert.ok(r.exit[2]<0);assert.ok(Math.abs(r.exit[0])>0.01);assert.ok(r.hit.every(Number.isFinite))});
+test('TIR returns explicit branch and never normalizes zero; wrong back normal flips z',()=>{assert.equal(refract(normalize([.866,0,-.5]),[0,0,1],1.46),null);assert.throws(()=>normalize([0,0,0]));near(refract([0,0,-1],[0,0,-1],1.46),[0,0,1]);near(refract([0,0,-1],[0,0,1],1.46),[0,0,-1])});
+test('unit IOR is optically neutral even with tilted front',()=>{const I=normalize([.2,.1,-1]),r=tracePlate({ior:1,incident:I,normal:normalize([.3,-.2,1])});near(r.exit,I);near(r.hit,[I[0]/-I[2]*38,I[1]/-I[2]*38,-28])});
+test('thickness changes actual back-plane intersection',()=>{const n=normalize([.4,0,1]),a=tracePlate({point:[0,0,2],normal:n}),b=tracePlate({point:[0,0,12],normal:n});near(a.exit,b.exit);assert.ok(Math.abs(a.back[0]-b.back[0])>.1);assert.ok(Math.abs(a.hit[0]-b.hit[0])>.1)});
+test('background distance changes ray intersection, not exit direction',()=>{const n=normalize([.35,0,1]),a=tracePlate({normal:n,gap:0}),b=tracePlate({normal:n,gap:40});near(a.exit,b.exit);near(b.hit,[a.back[0]+a.exit[0]*(-40/a.exit[2]),0,-40])});
+test('critical-angle boundary branches without NaN',()=>{const c=Math.asin(1/1.46);assert.ok(refract([Math.sin(c-1e-7),0,-Math.cos(c-1e-7)],[0,0,1],1.46).every(Number.isFinite));assert.equal(refract([Math.sin(c+1e-7),0,-Math.cos(c+1e-7)],[0,0,1],1.46),null)});
+test('mirrored surface normals mirror the hit without flipping z',()=>{const a=tracePlate({normal:normalize([.4,.1,1])}),b=tracePlate({normal:normalize([-.4,.1,1])});near(b.hit,[-a.hit[0],a.hit[1],a.hit[2]])});
+test('zero thickness and invalid optical inputs are explicit',()=>{near(tracePlate({point:[0,0,0]}).hit,[0,0,-28]);for(const args of [{ior:0},{ior:NaN},{gap:-1},{point:[0,0,-1]}])assert.throws(()=>tracePlate(args));assert.throws(()=>normalize([NaN,0,1]))});

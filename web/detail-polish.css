@@ -40,3 +40,6 @@
 }
 html[data-motion=reduce] #app .detail-content-in,
 html[data-motion=reduce] #app .detail-live-enter > :is(.companion,.bubble) { animation:none!important; }
+
+/* "全部 >" 这类文字链接：箭头与文字垂直居中 */
+#app a.link-button { display:inline-flex; align-items:center; gap:2px; }

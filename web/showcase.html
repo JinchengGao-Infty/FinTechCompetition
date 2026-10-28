@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f3f5ff">
+<title>FinPilot 你的财务伙伴</title>
+<link rel="icon" href="assets/dot.png">
+<link rel="stylesheet" href="showcase.css">
+</head>
+<body>
+<div class="sc-backdrop" aria-hidden="true"><i></i><i></i><i></i></div>
+<main class="sc-stage">
+  <section class="sc-intro">
+    <div class="sc-brand"><img src="assets/dot.png" alt=""><span>FinPilot</span></div>
+    <h1>钱的事，我陪你。</h1>
+    <p class="sc-lede">一个以持续委托为核心的个人财务伙伴。你说一句话，它整理成任务；每一步动钱之前，都先征得你的同意。</p>
+
+    <ul class="sc-points">
+      <li>
+        <span class="sc-icon"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 8.3-7 9.5C8 19.3 5 15.4 5 11V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <div><b>先授权，再动钱</b><p>每个任务单独授权，确认前可随时修改；改了金额，旧的确认立即失效。</p></div>
+      </li>
+      <li>
+        <span class="sc-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M4 10h16M9 10v9"/></svg></span>
+        <div><b>一本账，处处一致</b><p>转账回执、账本流水和分类图表同源，理财本金划转不计入消费。</p></div>
+      </li>
+      <li>
+        <span class="sc-icon"><svg viewBox="0 0 24 24"><path d="M4 19l5-6 4 3 7-9"/><path d="M15 7h5v5"/></svg></span>
+        <div><b>有出处的投资研究</b><p>十只 A 股的历史行情、K 线与研报原文，每条数据标注时点和来源。</p></div>
+      </li>
+    </ul>
+
+    <nav class="sc-tour" aria-label="演示路线">
+      <h2>演示路线</h2>
+      <ol>
+        <li><button type="button" data-route="/today"><em>1</em><span><b>今天</b><small>工资到账，看看怎么安排</small></span></button></li>
+        <li><button type="button" data-route="/bot"><em>2</em><span><b>Bot</b><small>交给它一件事，授权后再执行</small></span></button></li>
+        <li><button type="button" data-route="/finance"><em>3</em><span><b>财务</b><small>账本、分类图表与预算</small></span></button></li>
+        <li><button type="button" data-route="/investment"><em>4</em><span><b>投资</b><small>持仓、银行理财与个股研究</small></span></button></li>
+        <li><button type="button" data-route="/me"><em>5</em><span><b>我的</b><small>权限、提醒与模型连接</small></span></button></li>
+      </ol>
+    </nav>
+
+    <div class="sc-actions">
+      <button type="button" class="sc-reset" id="reset">重置演示</button>
+      <a id="open-app" href="./?app=1" target="_blank" rel="noopener">单独打开 App ↗</a>
+    </div>
+    <p class="sc-note">演示数据均为合成，不连接真实银行；默认不调用外部模型。</p>
+  </section>
+
+  <section class="sc-device-wrap" aria-label="FinPilot App 预览">
+    <div class="sc-device">
+      <div class="sc-island" aria-hidden="true"></div>
+      <iframe id="app-frame" title="FinPilot App"></iframe>
+    </div>
+  </section>
+</main>
+<script type="module" src="showcase.js"></script>
+</body>
+</html>

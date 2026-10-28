@@ -20,7 +20,7 @@ test('native shell route adaptation has exactly five distinct correct links',()=
  const html=bridge(fresh()).nav('investment');assert.deepEqual([...html.matchAll(/href="#\/([^\"]+)"/g)].map(m=>m[1]),['today','bot','finance','investment','me']);assert.equal((html.match(/aria-current="page"/g)||[]).length,1);assert.match(html,/data-nav-tab="investment" aria-current="page"/);
 });
 
- test('native month filter keeps visible rows and totals on the same period',()=>{const b=bridge(fresh());b.ui.month='2026-10';assert.equal(b.ledgerRows().length,0);assert.equal(b.report(b.ledgerRows()).totals.gross_expense_minor,0);b.ui.month='2026-11';assert.equal(b.ledgerRows().length,10)});
+ test('native month filter keeps visible rows and totals on the same period',()=>{const b=bridge(fresh());b.ui.month='2024-10';assert.equal(b.ledgerRows().length,0);assert.equal(b.report(b.ledgerRows()).totals.gross_expense_minor,0);b.ui.month='2026-11';assert.equal(b.ledgerRows().length,10)});
 
 test('recovered old-month budget request cannot write the current month or reuse changed parameters',async()=>{const s=fresh(),b=bridge(s),nov=await b.request('/budget?month=2026-11');const data={total_minor:100000,categories:[],expected_revision:0,request_id:'oct-recovery'};const oct=await b.request('/budget?month=2026-10',{method:'PUT',body:data});assert.equal(oct.month,'2026-10');assert.deepEqual(await b.request('/budget?month=2026-11'),nov);assert.deepEqual(await b.request('/budget?month=2026-10',{method:'PUT',body:data}),oct);await assert.rejects(b.request('/budget?month=2026-11',{method:'PUT',body:data}),/参数已变化/)});
 

@@ -1,0 +1,26 @@
+/* Bot-only structure; the approved page materials and other routes are intact. */
+#app[data-route=assistant]{--bot-side:20px;padding-bottom:var(--bot-bottom-clearance,176px)}
+#app[data-route=assistant] .bot-topbar{
+ position:sticky;top:var(--bot-visual-top,0px);z-index:36;isolation:isolate;
+ display:grid;grid-template-columns:1fr 84px 1fr;align-items:center;
+ min-height:112px;margin:-28px calc(-1 * var(--bot-side)) 18px;
+ padding:calc(10px + env(safe-area-inset-top)) var(--bot-side) 10px;
+ background:transparent;border:0;box-shadow:none;
+}
+#app[data-route=assistant] .bot-topbar .bot-avatar::before{
+ content:"";position:absolute;inset:0;border-radius:50%;z-index:-1;pointer-events:none;
+ background:transparent;
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+ mask-image:radial-gradient(closest-side,#000 0%,#000 45%,transparent 100%);
+ -webkit-mask-image:radial-gradient(closest-side,#000 0%,#000 45%,transparent 100%);
+}
+#app[data-route=assistant] .bot-topbar .bot-avatar{grid-column:2;width:84px;height:84px;justify-self:center;padding:0;isolation:isolate}
+#app[data-route=assistant] .bot-topbar .task-link{grid-column:3;justify-self:end;min-height:44px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+#app[data-route=assistant] .bot-page{padding-bottom:0}
+#app[data-route=assistant] .composer{bottom:calc(96px + env(safe-area-inset-bottom) + var(--bot-keyboard-inset,0px))}
+#app[data-route=assistant] .ap-nav{bottom:calc(16px + env(safe-area-inset-bottom) + var(--bot-keyboard-inset,0px))}
+.bot-thought-bulb{position:absolute;top:0;right:2px;width:19px;height:22px;color:var(--amber9,#ffc53d);pointer-events:none}
+.bot-thought-bulb svg{display:block;width:100%;height:100%;stroke-width:1.25;fill:none;stroke:currentColor}
+@media(max-width:350px){#app[data-route=assistant]{--bot-side:16px}#app[data-route=assistant] .bot-topbar{grid-template-columns:1fr 72px 1fr;min-height:100px}#app[data-route=assistant] .bot-topbar .bot-avatar{width:72px;height:72px}}
+@media(prefers-reduced-motion:reduce){.bot-topbar .companion img{animation:none!important}}
+html[data-motion=reduce] .bot-topbar .companion img{animation:none!important}

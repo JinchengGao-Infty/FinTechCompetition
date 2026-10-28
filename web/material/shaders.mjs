@@ -11,7 +11,7 @@ export const fragment=`#version 300 es
 precision highp float;
 in vec2 uv;out vec4 color;
 uniform sampler2D backdrop;uniform vec2 size;
-uniform vec4 shape;uniform float shapeRadius;uniform bool isNav;uniform bool dispersion;
+uniform vec4 shape;uniform float shapeRadius;uniform bool isNav;uniform bool isBank;uniform bool dispersion;
 float sdRound(vec2 p,vec4 r,float radius){vec2 q=abs(p-r.xy-r.zw*.5)-(r.zw*.5-vec2(radius));return length(max(q,0.))+min(max(q.x,q.y),0.)-radius;}
 float heightAt(vec2 p,vec4 r,float radius,float bevel,float thickness,float curvature){
  float taper=smoothstep(0.,bevel,-sdRound(p,r,radius));
@@ -51,6 +51,22 @@ void main(){
   float shadow=.065*exp(-max(shadowD,0.)/7.)*(1.-coverage);
   if(shadow>result.a)result=vec4(vec3(.29,.38,.55)*shadow,shadow);
   if(coverage<=0.){color=result;return;}
+  // R7 bank environment reflection adapted from the actual Stitch preview.
+  // It is reflection of a controlled studio environment, not DOM refraction.
+  if(isBank){
+    vec2 vUv=vec2((p.x-r.x)/r.z,1.-(p.y-r.y)/r.w);
+    vec3 N=normalize(vec3((vUv-.5)*.32,1.2));
+    vec3 I=normalize(vec3(.1,-.25,-.9));
+    vec3 R=reflect(I,N);vec2 q=R.xy/max(R.z,.2);
+    vec2 envUv=vUv+.12*q;
+    float lum1=smoothstep(.1,.8,1.-length(envUv-vec2(.3,.85)));
+    float lum2=smoothstep(.0,.9,1.-length(envUv-vec2(.75,.2)));
+    vec3 ink=vec3(.075,.088,.12);
+    vec3 studio=lum1*vec3(.243,.388,.867)*.11+lum2*vec3(.85,.90,1.)*.12;
+    float rim=exp(-pow((d+1.)/.9,2.));
+    vec3 material=ink+studio+rim*.10*clamp(.7-vUv.x+vUv.y*.3,0.,1.);
+    result=mix(result,vec4(material,1.),coverage);color=result;return;
+  }
   float bevel=!isNav?15.:10.5;float thickness=!isNav?9.:11.;float gap=!isNav?26.:48.;
   // Both native C surfaces now have a gentle center curve; do not use a flat-face shortcut.
   float h=heightAt(p,r,radius,bevel,thickness,!isNav?.12:.65);

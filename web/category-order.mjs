@@ -1,0 +1,2 @@
+export const COMMON_CATEGORIES=Object.freeze(['餐饮','出行','购物','生活缴费','住房','订阅','娱乐','医疗健康','教育学习','人情往来','旅行','工资','奖金','副业','理财收益','退款','其他收入','其他','证券本金']);
+export function stableCategories(values){const set=new Set([...COMMON_CATEGORIES,...values].filter(Boolean));const rank=new Map(COMMON_CATEGORIES.map((n,i)=>[n,i]));return [...set].sort((a,b)=>(rank.get(a)??999)-(rank.get(b)??999)||a.localeCompare(b,'zh-CN'));}

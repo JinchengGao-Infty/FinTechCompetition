@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {fresh} from '../web/engine.mjs';
+import {bankCardState,setCardPaused,setCardReminder,DEMO_BANK_CARDS} from '../web/bank-cards.mjs';
+import {riskProfile} from '../web/investment-state.mjs';
+test('bank cards contain only masked tails and synthetic credit facts',()=>{assert.equal(DEMO_BANK_CARDS.length,3);for(const c of DEMO_BANK_CARDS)assert.match(c.tail,/^\d{4}$/);assert.equal(DEMO_BANK_CARDS[2].dueMinor,128000);});
+test('card pause is an idempotent set, preserves cash and serializes independently per card',()=>{let s=fresh(),cash=s.balance;setCardPaused(s,'salary',true,{expected:false});setCardPaused(s,'salary',true,{expected:false});setCardPaused(s,'living',true,{expected:false});assert.equal(s.cardLocked,true);s=JSON.parse(JSON.stringify(s));assert.equal(bankCardState(s,'salary').paused,true);setCardPaused(s,'living',false,{expected:true});assert.equal(s.cardLocked,false);assert.equal(bankCardState(s,'salary').paused,true);assert.equal(s.balance,cash);});
+test('stale change and invalid card cannot affect state; reminder is not repayment',()=>{const s=fresh();setCardPaused(s,'credit',true);assert.throws(()=>setCardPaused(s,'credit',false,{expected:false}),/变化/);assert.throws(()=>setCardPaused(s,'missing',true),/不存在/);setCardReminder(s,'credit',false);assert.equal(bankCardState(s,'credit').reminder,false);assert.equal(bankCardState(s,'credit').dueMinor,128000);assert.equal(s.balance,50000);assert.throws(()=>setCardReminder(s,'living',true),/无效/);});
+test('risk buffer reserves known card bill without inventing a repayment or unknown debts',()=>{const s=fresh(),p=riskProfile(s);assert.equal(p.knownDebtMinor,128000);assert.equal(p.liabilities,'unknown');assert.equal(p.bufferMonths,(p.cashMinor-128000)/p.essentialMinor);assert.equal(s.balance,50000);assert.equal(s.ledger.filter(r=>r.kind==='credit-repayment').length,0);});

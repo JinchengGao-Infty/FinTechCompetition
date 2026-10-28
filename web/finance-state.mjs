@@ -1,4 +1,5 @@
 // One local financial source. All amounts are integer fen; no bank connector.
+import {HISTORY_ROWS,HISTORY_VERSION} from './history-ledger.mjs';
 export const STORY_DATE='2026-11-02';
 export const FINANCE_SCHEMA=2;
 const seed=[
@@ -21,8 +22,8 @@ export function operationEntry(t,order){
  if(!['transfer','investment','redemption'].includes(t.kind))return null;
  if(!Number.isSafeInteger(amountMinor)||amountMinor<=0)throw Error('操作金额无效');
  const map={transfer:['给妈妈转账','人情往来','expense','cashflow','user'],investment:['申购灵活现金','理财本金','expense','principal','invest'],redemption:['赎回灵活现金','理财本金','income','principal','invest']};
- const [title,category,direction,movement,icon]=map[t.kind];
- return {id:'operation:'+t.id,date:STORY_DATE,title,category,direction,movement,icon,amountMinor,order,taskId:t.id,receipt:t.receipt,kind:t.kind,revision:t.revision};
+ let [title,category,direction,movement,icon]=map[t.kind];if(t.kind==='transfer')title='给'+(t.payeeName||(t.payeeId==='dad'?'爸爸':'妈妈'))+'转账';
+ return {id:'operation:'+t.id,date:t.scheduledDate||STORY_DATE,title,category,direction,movement,icon,accountLabel:t.sourceAccount==='living_1608'?'生活账户 1608':'工资账户 0826',payment_method:'银行转账',amountMinor,order,taskId:t.id,receipt:t.receipt,kind:t.kind,revision:t.revision};
 }
 export function postOperation(state,t){
  if(!Array.isArray(state.ledger))throw Error('财务数据尚未初始化');
@@ -33,14 +34,30 @@ export function postOperation(state,t){
  return row;
 }
 export function ensureFinance(state){
- if(state.financeSchema!==FINANCE_SCHEMA||!Array.isArray(state.ledger)){
+ if(!Array.isArray(state.ledger)){
   state.ledger=seedLedger();state.openingCashMinor=4133051;state.openingInvestedMinor=0;
   // Upgrade old completed fixtures from their existing receipts, never debit twice.
   for(const t of [...(state.tasks||[])].reverse())if(t.applied&&t.receipt)postOperation(state,t);
   state.financeSchema=FINANCE_SCHEMA;
  }
+ state.financeSchema=FINANCE_SCHEMA;
  state.openingCashMinor=finiteMinor(state.openingCashMinor,4133051);
  state.openingInvestedMinor=finiteMinor(state.openingInvestedMinor,0);
+ if(state.ledgerHistoryVersion!==HISTORY_VERSION){
+  // The opening cash is an as-of balance, not an opening before the recovered
+  // year. Preserve today's cash exactly; older history must not be counted twice.
+  const before=state.openingCashMinor+state.ledger.reduce((n,r)=>n+(!state.openingCashAsOf||r.date>=state.openingCashAsOf?cashDelta(r):0),0);
+  const ids=new Set(state.ledger.map(r=>r.id));
+  const fingerprint=r=>[r.date,r.title,r.category,r.amountMinor,r.direction].join('|');
+  const existing=new Set(state.ledger.map(fingerprint));
+  for(const [id,date,title,category,amountMinor,direction,movement,payment_method,accountLabel] of HISTORY_ROWS){
+   const row={id,date,title,category,amountMinor,direction,movement,payment_method,accountLabel,source:'synthetic',icon:'receipt',order:state.ledger.length,taskId:null,receipt:null};
+   if(!ids.has(id)&&!existing.has(fingerprint(row))){state.ledger.push(row);ids.add(id);}
+  }
+  state.openingCashAsOf='2026-11-01';
+  state.openingCashMinor=before-state.ledger.reduce((n,r)=>n+(r.date>=state.openingCashAsOf?cashDelta(r):0),0);
+  state.ledgerHistoryVersion=HISTORY_VERSION;
+ }
  for(const t of state.tasks||[])if(t.applied&&t.receipt)postOperation(state,t);
  return syncFinance(state);
 }
@@ -49,7 +66,7 @@ export function syncFinance(state){
  let cash=state.openingCashMinor,invested=state.openingInvestedMinor,spent=0;
  for(const row of state.ledger){
   if(!Number.isSafeInteger(row.amountMinor)||row.amountMinor<0)throw Error('流水金额格式无效');
-  cash+=cashDelta(row);
+  if(!state.openingCashAsOf||row.date>=state.openingCashAsOf)cash+=cashDelta(row);
   if(row.kind==='investment')invested+=row.amountMinor;
   if(row.kind==='redemption')invested-=row.amountMinor;
   if(row.kind==='transfer'&&row.date===STORY_DATE)spent+=row.amountMinor;
@@ -68,7 +85,8 @@ export function financialFacts(state,month='2026-11'){
   if(row.direction==='income'){if(row.category==='退款')refundMinor+=row.amountMinor;else incomeMinor+=row.amountMinor;}
   else{expenseMinor+=row.amountMinor;categories.set(row.category,(categories.get(row.category)||0)+row.amountMinor);const day=Number(row.date.slice(-2));daily.set(day,(daily.get(day)||0)+row.amountMinor);}
  }
- let cumulative=0;const days=Array.from({length:30},(_,i)=>{cumulative+=daily.get(i+1)||0;return cumulative;});
+ const [year,monthNumber]=month.split('-').map(Number);
+ let cumulative=0;const days=Array.from({length:new Date(year,monthNumber,0).getDate()},(_,i)=>{cumulative+=daily.get(i+1)||0;return cumulative;});
  return {incomeMinor,expenseMinor,refundMinor,netExpenseMinor:expenseMinor-refundMinor,netCashflowMinor:incomeMinor+refundMinor-expenseMinor,principalInMinor,principalOutMinor,cashMinor:Math.round(state.balance*100),investedMinor:Math.round(state.invested*100),categories:[...categories].sort((a,b)=>b[1]-a[1]),days,rows};
 }
 export function ledgerView(state){ensureFinance(state);return [...state.ledger].sort((a,b)=>b.date.localeCompare(a.date)||b.order-a.order);}

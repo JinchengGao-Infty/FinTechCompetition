@@ -2,6 +2,7 @@
 import {vertex, background, fragment, makeBackground} from './shaders.mjs';
 import {distribution, GpuTimer} from './timing.mjs';
 import {rasterScale, visibleSurfaces, qualityDecision, TEXTURE_LIMIT, MAX_SURFACES} from './policy.mjs';
+import {BankMetal} from './metal-card.mjs';
 
 export class AppGlass {
   constructor(app, canvas, onStatus, options = {}) {
@@ -11,14 +12,17 @@ export class AppGlass {
     this.visible=[]; this.nextPainted=new Set(); this.lastElements=[];
     this.lastGeometry=new Float64Array(MAX_SURFACES*6); this.hasDrawn=false;
     this.originalBackground = app.style.background;
+    this.motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+    this.motionChanged=()=>{if(this.metal)for(const item of this.metal.items.values())item.dirty=true;this.requestDraw();};
+    this.motionQuery.addEventListener('change',this.motionChanged);
     this.gl = options.noWebgl ? null : canvas.getContext('webgl2', {alpha:true, antialias:false,
       depth:false, stencil:false, premultipliedAlpha:true, powerPreference:'low-power'});
     this.ro = new ResizeObserver(() => {this.dirty = true; this.requestDraw();});
     this.handlers = {
       scroll:() => this.requestDraw(), resize:() => this.resize().catch(e => this.fallback(e.message, true)),
-      visibility:() => {if(document.hidden) this.cancel(); else {this.dirty = true; this.requestDraw();} this.status();},
+      visibility:() => {if(document.hidden) {this.cancel();this.metal?.pause();} else {this.dirty = true; this.requestDraw();} this.status();},
       lost:event => {event.preventDefault(); this.lost = true; this.fallback('context-lost');},
-      restored:() => {this.lost = false; this.resources = false; this.texture = this.source = this.fbo = null;
+      restored:() => {this.metal?.dispose({lost:true});this.metal=null;this.lost = false; this.resources = false; this.texture = this.source = this.fbo = null;
         this.gpu = null; this.key = null; this.resize().catch(e => this.fallback(e.message, true));}
     };
     window.addEventListener('scroll', this.handlers.scroll, {passive:true});
@@ -48,6 +52,7 @@ export class AppGlass {
     for (const e of this.painted) if(!e.isConnected) this.painted.delete(e);
     this.requestDraw();
   }
+  setBankCards(cards){this.bankCards=[...cards];this.metal?.setCards(this.bankCards);}
   async resize() {
     if (this.disposed || this.terminal) return;
     const rect = this.app.getBoundingClientRect(), width = rect.width, height = innerHeight;
@@ -68,7 +73,7 @@ export class AppGlass {
     if (!this.resources) {
       this.bgProgram = this.program(vertex, background);
       this.programGlass = this.program(vertex, this.options.compileFailure ? fragment + '\n deliberate failure' : fragment);
-      this.uniforms = Object.fromEntries(['backdrop','size','shape','shapeRadius','isNav','dispersion']
+      this.uniforms = Object.fromEntries(['backdrop','size','shape','shapeRadius','isNav','isBank','dispersion']
         .map(name => [name, gl.getUniformLocation(this.programGlass,name)]));
       this.bgSource = gl.getUniformLocation(this.bgProgram,'source');
       this.vao = gl.createVertexArray(); gl.bindVertexArray(this.vao);
@@ -76,6 +81,8 @@ export class AppGlass {
       gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
       gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
       this.gpu = new GpuTimer(gl); this.resources = true;
+      try{this.metal=new BankMetal(gl,(v,f)=>this.program(v,f),this.vao,()=>this.requestDraw(),{reduced:()=>this.motionQuery.matches||document.documentElement.dataset.reduceMotion==='true'});this.metal.setCards(this.bankCards||[]);}
+      catch(e){this.bankReason=e.message;this.metal?.dispose();this.metal=null;}
     }
     this.clearPainted();
     this.canvas.width = w; this.canvas.height = h;
@@ -104,7 +111,7 @@ export class AppGlass {
     if(gl.getError()!==gl.NO_ERROR) throw Error('background allocation or draw failed');
     this.sourcePixels = image.getContext('2d').getImageData(0,0,w,h).data;
     this.visibleBackground = `url("${image.toDataURL()}") center top / ${width}px ${height}px no-repeat fixed`;
-    this.textureBytes = Math.ceil(w*h*4*(1+4/3)); this.key = key; this.backgroundBuilds++;
+    this.textureBytes = Math.ceil(w*h*4*(1+4/3))+(this.metal?256*256*4*3:0); this.key = key; this.backgroundBuilds++;
     this.hasDrawn = false; this.requestDraw(); this.status();
   }
   geometry() {
@@ -114,7 +121,7 @@ export class AppGlass {
       const originLeft = this.app.getBoundingClientRect().left; this.geometryReads++;
       this.shapes = this.targets.filter(e=>e.isConnected).map((e,order)=>{
         const r = e.getBoundingClientRect(), s = getComputedStyle(e), fixed = s.position === 'fixed';
-        return {e,order,nav:e.dataset.fpOptical==='nav',fixed,docY:r.top+(fixed?0:scrollY),
+        return {e,order,nav:e.dataset.fpOptical==='nav',bank:e.dataset.fpOptical==='bank',fixed,docY:r.top+(fixed?0:scrollY),
           radius:Math.min(parseFloat(s.borderTopLeftRadius)||0,r.height/2,r.width/2),
           rect:new Float32Array([r.left-originLeft,r.top,r.width,r.height])};
       }); this.dirty = false;
@@ -125,14 +132,19 @@ export class AppGlass {
   draw() {
     if(!this.enabled || this.terminal || !this.resources || this.lost || document.hidden || this.disposed) return;
     const start = performance.now(), gl = this.gl, shapes = this.geometry();
-    let same=this.hasDrawn&&shapes.length===this.lastElements.length;
+    // One WebGL2 context. Metal is copied immediately into an ordinary 2D DOM
+    // canvas, then this same backing buffer is cleared/redrawn for App glass.
+    // This lets the whole card and its sharp HTML foreground share CSS tilt.
+    const q = this.gpu.begin();
+    let metalCopied=false;
+    try{metalCopied=this.metal?.render(start,this.dpr)||false;}catch(e){this.bankReason=e.message;this.metal?.fallback();}
+    let same=!metalCopied&&this.hasDrawn&&shapes.length===this.lastElements.length;
     for(let i=0;same&&i<shapes.length;i++) {
       const s=shapes[i],offset=i*6;
-      same=s.e===this.lastElements[i]&&s.radius===this.lastGeometry[offset+4]&&Number(s.nav)===this.lastGeometry[offset+5];
+      same=s.e===this.lastElements[i]&&s.radius===this.lastGeometry[offset+4]&&(Number(s.nav)+(s.bank?2:0))===this.lastGeometry[offset+5];
       for(let j=0;same&&j<4;j++) same=s.rect[j]===this.lastGeometry[offset+j];
     }
-    if(same && this.painted.size===shapes.length) {this.skipped++; return;}
-    const q = this.gpu.begin();
+    if(same && this.painted.size===shapes.length) {this.gpu.end(q);this.gpu.poll();this.skipped++; return;}
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,this.canvas.width,this.canvas.height);
     gl.disable(gl.SCISSOR_TEST); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
@@ -146,7 +158,7 @@ export class AppGlass {
       const bottom = Math.max(0,Math.floor((this.height-y-h-pad)*this.dpr)), top = Math.min(this.canvas.height,Math.ceil((this.height-y+pad)*this.dpr));
       if(right<=left || top<=bottom) continue;
       gl.uniform4fv(this.uniforms.shape,s.rect); gl.uniform1f(this.uniforms.shapeRadius,s.radius);
-      gl.uniform1i(this.uniforms.isNav,s.nav?1:0); gl.scissor(left,bottom,right-left,top-bottom);
+      gl.uniform1i(this.uniforms.isNav,s.nav?1:0);gl.uniform1i(this.uniforms.isBank,s.bank?1:0); gl.scissor(left,bottom,right-left,top-bottom);
       gl.drawArrays(gl.TRIANGLES,0,6);
     }
     gl.disable(gl.SCISSOR_TEST); this.gpu.end(q); this.gpu.poll();
@@ -160,11 +172,12 @@ export class AppGlass {
     this.nextPainted=this.painted; this.painted = next; this.reason=null; document.body.dataset.fpMaterialState = 'glass';
     this.lastElements.length=shapes.length;
     for(let i=0;i<shapes.length;i++) {const s=shapes[i],offset=i*6;this.lastElements[i]=s.e;
-      this.lastGeometry.set(s.rect,offset);this.lastGeometry[offset+4]=s.radius;this.lastGeometry[offset+5]=Number(s.nav);}
+      this.lastGeometry.set(s.rect,offset);this.lastGeometry[offset+4]=s.radius;this.lastGeometry[offset+5]=Number(s.nav)+(s.bank?2:0);}
     this.hasDrawn=true; this.frames++; this.cpu.push(performance.now()-start);
     if(this.cpu.length>240) this.cpu.shift();
     if(this.frames%32===0) this.checkQuality();
     this.status();
+    if(this.metal?.active)this.requestDraw();
   }
   checkQuality() {
     const gpu = this.gpu.result(), cpu = distribution(this.cpu);
@@ -180,6 +193,7 @@ export class AppGlass {
   cancel() {cancelAnimationFrame(this.raf); this.raf=0;}
   clearPainted() {for(const e of this.painted) e.removeAttribute('data-fp-painted'); this.painted.clear(); this.canvas.hidden=true;}
   fallback(reason, terminal = false) {
+    this.metal?.fallback();
     this.cancel(); this.clearPainted(); this.app.style.background=this.originalBackground;
     document.body.dataset.fpMaterialState='fallback'; this.reason=reason; this.terminal=terminal; this.hasDrawn=false; this.status();
   }
@@ -195,6 +209,7 @@ export class AppGlass {
       renderedFrames:this.frames,backgroundBuilds:this.backgroundBuilds,geometryReads:this.geometryReads,
       skippedUnchanged:this.skipped,pendingRaf:!!this.raf,visibility:document.visibilityState,
       documentHasFocus:document.hasFocus(),cpuSubmission:distribution(this.cpu),gpu:this.gpu?.result(),
+      bankMetal:{frames:this.metal?.frames||0,active:!!this.metal?.active,reason:this.bankReason||null,sharedWebglContext:true,textureBytes:256*256*4*3},
       arbitraryDomRefraction:false,navReadability:'transparent CSS blur(24px), not optical DOM refraction'});
   }
   verifyBackground() {
@@ -212,6 +227,7 @@ export class AppGlass {
   testRestore() {this.lossExtension?.restoreContext();}
   dispose() {
     this.disposed=true; this.epoch++; this.cancel(); this.ro.disconnect(); this.clearPainted(); this.gpu?.dispose();
+    this.motionQuery.removeEventListener('change',this.motionChanged);this.metal?.dispose({lost:this.lost});
     window.removeEventListener('scroll',this.handlers.scroll);window.removeEventListener('resize',this.handlers.resize);
     window.visualViewport?.removeEventListener('resize',this.handlers.resize);
     document.removeEventListener('visibilitychange',this.handlers.visibility);

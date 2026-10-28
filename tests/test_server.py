@@ -5,6 +5,8 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
+import types
+import sys
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('dot_server', Path(__file__).parents[1] / 'server.py')
@@ -28,8 +30,9 @@ class ServerTests(unittest.TestCase):
 
     def setUp(self):
         mod.ALLOW_API = False
+        mod.AGENT_VALIDATION = False
         mod.SESSIONS.clear()
-        mod.BUDGET.update(reserved=0, requests=0)
+        mod.BUDGET.update(reserved=0, requests=0, agent_requests=0)
         mod.LAST_DIAGNOSTIC = None
         _, headers, body = self.request('GET', '/api/session')
         self.cookie = dict(headers)['Set-Cookie'].split(';')[0]
@@ -65,6 +68,64 @@ class ServerTests(unittest.TestCase):
         self.assertNotIn(fake, self.request('GET', '/api/session')[2])
         self.assertEqual(self.request('DELETE', '/api/config')[0], 200)
         self.assertIsNone(next(iter(mod.SESSIONS.values()))['key'])
+
+    def test_saving_key_renews_browser_cookie_together_with_server_ttl(self):
+        mod.ALLOW_API = True
+        session=next(iter(mod.SESSIONS.values()))
+        session['created']=mod.time.time()-mod.TTL+5
+        status,headers,body=self.request('POST','/api/config',{'mode':'api','base_url':mod.BASE,'key':'test-not-a-real-credential'})
+        self.assertEqual(status,200)
+        renewed=dict(headers).get('Set-Cookie','')
+        self.assertTrue(renewed.startswith(self.cookie+';'))
+        self.assertIn('HttpOnly; SameSite=Strict; Path=/; Max-Age=3600',renewed)
+        self.assertLess(mod.time.time()-session['created'],5)
+        self.assertNotIn('test-not-a-real-credential',renewed+body)
+
+    def test_api_only_settings_empty_connected_failed_and_disconnected_states(self):
+        mod.ALLOW_API = True
+        self.assertFalse(json.loads(self.request('GET','/api/session')[2])['configured'])
+        blank={'mode':'api','base_url':mod.BASE,'key':''}
+        self.assertEqual(self.request('POST','/api/config',blank)[0],400)
+        self.assertFalse(json.loads(self.request('GET','/api/session')[2])['configured'])
+        fake='unit-test-existing-credential-only'
+        self.assertEqual(self.request('POST','/api/config',{**blank,'key':fake})[0],200)
+        session=next(iter(mod.SESSIONS.values()))
+        self.assertTrue(json.loads(self.request('GET','/api/session')[2])['configured'])
+        for invalid in [blank,{**blank,'key':fake,'base_url':'https://untrusted.invalid/v1'}]:
+            code,_,body=self.request('POST','/api/config',invalid)
+            self.assertEqual(code,400)
+            self.assertTrue(json.loads(self.request('GET','/api/session')[2])['configured'])
+            self.assertEqual(session['key'],fake)
+            self.assertNotIn(fake,body)
+        self.assertEqual(self.request('DELETE','/api/config')[0],200)
+        self.assertFalse(json.loads(self.request('GET','/api/session')[2])['configured'])
+        self.assertIsNone(session['key'])
+
+    def test_agent_code_reload_preserves_ram_session_and_exception_identity(self):
+        mod.ALLOW_API=True;mod.AGENT_VALIDATION=True
+        try:
+            self.request('POST','/api/config',{'mode':'api','base_url':mod.BASE,'key':'test-not-a-real-credential'})
+            previous=next(iter(mod.SESSIONS.values()))
+            stable_error=mod.agent_provider.ProviderError
+            plan={'status':'answer','scenario':'question','reply':'请看餐饮卡','query':'dining_month','fields':{},'missing':[],'mode':'none','task_id':None}
+            encoded=json.dumps({'model':mod.MODEL,'choices':[{'finish_reason':'stop','message':{'content':json.dumps(plan)}}]}).encode()
+            class Response:
+                status=200
+                def read(self,n):return encoded[:n]
+            class Upstream:
+                def __init__(self,*args,**kwargs):pass
+                def request(self,*args,**kwargs):pass
+                def getresponse(self):return Response()
+                def close(self):pass
+            data={'validation_scope':'finpilot-fifteen-v1','text':'本月餐饮','tool_catalog':['dining_month'],'run_history':[]}
+            with patch.object(mod.http.client,'HTTPSConnection',Upstream):
+                for _ in range(2):
+                    status,_,body=self.request('POST','/api/agent',data)
+                    self.assertEqual(status,200);self.assertEqual(json.loads(body)['source'],'llm')
+            self.assertIs(previous,next(iter(mod.SESSIONS.values())))
+            self.assertEqual(previous['key'],'test-not-a-real-credential')
+            self.assertIs(stable_error,mod.agent_provider.ProviderError)
+        finally:mod.AGENT_VALIDATION=False
 
     def test_static_module_mime_and_no_source_exposure(self):
         status, headers, _ = self.request('GET', '/engine.mjs')
@@ -161,6 +222,138 @@ class ServerTests(unittest.TestCase):
         self.assertIn('"error"', body)
         self.assertNotIn('[DONE]', body)
         self.assertFalse(mod.LAST_DIAGNOSTIC['completed'])
+
+
+    def test_expired_read_session_is_distinct_and_new_session_recovers(self):
+        token = self.cookie.split('=', 1)[1]
+        mod.SESSIONS[token]['created'] = 0
+        self.assertEqual(self.request('GET', '/api/positions')[0], 401)
+        _, headers, body = self.request('GET', '/api/session')
+        self.cookie = dict(headers)['Set-Cookie'].split(';')[0]
+        self.csrf = json.loads(body)['csrf']
+        with patch.object(mod.baseline_api, 'read', return_value={'holdings': []}):
+            self.assertEqual(self.request('GET', '/api/positions')[0], 200)
+
+    def enable_agent(self):
+        mod.ALLOW_API = True
+        mod.AGENT_VALIDATION = True
+        self.request('POST', '/api/config', {'mode': 'api', 'base_url': mod.BASE, 'key': 'unit-test-fake-key-only'})
+        return {'validation_scope': 'finpilot-fifteen-v1', 'text': '本月餐饮', 'tool_catalog': ['dining_month'], 'run_history': []}
+
+    def test_agent_no_total_cap_keeps_usage_and_private_context_boundary(self):
+        payload = self.enable_agent()
+        mod.BUDGET.update(agent_requests=1000, requests=1003, reserved=.15)
+        previous = next(iter(mod.SESSIONS.values()))
+        plan = {'status': 'answer', 'scenario': 'question', 'reply': '请看账本。', 'query': 'dining_month', 'fields': {}, 'missing': [], 'mode': 'none', 'task_id': None}
+        encoded = json.dumps({'model': mod.MODEL, 'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(plan)}}], 'usage': {'total_tokens': 132}}).encode()
+        class Upstream:
+            calls = 0
+            def __init__(self, *a, **kw): pass
+            def request(self, *a, **kw): Upstream.calls += 1
+            def getresponse(self):
+                return types.SimpleNamespace(status=200, read=lambda n: encoded[:n])
+            def close(self): pass
+        with patch.object(mod.http.client, 'HTTPSConnection', Upstream):
+            self.assertEqual(self.request('POST', '/api/agent', {**payload, 'preferences': 'old private data'})[0], 400)
+            self.assertEqual(self.request('POST', '/api/agent', {**payload, 'validation_scope': 'other'})[0], 400)
+            self.assertEqual(self.request('POST', '/api/chat', {'text': 'old input', 'context': {}})[0], 403)
+            self.assertEqual(Upstream.calls, 0)
+            for _ in range(2):
+                code, _, body = self.request('POST', '/api/agent', payload)
+                self.assertEqual(code, 200)
+                self.assertEqual(json.loads(body)['source'], 'llm')
+        persisted = json.loads(mod.BUDGET_FILE.read_text())
+        self.assertEqual(persisted, {'reserved': .15, 'requests': 1005, 'agent_requests': 1002})
+        self.assertIs(previous, next(iter(mod.SESSIONS.values())))
+        self.assertEqual(previous['key'], 'unit-test-fake-key-only')
+        health = json.loads(self.request('GET', '/api/health')[2])
+        self.assertIsNone(health['agent_call_limit'])
+        self.assertEqual(health['agent_request_policy'], 'no-total-cap-v1')
+        self.assertEqual(health['last_request']['usage']['total_tokens'], 132)
+        self.assertNotIn('unit-test-fake-key-only', json.dumps(health))
+
+    def test_agent_busy_and_rate_limit_backoff_do_not_call_or_increment(self):
+        payload = self.enable_agent()
+        session = next(iter(mod.SESSIONS.values()))
+        class Upstream:
+            calls = 0
+            def __init__(self, *a, **kw): pass
+            def request(self, *a, **kw): Upstream.calls += 1
+            def getresponse(self): return types.SimpleNamespace(status=429, read=lambda n: b'{}')
+            def close(self): pass
+        with patch.object(mod.http.client, 'HTTPSConnection', Upstream):
+            session['agent_busy'] = True
+            self.assertEqual(self.request('POST', '/api/agent', payload)[0], 429)
+            self.assertEqual(Upstream.calls, 0)
+            self.assertEqual(mod.BUDGET['agent_requests'], 0)
+            session['agent_busy'] = False
+            status, _, body = self.request('POST', '/api/agent', payload)
+            self.assertEqual(status, 429)
+            self.assertEqual(json.loads(body)['retry_after_seconds'], 15)
+            self.assertFalse(session['agent_busy'])
+            status, _, body = self.request('POST', '/api/agent', payload)
+            self.assertEqual(status, 429)
+            self.assertEqual(json.loads(body)['code'], 'retry_later')
+            self.assertEqual(Upstream.calls, 1)
+            self.assertEqual(mod.BUDGET['agent_requests'], 1)
+            # Advance only this synthetic session past its cooldown.
+            session['agent_retry_after'] = 0
+            status, _, body = self.request('POST', '/api/agent', payload)
+            self.assertEqual(status, 429)
+            self.assertEqual(json.loads(body)['retry_after_seconds'], 30)
+            self.assertEqual(Upstream.calls, 2)
+            self.assertEqual(mod.BUDGET['agent_requests'], 2)
+
+    def test_agent_timeout_preserves_connection_and_requires_explicit_retry(self):
+        payload = self.enable_agent()
+        session = next(iter(mod.SESSIONS.values()))
+        class Upstream:
+            calls = 0
+            def __init__(self, host, **kw): self.timeout = kw['timeout']
+            def request(self, *a, **kw): Upstream.calls += 1
+            def getresponse(self): raise TimeoutError('fake test timeout')
+            def close(self): pass
+        with patch.object(mod.http.client, 'HTTPSConnection', Upstream):
+            status, _, body = self.request('POST', '/api/agent', payload)
+            self.assertEqual(status, 504)
+            self.assertEqual(json.loads(body)['retry_after_seconds'], 5)
+            self.assertEqual(self.request('POST', '/api/agent', payload)[0], 429)
+            self.assertEqual(Upstream.calls, 1)
+        self.assertEqual(session['key'], 'unit-test-fake-key-only')
+        self.assertFalse(session['agent_busy'])
+        self.assertEqual(mod.BUDGET['agent_requests'], 1)
+        self.assertFalse(mod.LAST_DIAGNOSTIC['completed'])
+
+    def test_fixed_reload_policy_adoption_keeps_same_session_and_budget_objects(self):
+        self.enable_agent()
+        class Legacy(mod.Handler):
+            def agent_validation_request(self, session): pass
+        host = types.SimpleNamespace(**vars(mod))
+        host.Handler = Legacy
+        host.AGENT_CALL_LIMIT = 40
+        session = next(iter(host.SESSIONS.values()))
+        budget, sessions, diagnostic = host.BUDGET, host.SESSIONS, host.LAST_DIAGNOSTIC
+        before = dict(budget)
+        with patch.dict(sys.modules, {'__main__': host}):
+            mod.importlib.reload(mod.agent_provider)
+        self.assertEqual(Legacy.agent_validation_request._finpilot_request_policy, 'no-total-cap-v1')
+        self.assertIs(host.SESSIONS, sessions)
+        self.assertIs(host.BUDGET, budget)
+        self.assertEqual(budget, before)
+        self.assertIs(host.LAST_DIAGNOSTIC, diagnostic)
+        self.assertIs(next(iter(host.SESSIONS.values())), session)
+        self.assertEqual(session['key'], 'unit-test-fake-key-only')
+        # Already-entered retired frames still see an integer; new frames never
+        # consult it. Report the active handler policy, not the retired constant.
+        self.assertEqual(host.AGENT_CALL_LIMIT, 40)
+        fake = types.SimpleNamespace(path='/api/health', valid_host=lambda: True, reply=lambda data: data)
+        current = Legacy.do_GET(fake)
+        self.assertIsNone(current['agent_call_limit'])
+        json.dumps(current, allow_nan=False)
+        self.assertFalse(mod.agent_runtime.install_existing_service(host))
+        alien = types.SimpleNamespace(**vars(host))
+        alien.__file__ = '/unrelated/server.py'
+        self.assertFalse(mod.agent_runtime.install_existing_service(alien))
 
 
 if __name__ == '__main__':

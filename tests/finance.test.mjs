@@ -16,8 +16,8 @@ test('cancelled and unknown operations never create financial rows',()=>{
  t=execute(s,'salary',2000);transition(s,t.id,'unknown');const copy=JSON.parse(JSON.stringify(s));ensureFinance(copy);assert.equal(copy.balance,50000);assert.equal(copy.ledger.length,count);assert.equal(copy.tasks[0].receipt,null);
 });
 test('principal purchase and redemption have matching ledger rows, excluded from spending',()=>{
- const s=fresh(),baseline=financialFacts(s);let t=execute(s,'investment',2800);transition(s,t.id,'complete');assert.equal(s.balance,47200);assert.equal(s.invested,2800);assert.equal(financialFacts(s).expenseMinor,baseline.expenseMinor);assert.equal(financialFacts(s).principalOutMinor,280000);
- t=execute(s,'redemption',1000);transition(s,t.id,'complete');const f=financialFacts(s);assert.equal(s.balance,48200);assert.equal(s.invested,1800);assert.equal(f.incomeMinor,baseline.incomeMinor);assert.equal(f.expenseMinor,baseline.expenseMinor);assert.equal(f.principalInMinor,100000);assert.equal(s.balance+s.invested,50000);assert.equal(s.ledger.filter(r=>r.movement==='principal').length,2);
+ const s=fresh(),baseline=financialFacts(s),historicalPrincipalCount=s.ledger.filter(r=>r.movement==='principal').length;let t=execute(s,'investment',2800);transition(s,t.id,'complete');assert.equal(s.balance,47200);assert.equal(s.invested,2800);assert.equal(financialFacts(s).expenseMinor,baseline.expenseMinor);assert.equal(financialFacts(s).principalOutMinor,280000);
+ t=execute(s,'redemption',1000);transition(s,t.id,'complete');const f=financialFacts(s);assert.equal(s.balance,48200);assert.equal(s.invested,1800);assert.equal(f.incomeMinor,baseline.incomeMinor);assert.equal(f.expenseMinor,baseline.expenseMinor);assert.equal(f.principalInMinor,100000);assert.equal(s.balance+s.invested,50000);assert.equal(s.ledger.filter(r=>r.movement==='principal').length,historicalPrincipalCount+2);
 });
 test('old completed R1 receipt migrates to one row without double debit',()=>{
  const old={version:1,balance:48200,invested:0,spent:1800,tasks:[{id:'old-transfer',kind:'transfer',amount:1800,revision:2,status:'done',applied:true,receipt:'FP-OLD',logs:[]}]};

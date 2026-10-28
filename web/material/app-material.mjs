@@ -4,7 +4,7 @@ const query = new URLSearchParams(location.search);
 const app = document.getElementById('app');
 const audit = query.get('material-audit') === '1';
 const optedOut = query.get('material') === 'off';
-const opticalCandidates = '.card,.ap-home-asset,.ap-home-month,.ap-l-hero,.ap-w-assets,.ap-r-plan,.fp-invest-card,nav.ap-nav';
+const opticalCandidates = '.card,.ap-home-asset,.ap-home-month,.ap-l-hero,.ap-w-assets,.ap-r-plan,.fp-invest-card,.bank-card-face,nav.ap-nav';
 const readableCandidates = '.card,.ap-home-card,.ap-l-glass,.ap-o-card,.ap-t-card,.ap-w-glass,.ap-r-list,.fp-invest-card,.composer,.form';
 
 if(app && !optedOut) {
@@ -46,6 +46,7 @@ if(app && !optedOut) {
     else if(route==='finance/ledger') use(app.querySelector('.ap-l-hero'));
     else if(route==='investment') app.querySelectorAll('.ap-w-assets,.ap-r-plan,.fp-invest > .fp-invest-card:not(.fp-invest-empty)').forEach(e=>use(e));
     else if(route==='me' || route==='me/accounts') app.querySelectorAll('main > .card').forEach(e=>use(e));
+    renderer.setBankCards(['finance','finance/accounts'].includes(route)?[...app.querySelectorAll('.bank-card-face.is-front')]:[]);
     use(app.querySelector('nav.ap-nav'),'nav');
     renderer.setTargets(targets); preference();
     renderer.resize().catch(e=>renderer.fallback(e.message,true));
@@ -56,8 +57,8 @@ if(app && !optedOut) {
       (n.matches?.('main, #baseline-content,'+opticalCandidates)||n.querySelector?.(opticalCandidates))))) queue();
   });
   observer.observe(app,{childList:true,subtree:true});
-  const prefsObserver = new MutationObserver(preference);
-  prefsObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-reduce-transparency']});
+  const prefsObserver = new MutationObserver(()=>{preference();renderer.motionChanged();});
+  prefsObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-reduce-transparency','data-reduce-motion']});
   opaqueQuery.addEventListener('change',preference);
   window.addEventListener('hashchange',queue);
   document.fonts?.ready.then(()=>{renderer.dirty=true;renderer.requestDraw();});

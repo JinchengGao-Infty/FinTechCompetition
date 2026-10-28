@@ -16,10 +16,6 @@ def main():
     database = ROOT / '.runtime/positions.sqlite3'
     if database.exists():
         raise SystemExit('Requires a fresh clone without an initialized database; existing data preserved.')
-    subprocess.run([sys.executable,'-B','tools/init_demo.py'],cwd=ROOT,check=True,capture_output=True)
-    before = hashlib.sha256(database.read_bytes()).hexdigest()
-    subprocess.run([sys.executable,'-B','tools/init_demo.py'],cwd=ROOT,check=True,capture_output=True)
-    assert hashlib.sha256(database.read_bytes()).hexdigest() == before, 'Repeated initialization changed database'
     imports = 0
     for path in (ROOT / 'web').rglob('*'):
         if path.suffix not in {'.js','.mjs'}:
@@ -64,10 +60,14 @@ def main():
         positions = json.loads(get('/api/positions'))
         holdings = positions.get('holdings',positions.get('positions',[]))
         assert len(holdings) == 4, 'Expected four synthetic holdings'
+        before = hashlib.sha256(database.read_bytes()).hexdigest()
+        subprocess.run([sys.executable,'-B','tools/init_demo.py'],cwd=ROOT,check=True,capture_output=True)
+        assert hashlib.sha256(database.read_bytes()).hexdigest() == before, 'Repeated initialization changed database'
         watchlist = json.loads(get('/api/reference/watchlist'))
         items = watchlist if isinstance(watchlist,list) else watchlist.get('items',watchlist.get('watchlist',watchlist.get('stocks',[])))
         assert len(items) == 10, 'Expected ten historical reference stocks'
-        routes = ['/', '/app.js', '/agent-tools.mjs','/agent-workspace.mjs','/operation-flow.mjs',
+        routes = ['/', '/showcase.html', '/showcase.css', '/showcase.js', '/entry.js', '/desktop-session.mjs',
+                  '/app.js', '/agent-tools.mjs','/agent-workspace.mjs','/operation-flow.mjs',
                   '/state-storage.mjs','/bank-cards.css','/bank-cards.mjs','/material/metal-card.mjs',
                   '/assets/dot.png','/assets/radix/slate.css','/assets/company-logos/601857.svg']
         for route in routes:
@@ -75,7 +75,7 @@ def main():
         assert get('/assets/research/600519/research-latest.pdf').startswith(b'%PDF')
         print(json.dumps({'startup':'pass','synthetic_holdings':len(holdings),'reference_stocks':len(items),
                           'static_routes':len(routes)+1,'local_module_references':imports,
-                          'repeated_initialization_preserved':True,'external_api_called':False,
+                          'automatic_initialization':True,'repeated_initialization_preserved':True,'external_api_called':False,
                           'isolated_port':port,'production_port_untouched':65281},indent=2))
     finally:
         process.terminate()

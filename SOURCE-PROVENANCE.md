@@ -7,3 +7,5 @@
 仅发布运行模块、必要静态资产、回归测试、合成初始化、15 场景说明与可移植运行文档。不发布凭据、.env、个人数据库、浏览器持久状态、本地日志、缓存、QA截图、工作站检查点或无关实验。只允许删除发布副本内无功能意义的工作站路径注释；运行代码保持冻结源版本。
 
 目标为 GitHub 仓库 ID 1096977369 的 `26fincom_v2`。旧名 FinTechathon 重定向到现名 FinTechCompetition；不更改 main/v1，不 force push，不部署。
+
+桌面展示、启动改进及部分文案整合自 JinchengGao-Infty 的 PR #1（6482fe0），整合基线为1d5c90d；具体采用、跳过和改写见 docs/PR1-INTEGRATION.md。保留原作者提交历史。

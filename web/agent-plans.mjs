@@ -4,6 +4,20 @@ import {questionResult,SUBSCRIPTIONS} from './agent-tools.mjs';
 import {rememberDraft,showDraft,finishDraft,leaveWorkspace} from './agent-workspace.mjs';
 
 const slotValues={payee_id:new Set(['mom','dad','unknown']),source_account:new Set(SOURCES.map(x=>x.id)),currency:new Set(['CNY']),subscription_id:new Set(SUBSCRIPTIONS.map(x=>x.id)),subscription_action:new Set(['cancel','keep','downgrade']),purpose:new Set(['family','travel','cash']),cadence:new Set(['once','monthly']),transaction_ref:new Set(['unrecognized_1299'])};
+const MONEY=/(?:[¥￥]\s*(\d[\d,]*(?:\.\d+)?)|(\d[\d,]*(?:\.\d+)?)\s*(万)?\s*(?:元|块|人民币)|(\d[\d,]*(?:\.\d+)?)\s*万)/g;
+function moneyMinors(text){
+ return [...String(text||'').matchAll(MONEY)].map(m=>{const raw=(m[1]||m[2]||m[4]).replaceAll(',','');return Math.round(Number(raw)*(m[3]||m[4]?10000:1)*100);});
+}
+function factNumbers(value,found=new Set()){
+ if(typeof value==='number'&&Number.isFinite(value)){found.add(Math.round(value));found.add(Math.round(value*100));}
+ else if(value&&typeof value==='object')for(const child of Object.values(value))factNumbers(child,found);
+ return found;
+}
+// Figures shown to the user must come from local facts, parameters or the user's own words.
+export function groundedReply(text,facts,userText,fallback){
+ const allowed=factNumbers(facts);for(const amount of moneyMinors(userText))allowed.add(amount);
+ return moneyMinors(text).every(amount=>allowed.has(amount))?text:fallback;
+}
 export function mergeDraft(existing,result,originTurnId){
  const fields={...(existing?.fields||{}),...Object.fromEntries(Object.entries(result.fields||{}).filter(([,value])=>value!==null))};
  let missing=[...(result.missing||[])];
@@ -35,7 +49,10 @@ function applyResult(state,result,facts,{originTurnId,userText='',agentRunId=nul
  const fields=result.fields||{};validateFields(fields);
  const response={text:result.reply,card:null,taskId:null};
  if(result.status==='answer'){
-  if(result.scenario==='question')response.card={type:'fact',data:questionResult(facts,result.query,fields)};
+  if(result.scenario==='question'){
+   response.card={type:'fact',data:questionResult(facts,result.query,fields)};
+   response.text=groundedReply(result.reply,response.card.data,userText,'请看下方核对后的数据卡。');
+  }
   return response;
  }
  if(result.status==='decline')return response;
@@ -88,5 +105,6 @@ function applyResult(state,result,facts,{originTurnId,userText='',agentRunId=nul
  validateTaskParameters(task);
  task.agentOrigin=true;task.agentRunId=agentRunId;task.originParameters=parameterFingerprint(task);task.sourceSnapshot=facts.snapshot_id;
  if(result.context_action==='new')leaveWorkspace(state);else finishDraft(state);
- state.agentFocus=task.id;state.agentWorkspaceVisible=true;response.taskId=task.id;return response;
+ state.agentFocus=task.id;state.agentWorkspaceVisible=true;response.taskId=task.id;
+ response.text=groundedReply(result.reply,{amount_minor:fields.amount_minor},userText,'请核对下方安排。');return response;
 }

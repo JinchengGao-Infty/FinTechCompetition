@@ -1,4 +1,5 @@
 import {scenarios,createTask,transition} from './engine.mjs';
+import {MAX_AMOUNT_MINOR} from './limits.mjs';
 import {CONTACTS,SOURCES,parameterFingerprint,validateTaskParameters} from './task-parameters.mjs';
 import {questionResult,SUBSCRIPTIONS} from './agent-tools.mjs';
 import {rememberDraft,showDraft,finishDraft,leaveWorkspace} from './agent-workspace.mjs';
@@ -15,7 +16,7 @@ export function mergeDraft(existing,result,originTurnId){
 }
 function validateFields(fields){
  for(const [key,values] of Object.entries(slotValues))if(fields[key]!=null&&!values.has(fields[key]))throw Error('模型安排含未核实的参数，已停止创建任务');
- if(fields.amount_minor!=null&&(!Number.isSafeInteger(fields.amount_minor)||fields.amount_minor<=0||fields.amount_minor>2000000))throw Error('金额不符合本轮范围，请重新核对');
+ if(fields.amount_minor!=null&&(!Number.isSafeInteger(fields.amount_minor)||fields.amount_minor<=0||fields.amount_minor>MAX_AMOUNT_MINOR))throw Error('金额不符合本轮范围，请重新核对');
 }
 export function missingFields(result){
  const f=result.fields||{};

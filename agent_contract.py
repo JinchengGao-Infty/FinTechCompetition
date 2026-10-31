@@ -4,6 +4,8 @@ import re
 from datetime import date
 from agent_errors import ContractError
 
+MAX_AMOUNT_MINOR=2000000000  # Keep in step with web/limits.mjs.
+
 QUERIES=('dining_month','spending_month','annual_trend','month_comparison','largest_category','income_month','subscriptions','large_expenses','available_cash','holdings','recent_task')
 COMPANION_ACTIONS={'birthday':'prepare_birthday','rent_reminder':'prepare_rent','subscription_reminder':'prepare_subscription','security_case':'show_security_case','compound':'prepare_compound'}
 SCENARIOS=('transfer','risk_transfer','subscription','budget_link','ambiguous','question','other','card_review',*COMPANION_ACTIONS,'plan_control')
@@ -108,9 +110,10 @@ def _validate_fields(fields,allowed):
     if allowed=={'items'}:return _compound_fields(fields)
     if not isinstance(fields,dict) or set(fields)-allowed:
         raise ContractError('invalid slots')
-    for name in ('amount_minor','budget_minor'):
+    # Large amounts are a risk decision for the local policy, not a schema error.
+    for name,ceiling in (('amount_minor',MAX_AMOUNT_MINOR),('budget_minor',2000000)):
         amount=fields.get(name)
-        if amount is not None and (type(amount) is not int or not 1<=amount<=2000000):
+        if amount is not None and (type(amount) is not int or not 1<=amount<=ceiling):
             raise ContractError('invalid integer amount')
     enums={'payee_id':{'mom','dad','unknown'},'source_account':{'salary_0826','living_1608'},'currency':{'CNY'},'subscription_id':{'video','cloud','music'},'subscription_action':{'cancel','keep','downgrade'},'purpose':{'family','travel','cash'},'cadence':{'once','monthly'},'transaction_ref':{'unrecognized_1299'},'partner_id':{'partner-linxia'},'case_id':SECURITY_CASES,'plan_action':{'cancel','pause','resume'}}
     for name,values in enums.items():

@@ -1,9 +1,10 @@
+import {verifyForTest} from './safety-fixture.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {fresh,createTask,transition} from '../web/engine.mjs';
 import {ensureFinance,financialFacts,ledgerView} from '../web/finance-state.mjs';
 
-function execute(s,key,amount){const t=createTask(s,key);transition(s,t.id,'grant');if(amount!==undefined)transition(s,t.id,'edit',{amount});transition(s,t.id,'confirm',{revision:t.revision});if(t.status==='verify')transition(s,t.id,'verify',{verified:true});return t;}
+function execute(s,key,amount){const t=createTask(s,key);transition(s,t.id,'grant');if(amount!==undefined)transition(s,t.id,'edit',{amount});transition(s,t.id,'confirm',{source:{kind:'user',method:'click'},revision:t.revision});if(t.status==='verify')verifyForTest(s,t.id);return t;}
 test('transfer receipt, ledger, balance, category, daily chart and summary reconcile once',()=>{
  let s=fresh();const before=financialFacts(s),count=s.ledger.length,t=execute(s,'salary',1800);
  transition(s,t.id,'unknown');assert.equal(s.ledger.length,count);assert.equal(s.balance,50000);assert.equal(financialFacts(s).expenseMinor,748711);

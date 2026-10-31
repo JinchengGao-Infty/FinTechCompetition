@@ -17,3 +17,8 @@ export function qualityDecision({gpuSamples = 0, gpuP95 = 0, cpuSamples = 0, cpu
   const overBudget = (gpuSamples >= 20 && gpuP95 > 4) || (cpuSamples >= 120 && cpuP95 > 8);
   return overBudget ? (cap > 1 ? 'lower-resolution' : 'readable-fallback') : 'keep';
 }
+// Closed disclosure content can retain layout rectangles in Chromium. Those
+// rectangles are not visible surfaces and must never create a glass backplate.
+export function canPaintSurface(element){
+  return !element.closest('details:not([open])') || !!element.closest('summary');
+}

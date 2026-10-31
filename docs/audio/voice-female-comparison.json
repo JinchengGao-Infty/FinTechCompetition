@@ -1,0 +1,159 @@
+{
+  "model_load_ms": 3055.7,
+  "peak_working_set_mib": 701.08,
+  "model": "kokoro-multi-lang-v1_1",
+  "provider": "cpu",
+  "samples": [
+    {
+      "file": "voice-female-zf_001-short.wav",
+      "text": "我会先核对收款人与金额，确认后再继续。",
+      "threads": 8,
+      "first": {
+        "first_audio_ms": 1929.7,
+        "duration_ms": 4389.54,
+        "sample_rate": 24000,
+        "bytes": 210742,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 3,
+          "name": "zf_001",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "warm": {
+        "first_audio_ms": 1804.22,
+        "duration_ms": 4389.5,
+        "sample_rate": 24000,
+        "bytes": 210740,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 3,
+          "name": "zf_001",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "audio_sha256": "0f5c8b42c9c372d073191ade1292cc6152781cd8a5ecaac112fed570a9e6c5b4",
+      "audition": "Not listened to by agent; audio input is unsupported in the current tool session."
+    },
+    {
+      "file": "voice-female-zf_001-conversation.wav",
+      "text": "好，我先把餐厅和蛋糕安排好。定时转账的收款人和金额，还需要你确认一下。",
+      "threads": 8,
+      "first": {
+        "first_audio_ms": 2900.72,
+        "duration_ms": 7344.58,
+        "sample_rate": 24000,
+        "bytes": 352584,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 3,
+          "name": "zf_001",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "warm": {
+        "first_audio_ms": 3003.73,
+        "duration_ms": 7344.29,
+        "sample_rate": 24000,
+        "bytes": 352570,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 3,
+          "name": "zf_001",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "audio_sha256": "e6531052385aed169b4cedd4a7ede989a44ba81e130d3a447b5dc51e09972801",
+      "audition": "Not listened to by agent; audio input is unsupported in the current tool session."
+    },
+    {
+      "file": "voice-female-zf_040-short.wav",
+      "text": "我会先核对收款人与金额，确认后再继续。",
+      "threads": 8,
+      "first": {
+        "first_audio_ms": 2220.94,
+        "duration_ms": 5285.75,
+        "sample_rate": 24000,
+        "bytes": 253760,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 25,
+          "name": "zf_040",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "warm": {
+        "first_audio_ms": 2055.35,
+        "duration_ms": 5287.0,
+        "sample_rate": 24000,
+        "bytes": 253820,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 25,
+          "name": "zf_040",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "audio_sha256": "8a0e1f9a9f9d8dd90888dc3bd735788f6121edc7af07c37baa781d16c8fedd83",
+      "audition": "Not listened to by agent; audio input is unsupported in the current tool session."
+    },
+    {
+      "file": "voice-female-zf_040-conversation.wav",
+      "text": "好，我先把餐厅和蛋糕安排好。定时转账的收款人和金额，还需要你确认一下。",
+      "threads": 8,
+      "first": {
+        "first_audio_ms": 3533.25,
+        "duration_ms": 9413.04,
+        "sample_rate": 24000,
+        "bytes": 451870,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 25,
+          "name": "zf_040",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "warm": {
+        "first_audio_ms": 3517.46,
+        "duration_ms": 9423.33,
+        "sample_rate": 24000,
+        "bytes": 452364,
+        "engine": "sherpa-onnx-kokoro",
+        "model": "kokoro-multi-lang-v1_1",
+        "voice": {
+          "speaker_id": 25,
+          "name": "zf_040",
+          "gender": "female",
+          "language": "zh-CN",
+          "precision": "fp32"
+        }
+      },
+      "audio_sha256": "3a49cbaddfd523d2472e3bc907b7a9566d9775ec8a3157a8f6abde16da4c1b9d",
+      "audition": "Not listened to by agent; audio input is unsupported in the current tool session."
+    }
+  ],
+  "timing_definition": "Complete utterance to in-memory PCM WAV, excludes LLM, network and browser playback; no subjective quality score.",
+  "model_fp32_sha256": "99db0bc8fd0c5033d249fe922db16768b71b4a6b26cfd93d206fbf66c76efb5f",
+  "archive_int8_sha256": "259c9c8bc906d6078e4e0570421885dabb68b539c2f970fcbb890a58eeaf3e9c"
+}

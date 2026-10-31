@@ -1,6 +1,8 @@
+import {hasIssuedCard,prepareCardProduct,commitCardProduct} from './bank-card-products.mjs';
 // R7 rc2: vertical stack adapted from actual Stitch screen
 // cfabf0e622c94fdb803bbf33f8abd14c. Data/events are our local adapter;
 // invented issuers/yields/products in the generated preview are not used.
+import {prepareLocalWrite,assertLocalWrite} from './local-write-guard.mjs';
 export const DEMO_BANK_CARDS=Object.freeze([
  Object.freeze({id:'salary',name:'工资卡',tail:'0826',type:'借记卡',purpose:'工资入账'}),
  Object.freeze({id:'living',name:'生活卡',tail:'1608',type:'借记卡',purpose:'日常支出'}),
@@ -9,35 +11,82 @@ export const DEMO_BANK_CARDS=Object.freeze([
 export function bankCardState(state,id){
  const card=DEMO_BANK_CARDS.find(c=>c.id===id);if(!card)throw Error('卡片不存在');
  const saved=state.bankCards?.[id]||{};
- return {...card,paused:id==='living'?!!state.cardLocked:!!saved.paused,reminder:saved.reminder!==false};
+ return {...card,...Object.fromEntries(Object.entries(saved).filter(([key])=>['limitMinor','dueMinor','dueDate'].includes(key))),paused:id==='living'?!!state.cardLocked:!!saved.paused,reminder:saved.reminder!==false};
 }
-export function setCardPaused(state,id,paused,{expected}={}){
+const cardRevision=(state,id)=>state.bankCards?.[id]?.revision??0;
+const changeParameters=(id,paused,expected,revision)=>({card:id,paused,expected,revision});
+const reminderParameters=(id,value,expected,revision)=>({card:id,reminder:value,expected,revision});
+const receiptCopy=value=>structuredClone(value);
+export function prepareCardChange(state,id,paused,{expected}={}){
  const current=bankCardState(state,id);if(typeof paused!=='boolean')throw Error('卡片状态无效');
- if(current.paused===paused)return current;
  if(expected!==undefined&&current.paused!==expected)throw Error('卡片状态已变化，请重新核对');
- state.bankCards||={};state.bankCards[id]||={};
- if(id==='living')state.cardLocked=paused;else state.bankCards[id].paused=paused;
- return bankCardState(state,id);
+ const before=expected??current.paused,revision=cardRevision(state,id),ticket=prepareLocalWrite(state,{kind:'card_state',id:'card-state:'+crypto.randomUUID(),parameters:changeParameters(id,paused,before,revision)});
+ return Object.freeze({...ticket,card:id,paused,expected:before,revision});
 }
-export function setCardReminder(state,id,value){if(id!=='credit'||typeof value!=='boolean')throw Error('提醒设置无效');state.bankCards||={};state.bankCards[id]||={};state.bankCards[id].reminder=value;return bankCardState(state,id);}
+export function prepareCardReminder(state,id,value){
+ const current=bankCardState(state,id);if(id!=='credit'||typeof value!=='boolean')throw Error('提醒设置无效');
+ const revision=cardRevision(state,id),ticket=prepareLocalWrite(state,{kind:'card_reminder',id:'card-reminder:'+crypto.randomUUID(),parameters:reminderParameters(id,value,current.reminder,revision)});
+ return Object.freeze({...ticket,card:id,value,expected:current.reminder,revision});
+}
+function commitCard(state,id,ticket,parameters,kind,apply){
+ // Check the latest passed state even for a repeated set. A local card control
+ // must never double as an unlock for the separate global safety state.
+ assertLocalWrite(state,ticket,{parameters});
+ if(ticket.kind!==kind)throw Error('卡片核对记录无效，请重新打开');
+ const previous=state.bankCards?.[id]?.writeResults?.[ticket.id];
+ if(previous){if(previous.parameterKey!==ticket.parameterKey)throw Error('卡片参数已变化，请重新核对');return receiptCopy(previous.result);}
+ const candidate=structuredClone(state),result=apply(candidate);
+ candidate.bankCards||={};candidate.bankCards[id]||={};candidate.bankCards[id].writeResults||={};
+ candidate.bankCards[id].writeResults[ticket.id]={parameterKey:ticket.parameterKey,epoch:ticket.epoch,result:receiptCopy(result)};
+ assertLocalWrite(state,ticket,{parameters});Object.assign(state,candidate);return receiptCopy(result);
+}
+export function setCardPaused(state,id,paused,{expected,ticket}={}){
+ const current=bankCardState(state,id);if(typeof paused!=='boolean')throw Error('卡片状态无效');
+ const before=expected??ticket?.expected,parameters=changeParameters(id,paused,before,ticket?.revision);
+ return commitCard(state,id,ticket,parameters,'card_state',candidate=>{
+  if(cardRevision(candidate,id)!==ticket.revision)throw Error('卡片状态已变化，请重新核对');
+  if(current.paused!==paused&&before!==undefined&&current.paused!==before)throw Error('卡片状态已变化，请重新核对');
+  candidate.bankCards||={};candidate.bankCards[id]||={};
+  if(id==='living')candidate.cardLocked=paused;else candidate.bankCards[id].paused=paused;
+  if(current.paused!==paused)candidate.bankCards[id].revision=ticket.revision+1;
+  return bankCardState(candidate,id);
+ });
+}
+export function setCardReminder(state,id,value,{ticket}={}){
+ bankCardState(state,id);if(id!=='credit'||typeof value!=='boolean')throw Error('提醒设置无效');
+ return commitCard(state,id,ticket,reminderParameters(id,value,ticket?.expected,ticket?.revision),'card_reminder',candidate=>{
+  if(cardRevision(candidate,id)!==ticket.revision)throw Error('提醒设置已变化，请重新核对');
+  const current=bankCardState(candidate,id);if(current.reminder!==value&&current.reminder!==ticket.expected)throw Error('提醒设置已变化，请重新核对');
+  candidate.bankCards||={};candidate.bankCards[id]||={};candidate.bankCards[id].reminder=value;if(current.reminder!==value)candidate.bankCards[id].revision=ticket.revision+1;return bankCardState(candidate,id);
+ });
+}
 
 const CHIP='<svg viewBox="0 0 30 24" fill="none" aria-hidden="true"><rect x="1" y="1" width="28" height="22" rx="5"/><path d="M10 1v22M20 1v22M1 8h9m10 0h9M1 16h9m10 0h9M10 12h10"/></svg>';
 export function createBankCards({getState,save,esc,money,icon,onLedger}){
- let selected='salary',expanded=false,pending=null;
+ let selected='salary',expanded=false,pending=null,product=null,productNotice=null;
+ const available=()=>DEMO_BANK_CARDS.filter(c=>c.id!=='credit'||hasIssuedCard(getState()));
  const amount=n=>money(n/100),card=()=>bankCardState(getState(),selected);
- function details(){const c=card();return `<div class="bank-card-details" id="bank-card-details"><dl>${c.type==='信用卡'?`<div><dt>本期待还</dt><dd class="money">${amount(c.dueMinor)}</dd></div><div><dt>还款日</dt><dd>11月18日</dd></div><div><dt>信用额度</dt><dd class="money">${amount(c.limitMinor)}</dd></div>`:`<div><dt>用途</dt><dd>${esc(c.purpose)}</dd></div>`}<div><dt>卡片消费</dt><dd>${c.paused?'已暂停':'使用中'}</dd></div></dl>${c.type==='信用卡'?`<div class="bank-card-reminder"><span>还款提醒</span><button type="button" role="switch" aria-checked="${c.reminder}" aria-label="还款提醒" data-action="bank-card-reminder" class="toggle ${c.reminder?'on':''}"></button></div>`:''}${pending?`<div class="bank-card-confirm"><p>${pending.paused?'暂停':'恢复'}${esc(c.name)}的卡片消费？</p><div><button type="button" class="ap-w-button ap-w-primary" data-action="bank-card-confirm" data-card="${c.id}" data-version="${pending.id}">确认${pending.paused?'暂停':'恢复'}</button><button type="button" class="ap-w-button" data-action="bank-card-cancel">取消</button></div></div>`:`<div class="bank-card-actions"><button type="button" class="ap-w-button" data-action="bank-card-pause">${c.paused?'恢复卡片消费':'暂停卡片消费'}</button><button type="button" class="ap-w-button" data-action="bank-card-ledger">查看明细</button></div>`}</div>`;}
- function html(){const c=card(),order=[...DEMO_BANK_CARDS.filter(row=>row.id!==selected),c];
+ function details(){const c=card();return `<div class="bank-card-details" id="bank-card-details"><dl>${c.type==='信用卡'?`<div><dt>本期待还</dt><dd class="money">${amount(c.dueMinor)}</dd></div><div><dt>还款日</dt><dd>${c.dueDate?'11月18日':'暂无待还'}</dd></div><div><dt>信用额度</dt><dd class="money">${amount(c.limitMinor)}</dd></div>`:`<div><dt>用途</dt><dd>${esc(c.purpose)}</dd></div>`}<div><dt>卡片消费</dt><dd>${c.paused?'已暂停':'使用中'}</dd></div></dl>${c.type==='信用卡'?`<div class="bank-card-reminder"><span>还款提醒</span><button type="button" role="switch" aria-checked="${c.reminder}" aria-label="还款提醒" data-action="bank-card-reminder" class="toggle ${c.reminder?'on':''}"></button></div>`:''}${pending?`<div class="bank-card-confirm"><p>${pending.paused?'暂停':'恢复'}${esc(c.name)}的卡片消费？</p><div><button type="button" class="ap-w-button ap-w-primary" data-action="bank-card-confirm" data-card="${c.id}" data-version="${pending.id}">确认${pending.paused?'暂停':'恢复'}</button><button type="button" class="ap-w-button" data-action="bank-card-cancel">取消</button></div></div>`:`<div class="bank-card-actions">${c.id==='credit'?'<button type="button" class="ap-w-button" data-action="bank-card-limit">调整额度</button>':''}<button type="button" class="ap-w-button" data-action="bank-card-pause">${c.paused?'恢复卡片消费':'暂停卡片消费'}</button><button type="button" class="ap-w-button" data-action="bank-card-ledger">查看明细</button></div>`}</div>`;}
+ function productPanel(){if(!product)return productNotice?`<p class="card-product-result" role="status">${icon('check')}${esc(productNotice)}</p>`:'';const limit=product.ticket?.parameters.limitMinor;return `<div class="bank-card-details bank-product"><h3>${product.kind==='apply'?'申请信用卡':'调整信用额度'}</h3>${!product.ticket?`<label>额度（元）<input id="bank-limit-input" type="number" min="1000" max="50000" step="100" value="${bankCardState(getState(),'credit').limitMinor/100}"></label><button type="button" class="ap-w-button ap-w-primary" data-action="bank-product-review">核对额度</button>`:`<p>信用卡 尾号0921</p><div class="plan-row"><span>额度</span><strong>${amount(limit)}</strong></div><button type="button" class="ap-w-button ap-w-primary" data-action="bank-product-confirm" data-version="${product.ticket.id}">确认${product.kind==='apply'?'申请':'调整'}</button>`}<button type="button" class="ap-w-button" data-action="bank-product-cancel">取消</button></div>`;}
+ function productEntry(){return hasIssuedCard(getState())?`<button type="button" class="ap-w-button bank-card-entry" data-action="bank-card-manage" aria-expanded="${selected==='credit'&&expanded}" aria-controls="bank-card-details" aria-label="管理已开通的信用卡">管理信用卡</button>`:`<button type="button" class="ap-w-button bank-card-entry bank-card-apply" data-action="bank-card-apply"${product?' disabled':''}>申请一张卡</button>`;}
+ function html(){if(!available().some(c=>c.id===selected))selected='salary';const c=card(),order=[...available().filter(row=>row.id!==selected),c];
   const candles='<svg class="bank-candle-texture" viewBox="0 0 320 200" aria-hidden="true"><g fill="none" stroke="currentColor"><path d="M90 162v-40m25 24V99m25 36V84m25 35V65m25 42V43m25 49V28m25 56V15"/><path stroke-width="6" d="M90 151v-18m25 2v-24m25 11V96m25 12V78m25 17V56m25 24V42m25 29V29"/></g></svg>';
-  return `<section class="bank-cards" aria-labelledby="bank-cards-title"><div class="bank-cards-heading"><h2 id="bank-cards-title">银行卡</h2><span>${DEMO_BANK_CARDS.length}张</span></div><div class="bank-wallet-stack" role="group" aria-label="选择银行卡">${order.map((row,i)=>{const front=i===2;return `<div class="bank-wallet-layer" style="--stack-index:${i}"><div class="bank-card-face bank-card-${row.id}${front?' is-front':''}" data-card="${row.id}">${front?`<canvas class="bank-metal-canvas" aria-hidden="true"></canvas>${candles}<button type="button" class="bank-card-foreground" data-action="bank-card-details" data-card="${row.id}" aria-expanded="${expanded}" aria-controls="bank-card-details" aria-label="${expanded?'收起':'展开'}${row.name} 尾号${row.tail}详情"><span class="bank-card-top"><span>${icon('card')}<strong>${esc(row.name)}</strong>${row.type===row.name?'':`<small>${row.type}</small>`}</span><i class="bank-chip">${CHIP}</i></span><span class="bank-card-digits">•••• •••• •••• <strong>${row.tail}</strong></span><span class="bank-card-bottom"><span>${row.paused?'已暂停':'使用中'}${icon(expanded?'down':'next')}</span><b class="bank-network">${row.id==='salary'?'VISA':esc(row.type)}</b></span></button>`:`<button type="button" class="bank-card-tab" data-action="bank-card-select" data-card="${row.id}" aria-label="${row.name} 尾号${row.tail}"><strong>${esc(row.name)}</strong><span>•••• ${row.tail}</span>${icon('down')}</button>`}</div></div>`;}).join('')}</div>${expanded?details():'<div id="bank-card-details" hidden></div>'}</section>`;
+  return `<section class="bank-cards" aria-labelledby="bank-cards-title"><div class="bank-cards-heading"><h2 id="bank-cards-title">银行卡</h2><span>${available().length}张</span>${productEntry()}</div>${hasIssuedCard(getState())?'<p class="bank-card-issued">信用卡 0921 已开通</p>':''}${productPanel()}<div class="bank-wallet-stack" style="--card-count:${order.length}" role="group" aria-label="选择银行卡">${order.map((row,i)=>{const front=i===order.length-1;return `<div class="bank-wallet-layer" style="--stack-index:${i}"><div class="bank-card-face bank-card-${row.id}${front?' is-front':''}" data-card="${row.id}">${front?`<canvas class="bank-metal-canvas" aria-hidden="true"></canvas>${candles}<button type="button" class="bank-card-foreground" data-action="bank-card-details" data-card="${row.id}" aria-expanded="${expanded}" aria-controls="bank-card-details" aria-label="${expanded?'收起':'展开'}${row.name} 尾号${row.tail}详情"><span class="bank-card-top"><span>${icon('card')}<strong>${esc(row.name)}</strong>${row.type===row.name?'':`<small>${row.type}</small>`}</span><i class="bank-chip">${CHIP}</i></span><span class="bank-card-digits">•••• •••• •••• <strong>${row.tail}</strong></span><span class="bank-card-bottom"><span>${row.paused?'已暂停':'使用中'}${icon(expanded?'down':'next')}</span><b class="bank-network">${row.id==='salary'?'VISA':esc(row.type)}</b></span></button>`:`<button type="button" class="bank-card-tab" data-action="bank-card-select" data-card="${row.id}" aria-label="${row.name} 尾号${row.tail}"><strong>${esc(row.name)}</strong><span>•••• ${row.tail}</span>${icon('down')}</button>`}</div></div>`;}).join('')}</div>${expanded?details():'<div id="bank-card-details" hidden></div>'}</section>`;
  }
  function paint(){const el=document.querySelector('.bank-cards');if(!el)return;const active=el.contains(document.activeElement)?document.activeElement.dataset:null;const old=active?{...active}:null;el.outerHTML=html();if(old){const buttons=[...document.querySelectorAll('.bank-cards button')],next=buttons.find(b=>b.dataset.action===old.action&&(!old.card||b.dataset.card===old.card))||document.querySelector('.bank-card-foreground');next?.focus({preventScroll:true});}}
  return {html,actions:{
-  'bank-card-select':el=>{if(!DEMO_BANK_CARDS.some(c=>c.id===el.dataset.card))return;selected=el.dataset.card;expanded=true;pending=null;paint();},
-  'bank-card-details':()=>{expanded=!expanded;pending=null;paint();},
-  'bank-card-pause':()=>{const c=card();pending={id:crypto.randomUUID(),card:c.id,expected:c.paused,paused:!c.paused};paint();},
+  'bank-card-manage':()=>{if(!hasIssuedCard(getState()))return;expanded=selected==='credit'?!expanded:true;selected='credit';pending=null;product=null;productNotice=null;paint();},
+  'bank-card-apply':()=>{productNotice=null;product={kind:'apply',ticket:prepareCardProduct(getState(),'apply')};paint();},
+  'bank-card-limit':()=>{productNotice=null;product={kind:'limit',ticket:null};paint();},
+  'bank-product-review':()=>{if(product?.kind!=='limit')return;const value=Number(document.querySelector('#bank-limit-input')?.value);product.ticket=prepareCardProduct(getState(),'limit',Math.round(value*100));paint();},
+  'bank-product-cancel':()=>{product=null;paint();},
+  'bank-product-confirm':el=>{if(!product?.ticket||product.ticket.id!==el.dataset.version)return;const result=commitCardProduct(getState(),product.ticket);save();selected='credit';expanded=true;product=null;productNotice=result.kind==='apply'?'信用卡已申请，三张卡都在这里。':'额度已调整为 '+amount(result.limitMinor);paint();},
+  'bank-card-select':el=>{if(!available().some(c=>c.id===el.dataset.card))return;selected=el.dataset.card;expanded=true;pending=null;product=null;productNotice=null;paint();},
+  'bank-card-details':()=>{expanded=!expanded;pending=null;product=null;productNotice=null;paint();},
+   'bank-card-pause':()=>{const c=card(),ticket=prepareCardChange(getState(),c.id,!c.paused,{expected:c.paused});pending={id:ticket.id,card:c.id,expected:c.paused,paused:!c.paused,ticket};paint();},
   'bank-card-cancel':()=>{pending=null;paint();},
-  'bank-card-confirm':el=>{if(!pending||pending.id!==el.dataset.version||pending.card!==selected||el.dataset.card!==selected)return;setCardPaused(getState(),selected,pending.paused,{expected:pending.expected});save();pending=null;paint();},
-  'bank-card-reminder':()=>{const c=card();setCardReminder(getState(),selected,!c.reminder);save();paint();},
+   'bank-card-confirm':el=>{if(!pending||pending.id!==el.dataset.version||pending.card!==selected||el.dataset.card!==selected)return;setCardPaused(getState(),selected,pending.paused,{expected:pending.expected,ticket:pending.ticket});save();pending=null;paint();},
+   'bank-card-reminder':()=>{const c=card(),ticket=prepareCardReminder(getState(),selected,!c.reminder);setCardReminder(getState(),selected,!c.reminder,{ticket});save();paint();},
   'bank-card-ledger':()=>onLedger(card())
  }};
 }

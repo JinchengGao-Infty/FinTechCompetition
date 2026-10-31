@@ -1,0 +1,13 @@
+{
+  "status": 200,
+  "elapsed_ms": 291.5,
+  "bytes": 60972,
+  "engine": "sherpa-onnx-vits",
+  "wav": {
+    "sample_rate": 8000,
+    "frames": 30464,
+    "channels": 1
+  },
+  "real_local_model": true,
+  "human_listening_verified": false
+}

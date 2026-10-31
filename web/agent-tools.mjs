@@ -1,3 +1,4 @@
+import {budgetReceiptFacts} from './budget-result.mjs';
 import {ensureFinance,financialFacts,STORY_DATE} from './finance-state.mjs';
 
 export const DEMO_AS_OF=STORY_DATE;
@@ -32,7 +33,8 @@ export function completedTaskFacts(state){
   if(!task||task.status!=='done'||!task.applied||entry.status!=='completed'||task.revision!==entry.revision||!entry.receipt||entry.receipt!==task.receipt)continue;
   try{
    const p=JSON.parse(entry.parameters);if(!p||typeof p!=='object'||!Number.isSafeInteger(p.amount_minor)||p.amount_minor<0)continue;
-   entries.push({task_id:task.id,receipt:entry.receipt,revision:entry.revision,completed_at:entry.completed_at||0,kind:p.kind,amount_minor:p.amount_minor,target:p.target,currency:p.currency,source_account:p.source_account,payee_id:p.payee_id,scheduled_date:p.scheduled_date,subscription_id:p.subscription_id,subscription_action:p.subscription_action});
+   const budget=task.kind==='planning'?budgetReceiptFacts(state,task,{parameters:entry.parameters}):null;if(task.kind==='planning'&&entry.budget_result&&!budget)continue;
+   entries.push({task_id:task.id,receipt:entry.receipt,revision:entry.revision,completed_at:entry.completed_at||0,kind:p.kind,amount_minor:p.amount_minor,target:p.target,currency:p.currency,source_account:p.source_account,payee_id:p.payee_id,scheduled_date:p.scheduled_date,subscription_id:p.subscription_id,subscription_action:p.subscription_action,...(task.kind==='planning'?{budget_result:budget}:{})});
   }catch{}
  }
  return entries.sort((a,b)=>b.completed_at-a.completed_at||a.task_id.localeCompare(b.task_id)).slice(0,12);

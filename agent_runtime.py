@@ -8,6 +8,7 @@ import importlib
 import json
 from pathlib import Path
 import time
+import chat_profile
 
 
 def health(host):
@@ -22,7 +23,12 @@ def health(host):
 
 
 def request(handler, sess, host):
-    if not host['AGENT_VALIDATION'] or not host['ALLOW_API'] or not sess.get('key'):
+    managed=host['MODEL']==chat_profile.MODEL or 'active_chat_provider' in sess
+    profile=chat_profile.selected(sess) if managed else None
+    model=profile['model'] if managed else host['MODEL']
+    if managed and not chat_profile.configured(sess):
+        return handler.reply({'code': 'model_not_configured', 'message': '请在“我的 → 模型与连接”自行填写当前 '+profile['label']+' 的对话 Key；其他服务和语音连接不会复用。'}, 412)
+    if not host['AGENT_VALIDATION'] or not host['ALLOW_API'] or not (chat_profile.configured(sess) if managed else sess.get('key')):
         return handler.reply({'code': 'model_not_configured', 'message': '尚未连接模型，请在“模型与连接”检查本次连接。这条消息未调用模型。'}, 412)
     data = handler.payload(64000)
     if data.get('validation_scope') != 'finpilot-fifteen-v1':
@@ -50,15 +56,24 @@ def request(handler, sess, host):
         except OSError:
             sess['agent_busy'] = False
             return handler.reply({'code': 'usage_record_unavailable', 'message': '用量记录暂不可写，未调用模型。'}, 503)
-    key = sess['key']
-    diagnostic = {'requested_model': host['MODEL'], 'completed': False, 'usage': {}, 'cost': None}
+    key = chat_profile.credential(sess,profile['id']) if managed else sess['key']
+    diagnostic = {'requested_model': model, 'completed': False, 'usage': {}, 'cost': None}
     try:
         # Existing, fixed local code reload only. No debug/maintenance endpoint.
         with host['AGENT_CODE_LOCK']:
             importlib.invalidate_caches()
             importlib.reload(contract)
             provider = importlib.reload(host['agent_provider'])
-            result, diagnostic = provider.run_provider(data, key, host['MODEL'], host['UPSTREAM_UA'], connection_factory=host['http'].client.HTTPSConnection)
+            run_provider = provider.run_provider
+        # Do not serialize slow upstream IO across otherwise independent sessions.
+        options={'connection_factory':host['http'].client.HTTPSConnection}
+        if managed:
+            # Only an explicitly saved official chat connection may select this path.
+            # Recheck after the fixed module refresh; an old in-flight key cannot migrate.
+            if not chat_profile.configured(sess) or chat_profile.selected(sess)['id']!=profile['id']:
+                raise provider.ProviderError('model_not_configured','当前服务连接已变化，请重新核对；其他服务的 Key 不会复用。',412)
+            options['provider_binding']=profile['id']
+        result, diagnostic = run_provider(data, key, model, host['UPSTREAM_UA'], **options)
         with host['LOCK']:
             sess.pop('agent_retry_after', None)
             sess.pop('agent_transient_failures', None)
@@ -74,8 +89,11 @@ def request(handler, sess, host):
                 failures = min(4, sess.get('agent_transient_failures', 0) + 1)
                 sess['agent_transient_failures'] = failures
                 delay = min(60, (15 if error.code == 'rate_limited' else 5) * 2 ** (failures - 1))
+                upstream_delay = getattr(error, 'retry_after_seconds', None)
+                if type(upstream_delay) is int and upstream_delay >= 0:
+                    delay = max(delay, upstream_delay)
                 sess['agent_retry_after'] = time.monotonic() + delay
-            return handler.reply({'code': error.code, 'message': error.message, 'retry_after_seconds': delay}, 429 if error.code == 'rate_limited' else error.status)
+            return handler.reply({'code': error.code, 'message': error.message + f' 请等待 {delay} 秒后手动重试。', 'retry_after_seconds': delay}, 429 if error.code == 'rate_limited' else error.status)
         return handler.reply({'code': error.code, 'message': error.message}, error.status)
     except (SyntaxError, ImportError):
         diagnostic['error'] = 'local_agent_code_error'
@@ -84,7 +102,7 @@ def request(handler, sess, host):
         key = None
         with host['LOCK']:
             sess['agent_busy'] = False
-            record = {k: diagnostic.get(k) for k in ('requested_model', 'returned_model', 'upstream_status', 'usage', 'cost', 'completed', 'error', 'elapsed_ms', 'protocol_stage', 'schema_error')}
+            record = {k: diagnostic.get(k) for k in ('requested_model', 'returned_model', 'upstream_status', 'upstream_retry_after_seconds', 'usage', 'cost', 'completed', 'error', 'elapsed_ms', 'protocol_stage', 'schema_error')}
             record['recorded_at'] = round(time.time())
             with (host['BUDGET_FILE'].parent / 'agent-usage.jsonl').open('a', encoding='utf-8') as handle:
                 handle.write(json.dumps(record, ensure_ascii=False) + '\n')

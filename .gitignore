@@ -22,3 +22,8 @@ checkpoints/
 qa-*/
 .DS_Store
 Thumbs.db
+
+# Local rollback and optional voice runtime/model files
+finpilot-before-*/
+.voice-demo-env/
+.voice-models*/

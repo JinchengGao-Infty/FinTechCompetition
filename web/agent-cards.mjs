@@ -1,4 +1,5 @@
-import {CONTACTS,SOURCES} from './task-parameters.mjs';
+import {budgetReceiptFacts} from './budget-result.mjs';
+import {CONTACTS,SOURCES,parameterFingerprint} from './task-parameters.mjs';
 import {SUBSCRIPTIONS} from './agent-tools.mjs';
 export const fieldLabels={amount_minor:'金额',payee_id:'收款人',source_account:'付款账户',scheduled_date:'日期',subscription_id:'订阅',subscription_action:'续费安排',purpose:'用途',cadence:'频率',transaction_ref:'待核对交易'};
 const options={transaction_ref:[['unrecognized_1299','生活账户1608 陌生交易 ¥1,299.00']],purpose:[['family','转给家人'],['travel','旅行安排'],['cash','灵活储蓄']],payee_id:CONTACTS.map(c=>[c.id,c.name+' 尾号 '+c.suffix]),source_account:SOURCES.map(a=>[a.id,a.name+' '+a.suffix]),subscription_id:SUBSCRIPTIONS.map(s=>[s.id,s.name]),subscription_action:[['cancel','取消下次续费'],['keep','保留当前套餐'],['downgrade','下次改标准套餐']],cadence:[['once','只安排这次'],['monthly','每月提醒确认']]};
@@ -32,7 +33,7 @@ export function clarificationText(fields){return Object.entries(fields).map(([ke
 
 export function renderAgentCard(card,{state,esc,money}){
  if(!card)return '';
- if(card.type==='task_receipt'){const d=card.data;return `<section class="card operation-receipt"><h3>${esc(d.title)}</h3><p>${esc(d.target)}</p>${d.amount?`<strong class="amount money">${money(d.amount)}</strong>`:''}<small class="receipt">${esc(d.receipt)}</small></section>`;}
+ if(card.type==='task_receipt'){const d=card.data,t=state.tasks?.find(t=>t.receipt===d.receipt&&t.status==='done');if(t?.kind==='planning'){const b=budgetReceiptFacts(state,t,{parameters:parameterFingerprint(t)});return `<section class="card operation-receipt"><h3>旅行预算已调整</h3>${b?`<p>${money(b.before_minor/100)} + ${money(b.delta_minor/100)}</p><strong class="amount money">${money(b.after_minor/100)}</strong>`:`<p>本次调增 ${money(t.amount)}</p><small>历史前后快照未保留</small>`}<small class="receipt">${esc(d.receipt)}</small></section>`;}return `<section class="card operation-receipt"><h3>${esc(d.title)}</h3><p>${esc(d.target)}</p>${d.amount?`<strong class="amount money">${money(d.amount)}</strong>`:''}<small class="receipt">${esc(d.receipt)}</small></section>`;}
  if(card.type==='clarification'){
   const draft=state.agentDraft?.id===card.draftId?state.agentDraft:state.agentDraftHistory?.[card.draftId];
   if(!draft||draft.status!=='awaiting_details'||state.agentDraft?.id===draft.id&&state.agentWorkspaceVisible!==false)return '';
@@ -61,7 +62,7 @@ export function renderAgentCard(card,{state,esc,money}){
    const source=SOURCES.find(s=>s.id===e.source_account);
    body=`<div class="plan-row"><span>安排</span><strong>${esc(e.target||'本次任务')}</strong></div>`+row(e.kind==='planning'?'旅行预算调增':'本次金额',e.amount_minor)+`<div class="plan-row"><span>状态</span><strong>已完成</strong></div>`;
    if(e.kind==='transfer')body+=`<div class="plan-row"><span>付款账户</span><strong>${esc(source?source.name+' '+source.suffix:e.source_account)}</strong></div><div class="plan-row"><span>日期</span><strong>${esc(e.scheduled_date)}</strong></div>`;
-   if(e.kind==='planning')body+='<p>这次调整了旅行预算，没有新增现金扣款。房租和生活费预留保持不变。</p>';
+   if(e.kind==='planning')body+=(e.budget_result?row('调整前预算',e.budget_result.before_minor)+row('调整后预算',e.budget_result.after_minor):'<p>历史前后快照未保留。</p>')+'<p>预算调整，无现金扣款。</p>';
    if(e.kind==='subscription')body+=`<p>${esc({cancel:'仅取消了下次续费，本期权益保留，不是本期退款。',keep:'保留了当前订阅安排。',downgrade:'仅调整了下次续费套餐，本期权益不变。'}[e.subscription_action]||'请查看本次回执。')}</p>`;
    body+=`<div class="plan-row"><span>回执</span><strong class="receipt">${esc(e.receipt)}</strong></div><a class="quiet full" href="#/bot/task/${esc(e.task_id)}" data-action="open-agent-task" data-id="${esc(e.task_id)}">查看任务记录</a>`;
   }

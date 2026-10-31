@@ -1,3 +1,4 @@
+import {verifyForTest} from './safety-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fresh,createTask,transition} from '../web/engine.mjs';
@@ -11,7 +12,7 @@ test('one consent grants and confirms ordinary tasks without bypassing strong ve
  const s=fresh(),a=createTask(s,'travel');const t=authorizeOperation(s,a.id,payload(a));assert.equal(t.status,'executing');
  const b=createTask(s,'salary',{reuse:false});const strong=authorizeOperation(s,b.id,payload(b));assert.equal(strong.status,'verify');assert.equal(strong.verifiedRevision,undefined);
  assert.throws(()=>executeLocalTask(s,b.id));assert.equal(s.balance,50000);
- transition(s,b.id,'verify',{verified:true});executeLocalTask(s,b.id);assert.equal(s.balance,48000);
+ verifyForTest(s,b.id);executeLocalTask(s,b.id);assert.equal(s.balance,48000);
 });
 test('changed payee/amount invalidates a combined confirmation with no half grant',()=>{
  const s=fresh(),t=createTask(s,'salary');const old=payload(t);transition(s,t.id,'edit',{amount:'1800',payeeId:CONTACTS[1].id});

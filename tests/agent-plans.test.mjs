@@ -1,3 +1,4 @@
+import {verifyForTest} from './safety-fixture.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {fresh,transition} from '../web/engine.mjs';import {buildAgentFacts,QUESTION_CATALOG} from '../web/agent-tools.mjs';
 import {applyAgentResult} from '../web/agent-plans.mjs';
@@ -13,7 +14,7 @@ test('existing unrecognized-card entry clarifies transaction before scoped permi
  assert.equal(s.tasks.length,0);assert.equal(out.card.type,'clarification');
  const next=applyAgentResult(s,{status:'propose',scenario:'card_review',reply:'请核对保护方案',mode:'create',fields:{transaction_ref:'unrecognized_1299'}},buildAgentFacts(s),{...context,originTurnId:'card-selected'});
  const t=s.tasks.find(t=>t.id===next.taskId);assert.equal(t.kind,'card');assert.equal(t.sourceAccount,'living_1608');assert.equal(t.granted,false);
- transition(s,t.id,'grant');transition(s,t.id,'confirm',{revision:t.revision,parameters:parameterFingerprint(t)});assert.equal(t.status,'verify');transition(s,t.id,'verify',{verified:true});executeLocalTask(s,t.id);
+ transition(s,t.id,'grant');transition(s,t.id,'confirm',{source:{kind:'user',method:'click'},revision:t.revision,parameters:parameterFingerprint(t)});assert.equal(t.status,'verify');verifyForTest(s,t.id);executeLocalTask(s,t.id);
  assert.equal(s.cardLocked,true);assert.equal(s.balance,50000);assert.equal(s.ledger.length,n);
 });
 

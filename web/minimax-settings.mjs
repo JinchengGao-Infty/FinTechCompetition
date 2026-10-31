@@ -1,0 +1,23 @@
+export const PREVIEW_VOICES=[['Chinese (Mandarin)_Warm_Bestie','温暖闺蜜'],['Chinese (Mandarin)_Warm_Girl','温暖少女'],['Chinese (Mandarin)_Sweet_Lady','甜美女声'],['Chinese (Mandarin)_Mature_Woman','傲娇御姐']];
+let status=null,busy=false;
+export function renderMiniMaxSettings({esc}){
+ const connected=!!status?.configured;
+ return `<section class="card" id="minimax-settings"><h3>语音 MiniMax</h3><p class="muted" data-minimax-model>中文女声 ${esc(status?.model||'speech-2.8-turbo')}</p><form id="minimax-form" class="form"><label>语音 API Key<input name="minimaxKey" type="password" autocomplete="new-password" spellcheck="false" placeholder="仅本次服务会话保存" ${!status||status.enabled===false?'disabled':''} required></label><p class="companion-card-meta">连接即允许将脱敏后的待播报文本和音色参数发送至MiniMax。不会上传录音、声纹、完整聊天或账本。按调用计费，不自动充值或订阅。</p><button class="primary full" type="submit" ${busy||!status||status.enabled===false?'disabled':''}>${connected?'更新语音连接':'连接语音'}</button></form><p class="companion-card-meta" data-minimax-status aria-live="polite">${esc(status?connected?(status.verified?'语音已验证':'已保存，待试听验证'):'未连接':'正在读取语音状态')}</p><div class="task-actions"></div><div class="stack">${PREVIEW_VOICES.map(([id,label])=>`<div class="row between"><button class="secondary" data-action="minimax-test" data-voice="${id}" data-label="${label}" ${!connected||busy||(status?.model!=='speech-2.8-turbo'&&id!=='Chinese (Mandarin)_Warm_Bestie')?'disabled':''}>试听 ${label}</button><button class="quiet" data-action="minimax-select" data-voice="${id}" ${!connected||busy||status?.model!=='speech-2.8-turbo'||status?.voice===id?'disabled':''}>${status?.voice===id?'当前声音':'用于 Bot'}</button></div>`).join('')}</div><div class="task-actions"><button class="quiet" data-action="minimax-disconnect" ${!connected||busy?'disabled':''}>断开</button></div><small data-minimax-usage>${status?`本次估算 ${status.estimated_characters||0}/${status.character_limit||2000} 计费字符，不代表账户余额。`:''}</small></section>`;
+}
+export async function refreshMiniMaxSettings({fetchImpl=fetch}={}){
+ try{const r=await fetchImpl('/api/voice/config');if(!r.ok)throw Error();status=await r.json();}catch{status=null;}
+ const box=document.querySelector('[data-minimax-status]');if(box)box.textContent=status?(status.configured?(status.verified?'语音已验证':'已保存，待试听验证'):'未连接'):'语音配置入口尚未启用';
+ const field=document.querySelector('#minimax-form input'),submit=document.querySelector('#minimax-form button[type=submit]');if(field)field.disabled=!status||status.enabled===false;if(submit){submit.disabled=!status||status.enabled===false||busy;submit.textContent=status?.configured?'更新语音连接':'连接语音';}
+ const usage=document.querySelector('[data-minimax-usage]');if(usage&&status)usage.textContent=`本次估算 ${status.estimated_characters||0}/${status.character_limit||2000} 计费字符，不代表账户余额。`;
+ const model=document.querySelector('[data-minimax-model]');if(model)model.textContent=status?.model==='speech-2.8-turbo'?'中文女声 speech-2.8-turbo':'四音色升级待生效，仍可试听当前声音';
+ for(const b of document.querySelectorAll('[data-action="minimax-test"],[data-action="minimax-disconnect"]'))b.disabled=!status?.configured||busy||(b.dataset.action==='minimax-test'&&status?.model!=='speech-2.8-turbo'&&b.dataset.voice!=='Chinese (Mandarin)_Warm_Bestie');
+ for(const b of document.querySelectorAll('[data-action="minimax-select"]')){b.disabled=!status?.configured||busy||status?.model!=='speech-2.8-turbo'||status.voice===b.dataset.voice;b.textContent=status?.voice===b.dataset.voice?'当前声音':'用于 Bot';}
+ return status;
+}
+export async function saveMiniMaxSettings(form,{session,fetchImpl=fetch}={}){
+ if(busy)return;busy=true;let key=form.elements.minimaxKey.value;form.elements.minimaxKey.value='';
+ try{const s=await session();const r=await fetchImpl('/api/voice/config',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrf},body:JSON.stringify({key,consent:true})});key='';const data=await r.json();if(!r.ok)throw Error(data.message||'语音连接未保存');status=data;return data;}finally{key='';busy=false;}
+}
+export async function disconnectMiniMax({session,fetchImpl=fetch}={}){const s=await session();const r=await fetchImpl('/api/voice/config',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrf},body:JSON.stringify({disconnect:true})});if(!r.ok)throw Error('语音断开失败，请重试');status=await r.json();return status;}
+
+export async function selectMiniMaxVoice(voice_id,{session,fetchImpl=fetch}={}){if(!PREVIEW_VOICES.some(([id])=>id===voice_id))throw Error('音色不可用');const s=await session();const r=await fetchImpl('/api/voice/config',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':s.csrf},body:JSON.stringify({voice_id})});if(!r.ok)throw Error('声音未切换，请重试');status=await r.json();return status;}

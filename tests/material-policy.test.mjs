@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {visibleSurfaces,rasterScale,qualityDecision,TEXTURE_LIMIT,MAX_SURFACES} from '../web/material/policy.mjs';
+import {canPaintSurface} from '../web/material/policy.mjs';
+
+test('collapsed history cannot paint a glass ghost behind later messages',()=>{
+  const element=(closed,summary=false)=>({closest:selector=>selector==='details:not([open])'?closed:selector==='summary'?summary:null});
+  assert.equal(canPaintSurface(element(true)),false);
+  assert.equal(canPaintSurface(element(false)),true);
+  assert.equal(canPaintSurface(element(true,true)),true);
+});
 
 test('visible surface budget always preserves navigation above cards',()=>{
   const cards=Array.from({length:12},(_,order)=>({order,nav:false,rect:[0,order*25,300,80]}));

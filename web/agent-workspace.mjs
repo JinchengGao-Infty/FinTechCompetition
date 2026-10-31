@@ -35,13 +35,14 @@ export function selectTask(state,id,runId){
  if(!ended.has(task.status))task.agentRunId=runId;
  return task;
 }
-export function requestGate(){
+export function requestGate({readEpoch=()=>0}={}){
  let generation=0,current=null;
  return {
-  begin(){this.cancel();current={generation,controller:new AbortController()};return current;},
+  get idle(){return current===null;},
+  begin(){this.cancel();current={generation,safetyEpoch:readEpoch(),controller:new AbortController()};return current;},
   cancel(){generation++;current?.controller.abort();current=null;},
   owns(ticket){return current===ticket&&ticket.generation===generation;},
-  valid(ticket){return this.owns(ticket)&&!ticket.controller.signal.aborted;},
+  valid(ticket){return this.owns(ticket)&&ticket.safetyEpoch===readEpoch()&&!ticket.controller.signal.aborted;},
   finish(ticket){if(this.owns(ticket))current=null;},
  };
 }

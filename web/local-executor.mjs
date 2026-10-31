@@ -1,3 +1,4 @@
+import {budgetReceiptFacts,validBudgetResult} from './budget-result.mjs';
 import {transition,applyConsequences} from './engine.mjs';
 import {parameterFingerprint,validateTaskParameters} from './task-parameters.mjs';
 
@@ -20,7 +21,7 @@ export function executeLocalTask(state,taskId){
  try{
   const result=transition(state,task.id,'complete');
   if(result.status!=='done'){entry.status='needs_review';entry.reason='资金或验证条件已变化';return structuredClone(entry);}
-  applyConsequences(state,result);entry.status='completed';entry.receipt=result.receipt;entry.completed_at=Date.now();
+  applyConsequences(state,result);if(result.kind==='planning'){const budget=budgetReceiptFacts(state,result,{parameters:fingerprint});if(budget)entry.budget_result=structuredClone(budget);}entry.status='completed';entry.receipt=result.receipt;entry.completed_at=Date.now();
  }catch(error){entry.status='failed';entry.reason='本地规则校验未通过';throw error;}
  return structuredClone(entry);
 }
@@ -28,6 +29,7 @@ export function reconcileLocalTask(state,taskId){
  const result=queryLocalExecution(state,taskId),task=state.tasks.find(t=>t.id===taskId);
  if(result.status==='completed'){
   if(result.parameters!==parameterFingerprint(task)||result.receipt!==task.receipt||!task.applied)throw Error('回执与当前任务不一致，已停止重复操作');
+  if(task.kind==='planning'&&result.budget_result){const budget=budgetReceiptFacts(state,task,{parameters:result.parameters});if(!budget||!validBudgetResult(result.budget_result,task,result.parameters)||Object.keys(budget).some(key=>result.budget_result[key]!==budget[key]))throw Error('预算回执与原执行快照不一致');}
   task.status='done';return result;
  }
  // Read-only reconciliation never submits a missing operation or converts a

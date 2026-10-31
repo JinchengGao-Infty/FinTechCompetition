@@ -1,4 +1,5 @@
 import {AppGlass} from './renderer.mjs';
+import {canPaintSurface} from './policy.mjs';
 
 const query = new URLSearchParams(location.search);
 const app = document.getElementById('app');
@@ -35,7 +36,7 @@ if(app && !optedOut) {
     const route = (location.hash.slice(2)||'today').split('?')[0];
     const targets = [];
     const use = (e,role='card') => {
-      if(!e || targets.includes(e) || e.closest('.bubble,.form') || e.matches('button')) return;
+      if(!e || targets.includes(e) || e.closest('.bubble,.form') || e.matches('button') || !canPaintSurface(e)) return;
       if(targets.some(parent=>parent.contains(e))) return;
       e.dataset.fpOptical=role; targets.push(e);
     };
@@ -53,10 +54,11 @@ if(app && !optedOut) {
   }
   function queue() {if(!queued){queued=true;queueMicrotask(refresh);}}
   const observer = new MutationObserver(records=>{
+    if(records.some(r=>r.type==='attributes'&&r.attributeName==='open')){queue();return;}
     if(records.some(r=>[...r.addedNodes,...r.removedNodes].some(n=>n.nodeType===1&&n!==canvas&&
       (n.matches?.('main, #baseline-content,'+opticalCandidates)||n.querySelector?.(opticalCandidates))))) queue();
   });
-  observer.observe(app,{childList:true,subtree:true});
+  observer.observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
   const prefsObserver = new MutationObserver(()=>{preference();renderer.motionChanged();});
   prefsObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-reduce-transparency','data-reduce-motion']});
   opaqueQuery.addEventListener('change',preference);

@@ -1,4 +1,5 @@
-import {taskParameters,CONTACTS,SOURCES} from './task-parameters.mjs';
+import {budgetPreview,budgetReceiptFacts} from './budget-result.mjs';
+import {taskParameters,parameterFingerprint,CONTACTS,SOURCES} from './task-parameters.mjs';
 import {SUBSCRIPTIONS} from './agent-tools.mjs';
 const actionNames={cancel:'取消下次续费',keep:'保留当前套餐',downgrade:'下次改标准套餐'};
 export function salaryPlanRows(t,original){
@@ -29,8 +30,8 @@ export function taskReviewHTML(t,{state,esc}){
   const sub=SUBSCRIPTIONS.find(x=>x.id===p.subscription_id);
   html+=row('订阅对象',sub?.name||'待核对')+row('安排',actionNames[p.subscription_action])+row('生效范围','下次续费')+row('下次续费日',sub?.nextDate||'待核对')+row('本期权益保留至',sub?.rightsUntil||'待核对')+row('本期已扣费用',cash(sub?.currentMinor||0));
  }
- if(t.kind==='planning')html+=row('当前旅行预算',cash(Math.round((state.travelBudget??3000)*100)))+row('本次调增',cash(p.amount_minor))+row('调整后预算',cash(Math.round((state.travelBudget??3000)*100)+p.amount_minor));
- if(['transfer','investment','planning'].includes(t.kind))html+=row('必要支出预留','¥8,000.00');
+ if(t.kind==='planning'){const completed=t.status==='done',b=completed?budgetReceiptFacts(state,t,{parameters:parameterFingerprint(t)}):budgetPreview(state,t);html+=b?row(completed?'调整前预算':'当前旅行预算',cash(b.before_minor))+row('本次调增',cash(b.delta_minor))+row('调整后预算',cash(b.after_minor)):row('本次调增',cash(p.amount_minor))+row('执行前后预算','历史快照未保留');}
+ if(['transfer','investment','planning'].includes(t.kind)&&!['done','cancelled'].includes(t.status))html+=row('必要支出预留','¥8,000.00');
  if(t.kind==='planning'&&state.subscriptionCancelled)html+=row('已取消的下期订阅','不计入本期现金');
  return html;
 }

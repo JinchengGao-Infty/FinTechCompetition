@@ -1,7 +1,9 @@
 // Paper positions live in the same local namespace and integer-fen ledger as
 // the rest of the demo. No brokerage, bank, or order-routing integration.
-import {DEMO_BANK_CARDS} from './bank-cards.mjs';
+import {DEMO_BANK_CARDS,bankCardState} from './bank-cards.mjs';
 import {ensureFinance,syncFinance,STORY_DATE} from './finance-state.mjs';
+import {paperOperation,paperExecutionId,paperReviewFingerprint} from './paper-safety.mjs';
+import {acquireExecution,validatePermit,commitExecution} from './safety-policy.mjs';
 
 const integer=(n,label,positive=false)=>{if(!Number.isSafeInteger(n)||(positive?n<=0:n<0))throw Error(label+'无效');return n;};
 const costMinor=value=>integer(Math.round(Number(value)*100),'持仓成本');
@@ -40,7 +42,7 @@ export function paperPortfolio(state,baseline){
  for(const r of holdings){r.cost_weight_pct=cost?costMinor(r.total_cost)/cost*100:0;allocation.set(r.asset_class,(allocation.get(r.asset_class)||0)+costMinor(r.total_cost));}
  return {...baseline,revision:p.revision,holdings,total_cost:(cost/100).toFixed(2),market_value:available?(value/100).toFixed(2):null,pnl:available?((value-cost)/100).toFixed(2):null,pnl_pct:available&&cost?(value-cost)/cost*100:null,quote_quality:available?'reference_close':'partial',allocation:[...allocation].map(([asset_class,n])=>({asset_class,weight_pct:cost?n/cost*100:0})),paper:true};
 }
-const fingerprint=x=>JSON.stringify([x.code,x.name,x.side,x.quantity,x.priceMinor,x.referenceMinor,x.amountMinor,x.quoteDate,x.revision]);
+const fingerprint=paperReviewFingerprint;
 export function reviewTrade(state,input){
  const p=ensurePaperPortfolio(state),code=String(input.code||''),name=String(input.name||'').trim();
  if(!/^\d{6}$/.test(code)||!name||name.length>100)throw Error('证券资料无效');
@@ -57,11 +59,13 @@ export function reviewTrade(state,input){
  const review={code,name,side:input.side,quantity,priceMinor:unit,referenceMinor,amountMinor:amount,quoteDate:input.quoteDate,revision:p.revision};
  return {...review,fingerprint:fingerprint(review)};
 }
-export function executePaperTrade(state,review,requestId){
+export function executePaperTrade(state,review,requestId,options={}){
  const p=ensurePaperPortfolio(state);
- if(typeof requestId!=='string'||!/^[-\w]{8,100}$/.test(requestId))throw Error('操作标识无效');
+ const operation=paperOperation(state,review,requestId,options);
  const previous=p.trades.find(t=>t.requestId===requestId);
- if(previous){if(previous.fingerprint!==review.fingerprint)throw Error('操作参数已变化');return previous;}
+ // Returning a completed local receipt is read-only, even while new writes are
+ // paused/locked. Every bound field is checked before accepting this replay.
+ if(previous){if(previous.fingerprint!==review.fingerprint||previous.operationParameters&&previous.operationParameters!==operation.parameters||Object.hasOwn(previous,'scheduledAt')&&previous.scheduledAt!==operation.scheduledAt)throw Error('操作参数已变化');return structuredClone(previous);}
  if(review.fingerprint!==fingerprint(review)||review.revision!==p.revision)throw Error('持仓已变化，请重新核对');
  const checked=reviewTrade(state,{...review,price:(review.priceMinor/100).toFixed(2),referencePrice:review.referenceMinor/100});
  if(checked.fingerprint!==review.fingerprint)throw Error('操作参数已变化，请重新核对');
@@ -70,11 +74,19 @@ export function executePaperTrade(state,review,requestId){
  const nextCost=review.side==='buy'?cost+review.amountMinor:nextQuantity===0?0:cost-Math.round(cost*review.quantity/quantity);
  integer(nextQuantity,'变更后数量');integer(nextCost,'变更后成本');
  const receipt='FP-ST-'+(p.revision+1)+'-'+requestId.replace(/-/g,'').slice(-10).toUpperCase();
- const entry={...review,requestId,receipt,date:STORY_DATE,status:'completed'};
- const next={...old,id:old?.id||'paper:'+review.code,code:review.code,name:review.name,asset_class:'stock',quantity:String(nextQuantity),total_cost:(nextCost/100).toFixed(2),as_of:STORY_DATE,currency:'CNY',reference_price:review.referenceMinor/100,quote_as_of:review.quoteDate,quote_quality:'reference_close'};
+ const date=operation.scheduledAt?.slice(0,10)||STORY_DATE;
+ const entry={...review,requestId,receipt,date,status:'completed',operationParameters:operation.parameters,scheduledAt:operation.scheduledAt};
+ const next={...old,id:old?.id||'paper:'+review.code,code:review.code,name:review.name,asset_class:'stock',quantity:String(nextQuantity),total_cost:(nextCost/100).toFixed(2),as_of:date,currency:'CNY',reference_price:review.referenceMinor/100,quote_as_of:review.quoteDate,quote_quality:'reference_close'};
+ const permit=acquireExecution(state,operation,{...options,executionId:paperExecutionId(requestId)});
+ if(permit.replay)throw Error('这次执行记录已存在，请先人工核对');
+ validatePermit(state,operation,permit,options);
+ // The caller applies this function to a clone and persists only after success.
+ // Commit before the ledger append on that same unpersisted clone so future
+ // risk totals cannot count the just-created operation twice.
+ commitExecution(state,permit,{status:'completed',receipt,operationId:operation.id,requestId,side:review.side,code:review.code,amountMinor:review.amountMinor},options);
  if(index<0)p.holdings.push(next);else p.holdings[index]=next;
  p.trades.push(entry);p.revision++;
- state.ledger.push({id:'paper-trade:'+requestId,date:STORY_DATE,title:(review.side==='buy'?'买入':'卖出')+review.name,category:'证券本金',amountMinor:review.amountMinor,direction:review.side==='buy'?'expense':'income',movement:'principal',kind:review.side==='buy'?'stock-buy':'stock-sell',icon:'invest',order:state.ledger.length,receipt,accountLabel:'投资结算账户',source:'synthetic'});
+ state.ledger.push({id:'paper-trade:'+requestId,date,title:(review.side==='buy'?'买入':'卖出')+review.name,category:'证券本金',amountMinor:review.amountMinor,direction:review.side==='buy'?'expense':'income',movement:'principal',kind:review.side==='buy'?'stock-buy':'stock-sell',icon:'invest',order:state.ledger.length,receipt,accountLabel:'投资结算账户',source:'synthetic',safetyExecutionId:permit.executionId});
  syncFinance(state);return entry;
 }
 
@@ -93,7 +105,7 @@ export function riskProfile(state,{asOf=STORY_DATE}={}){
  }
  const months=[...groups].sort(([a],[b])=>a.localeCompare(b)).slice(-12).filter(([,g])=>g.days.size>=14&&Math.max(...g.days)-Math.min(...g.days)>=20),count=months.length,mean=key=>count?Math.round(months.reduce((s,[,g])=>s+g[key],0)/count):null;
  const income=mean('income'),expense=mean('expense'),refund=mean('refund'),essential=mean('essential'),cash=Math.round(state.balance*100);
- const surplus=count?income+refund-expense:null,positiveMonths=months.filter(([,g])=>g.income+g.refund>g.expense).length,knownDebt=DEMO_BANK_CARDS.reduce((n,c)=>n+(c.dueMinor||0),0),buffer=essential>0?Math.max(0,cash-knownDebt)/essential:null;
+ const surplus=count?income+refund-expense:null,positiveMonths=months.filter(([,g])=>g.income+g.refund>g.expense).length,knownDebt=DEMO_BANK_CARDS.filter(c=>c.id!=='credit'||!!state.bankCards?.credit).reduce((n,c)=>n+(bankCardState(state,c.id).dueMinor||0),0),buffer=essential>0?Math.max(0,cash-knownDebt)/essential:null;
  const monthNumber=m=>Number(m.slice(0,4))*12+Number(m.slice(5,7))-1;
  const consecutive=count>0&&monthNumber(months.at(-1)[0])===monthNumber(current)-1&&months.every(([m],i)=>!i||monthNumber(m)===monthNumber(months[i-1][0])+1);
  const enough=count>=3&&consecutive&&months.every(([,g])=>g.income>0)&&cash>=0&&essential>0;

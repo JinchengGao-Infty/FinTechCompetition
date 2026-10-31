@@ -1,0 +1,213 @@
+/* FinPilot type system. Load last, after the legacy page skins.
+   PingFang is resolved locally on Apple devices; no font binaries are bundled.
+   !important is limited to type roles that must beat legacy universal resets. */
+:root {
+  --fp-font-ui: "PingFang SC", -apple-system, BlinkMacSystemFont, "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --font: var(--fp-font-ui);
+  --fp-type-meta: .75rem;
+  --fp-type-body: .875rem;
+  --fp-type-title: 1rem;
+  --fp-type-value: 2rem;
+  --fp-type-page: 1.5rem;
+  --fp-type-metric: 1.25rem;
+  --fp-leading-copy: 1.7;
+  --fp-leading-label: 1.5;
+  --fp-leading-title: 1.35;
+  --fp-leading-value: 1.25;
+  font-family: var(--fp-font-ui);
+  font-size: 16px;
+}
+body { font-family: var(--fp-font-ui); font-size: var(--fp-type-body); }
+#app[data-approved-ui] {
+  --font: var(--fp-font-ui);
+  --ap-display: var(--fp-type-value);
+  --ap-title: var(--fp-type-page);
+  --ap-body: var(--fp-type-body);
+  --ap-meta: var(--fp-type-meta);
+  --ap-weight-display: 600;
+  --ap-weight-title: 600;
+  --ap-weight-value: 500;
+  font-family: var(--fp-font-ui);
+  font-size: var(--fp-type-body);
+  line-height: var(--fp-leading-copy);
+}
+:is(#app, #overlay, #toast) :where(*) {
+  font-family: var(--fp-font-ui);
+}
+/* Chinese copy uses natural spacing. Numeric identifiers keep their own role. */
+#app[data-approved-ui] :is(h1,h2,h3,p,small,button,a,label,summary,dt,dd,span,strong),
+#overlay .sheet :is(h1,h2,h3,p,small,button,a,label,summary,dt,dd,span,strong) {
+  letter-spacing: 0;
+}
+#app[data-approved-ui] :is(h1,h2,h3), #overlay .sheet :is(h1,h2,h3) {
+  font-weight: 600;
+  line-height: var(--fp-leading-title);
+  overflow-wrap: anywhere;
+}
+#app[data-approved-ui] :is(h2,h3), #overlay .sheet :is(h2,h3) {
+  font-size: var(--fp-type-title) !important;
+}
+#app[data-approved-ui] .ap-header h1,
+#app[data-approved-ui] .ap-risk-header h1,
+#overlay .sheet h2 {
+  font-size: var(--fp-type-page) !important;
+  font-weight: 600;
+  line-height: var(--fp-leading-title);
+  letter-spacing: 0;
+}
+#app[data-approved-ui] :is(p,.notice,.intro-note,.report-text,.bubble,.step-message),
+#overlay .sheet :is(p,.notice,.intro-note,.report-text) {
+  line-height: var(--fp-leading-copy);
+}
+#app[data-approved-ui] :is(strong,b), #overlay .sheet :is(strong,b) { font-weight: 500; }
+#app[data-approved-ui] :is(.primary,.secondary,.quiet,.btn,.link-button,.chips button,.task-link,.event-menu button,.investment-sections button,.segment button,.segmented button,.ap-o-tabs button,.ap-r-tabs button,.ap-b-footer button),
+#overlay .sheet :is(.primary,.secondary,.quiet,.btn,button[type=submit]) {
+  font-size: var(--fp-type-body) !important;
+  font-weight: 500;
+  line-height: var(--fp-leading-label);
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+#app[data-approved-ui] :is(input,select,textarea),
+#overlay .sheet :is(input,select,textarea) {
+  font-size: var(--fp-type-title) !important;
+  font-weight: 400;
+  line-height: var(--fp-leading-label);
+  min-width: 0;
+  max-width: 100%;
+}
+#app[data-approved-ui] :is(small,.small,.label,.eyebrow,.receipt,.event-source,.event-count,.stitch-status,.companion-risk,.companion-card-meta,.companion-audit,.companion-plan-scope,.step-risk,.step-scheduled,.fp-invest-quote,.fp-invest-legend,.fp-invest-field-hint,.ap-home-label,.ap-o-label,.ap-l-label,.ap-l-range,.ap-l-filters,.ap-l-results,.ap-l-status,.ap-l-copy small,.ap-r-stock-copy>small,.ap-r-price small,.chart-labels),
+#overlay .sheet :is(small,.small,.label,.receipt,.field-label,.operation-scope,.operation-history) {
+  font-size: var(--fp-type-meta) !important;
+  font-weight: 400;
+  line-height: var(--fp-leading-label);
+}
+#app[data-approved-ui] :is(.ap-nav a,.ap-nav a span) {
+  font-size: var(--fp-type-meta) !important;
+  line-height: var(--fp-leading-label);
+  font-weight: 400;
+}
+#app[data-approved-ui] .ap-nav a[aria-current=page] { font-weight: 500; }
+/* One display size for balances and primary transaction amounts. */
+#app[data-approved-ui] :is(.ap-home-balance,.ap-o-money,.ap-l-total,.ap-t-total,.ap-w-total,.ap-b-footer strong,.fp-invest-total,.hero-amount,.big,.salary-amount,.fp-task-amount>strong,.fp-task-compact-amount,.amount-input,.entry-amount-line input),
+#app[data-approved-ui] .ap-overview .ap-o-money,
+#app[data-approved-ui] .ap-trends .ap-t-total,
+#app[data-approved-ui] .operation-card .operation-amount-row strong,
+#overlay .sheet :is(.hero-amount,.big,.amount-input,.entry-amount-line input,.paper-trade-receipt .money) {
+  font-size: var(--fp-type-value) !important;
+  font-weight: 600;
+  line-height: var(--fp-leading-value) !important;
+  letter-spacing: -.02em;
+  font-variant-numeric: lining-nums tabular-nums;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
+}
+#app[data-approved-ui] :is(.money,.ap-l-value,.ap-home-row-amount,.ap-t-summary strong,.ap-o-pair strong,.ap-l-pair strong,.bank-card-details dd,.research-ohlc dd),
+#overlay .sheet :is(.money,.plan-row strong) {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+#app[data-approved-ui] :is(.ap-home-copy strong,.ap-home-row-amount,.ap-home-parts strong,.ap-home-summary strong,.ap-l-copy>strong,.ap-l-value,.ap-l-pair strong,.ap-t-summary strong,.ap-o-pair strong,.ap-r-stock-copy>strong,.ap-r-price strong,.fp-invest-market strong,.fp-invest-holding-copy>strong,.fp-invest-holding-value>strong,.plan-row,.plan-row strong,.companion-plan-steps strong,.bank-card-top strong,.bank-card-tab strong) {
+  font-size: var(--fp-type-body) !important;
+  line-height: var(--fp-leading-label);
+  font-weight: 500;
+}
+#app[data-approved-ui] :is(.ap-w-metrics strong,.ap-w-capacity strong,.ap-w-detail dd,.risk-key-facts strong) {
+  font-size: var(--fp-type-title) !important;
+  line-height: var(--fp-leading-label);
+  font-weight: 500;
+}
+#app[data-approved-ui] .ap-overview :is(.ap-o-label,.ap-o-category,.ap-o-category strong,.ap-o-category small,.ap-o-selection,.ap-o-selection span,.ap-o-selection button,.ap-o-flow,.ap-o-flow strong,.ap-o-flow>span:first-child,.ap-o-refunds,.ap-o-more summary),
+#app[data-approved-ui] .ap-trends :is(.ap-t-heading h2,.ap-t-summary small,.ap-t-selection>span,.ap-t-selection button,.ap-t-point-date) {
+  font-size: var(--fp-type-meta) !important;
+  line-height: var(--fp-leading-label);
+}
+/* Chart coordinates are independent of CSS px; retain readable viewBox labels. */
+#app[data-approved-ui] .ap-overview .ap-o-selected-capsule strong[data-chart-card-label] { font-size: var(--fp-type-body) !important; }
+#app[data-approved-ui] .ap-overview .ap-o-selected-capsule strong[data-chart-card-amount] { font-size: var(--fp-type-metric) !important; }
+#app[data-approved-ui] :is(.ap-risk-status h2,.risk-level-hero>strong),
+#overlay .sheet .risk-level-hero>strong {
+  font-size: var(--fp-type-page) !important;
+  line-height: var(--fp-leading-title) !important;
+  font-weight: 600 !important;
+}
+/* Home hierarchy: greeting and section labels stay quieter than the balance. */
+#app[data-approved-ui][data-dot-page][data-route=home] .greeting h2 {
+  font-size: var(--fp-type-title) !important;
+  font-weight: 400;
+  line-height: var(--fp-leading-copy);
+  letter-spacing: 0;
+}
+#app[data-approved-ui][data-dot-page][data-route=home] .ap-header h1 { font-size: var(--fp-type-page) !important; }
+#app[data-approved-ui][data-dot-page][data-route=home] .section-title h2 { font-size: var(--fp-type-title) !important; }
+#app[data-approved-ui][data-dot-page][data-route=home] .salary-amount {
+  font-size: var(--fp-type-value) !important;
+  font-weight: 600;
+  line-height: var(--fp-leading-value);
+  letter-spacing: -.02em;
+  white-space: normal;
+}
+#app[data-approved-ui][data-dot-page][data-route=home] :is(.summary strong,.stitch-goal>strong) {
+  font-size: var(--fp-type-metric) !important;
+  font-weight: 500;
+  line-height: var(--fp-leading-title);
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+#app[data-approved-ui][data-dot-page][data-route=home] .stitch-goal>span>strong { font-weight: 500; }
+#app[data-approved-ui][data-dot-page][data-route=home] .hero-card h2 { font-size: var(--fp-type-title) !important; }
+/* Long conversation copy gets the larger reading role, without card boldness. */
+#app[data-approved-ui] :is(.bubble,.bot-intro p,.chat-message .bubble) {
+  font-size: var(--fp-type-title) !important;
+  line-height: 1.75;
+  font-weight: 400;
+}
+#app[data-approved-ui] :is(.messages,.bot-message,.bubble,.companion-plan,.companion-inline,.companion-challenge,.operation-card) { min-width: 0; }
+#app[data-approved-ui] .bot-message { grid-template-columns: 30px minmax(0,1fr); }
+#app[data-approved-ui] :is(.companion-card-meta,.companion-plan-steps small,.step-message,.notice) { overflow-wrap: anywhere; }
+/* Remove the native rectangle from the editable area. The rounded composer
+   retains a high-contrast, neutral focus indicator for keyboard/text focus. */
+#app[data-approved-ui] .composer textarea,
+#app[data-approved-ui] .composer textarea:focus,
+#app[data-approved-ui] .composer textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 0;
+  font-size: var(--fp-type-title) !important;
+  line-height: 1.5;
+  min-height: 44px;
+  height: auto;
+  padding-block: 10px;
+  scroll-margin-block: 16px;
+}
+#app[data-approved-ui] .composer:has(textarea:focus-visible) {
+  outline: 1.5px solid var(--slate11,#60646c);
+  outline-offset: 3px;
+}
+/* A consistent 8/12/16/24 rhythm, while leaving shell and safe-area geometry. */
+#app[data-approved-ui] .section-title { gap: 12px; margin-top: 24px; margin-bottom: 8px; }
+#app[data-approved-ui] :is(.ap-home-copy,.ap-l-copy,.fp-invest-holding-copy) { min-width: 0; }
+#app[data-approved-ui] :is(.ap-home-copy strong,.ap-l-copy strong,.fp-invest-holding-copy strong,.ap-r-stock-copy strong) { overflow-wrap: anywhere; }
+#app[data-approved-ui] :is(.ap-l-row,.fp-invest-holding,.plan-row) { column-gap: 12px; }
+#app[data-approved-ui] .investment-sections button { padding-block: 10px; }
+#app[data-approved-ui] .ap-r-stock-copy>small { flex-wrap: wrap; row-gap: 4px; }
+#app[data-approved-ui] .bank-card-digits,
+#app[data-approved-ui] .bank-card-digits strong { font-size: var(--fp-type-title) !important; letter-spacing: .06em; }
+#app[data-approved-ui] .bank-network { font-weight: 600; }
+#overlay .sheet { line-height: var(--fp-leading-copy); }
+#overlay .sheet :is(.row.between,.plan-row,.risk-profile-facts>div) { gap: 12px; }
+#overlay .sheet :is(.plan-row strong,.bank-card-details dd) { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+#overlay .sheet :is(.task-actions,.bank-card-actions,.bank-card-confirm>div) { flex-wrap: wrap; }
+#toast { font-family: var(--fp-font-ui); font-size: var(--fp-type-body); line-height: var(--fp-leading-label); }
+/* The desktop presentation uses the same family and weights as its app frame. */
+.sc-stage { font-family: var(--fp-font-ui); }
+.sc-intro h1 { font-weight: 600; letter-spacing: 0; line-height: 1.35; }
+.sc-lede,.sc-points p { line-height: 1.7; letter-spacing: 0; }
+@media(max-width:350px) {
+  #app[data-approved-ui][data-dot-page][data-route=home] .summary { grid-template-columns: minmax(0,1fr); gap: 16px; }
+  #app[data-approved-ui][data-dot-page][data-route=home] .stitch-goal { grid-template-columns: 32px minmax(0,1fr) auto; gap: 8px; }
+  #app[data-approved-ui][data-dot-page][data-route=home] .goal-track { padding-left: 44px; }
+  #app[data-approved-ui] :is(.ap-l-pair,.ap-home-parts,.fp-invest-market) { gap: 12px; }
+  #app[data-approved-ui] .ap-r-price { min-width: 0; }
+}

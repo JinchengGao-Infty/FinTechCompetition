@@ -1,0 +1,37 @@
+{
+  "file": "voice-female-zf_040-short.wav",
+  "text": "我会先核对收款人与金额，确认后再继续。",
+  "threads": 8,
+  "first": {
+    "first_audio_ms": 2220.94,
+    "duration_ms": 5285.75,
+    "sample_rate": 24000,
+    "bytes": 253760,
+    "engine": "sherpa-onnx-kokoro",
+    "model": "kokoro-multi-lang-v1_1",
+    "voice": {
+      "speaker_id": 25,
+      "name": "zf_040",
+      "gender": "female",
+      "language": "zh-CN",
+      "precision": "fp32"
+    }
+  },
+  "warm": {
+    "first_audio_ms": 2055.35,
+    "duration_ms": 5287.0,
+    "sample_rate": 24000,
+    "bytes": 253820,
+    "engine": "sherpa-onnx-kokoro",
+    "model": "kokoro-multi-lang-v1_1",
+    "voice": {
+      "speaker_id": 25,
+      "name": "zf_040",
+      "gender": "female",
+      "language": "zh-CN",
+      "precision": "fp32"
+    }
+  },
+  "audio_sha256": "8a0e1f9a9f9d8dd90888dc3bd735788f6121edc7af07c37baa781d16c8fedd83",
+  "audition": "Not listened to by agent; audio input is unsupported in the current tool session."
+}

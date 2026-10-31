@@ -1,3 +1,4 @@
+import {prepareLocalWrite,assertLocalWrite} from './local-write-guard.mjs';
 import {stableCategories} from './category-order.mjs';
 import {createBankCards} from './bank-cards.mjs';
 import {createProductCapture} from './dot-capture.js';
@@ -44,6 +45,9 @@ export function createBaselineBridge(host){
  function overview(){const s=getState(),profile=riskProfile(s);return {cash_minor:Math.round(s.balance*100),assets_minor:Math.round((s.balance+s.invested)*100),investable_minor:Math.max(0,Math.round((s.balance-8000)*100)),execution_available:true,risk_completed:profile.ready,risk_level:profile.level,products:[{id:'reserve',name:'灵活现金',risk:1,holding_minor:Math.round(s.invested*100),eligible:true,liquidity:'按产品规则赎回',horizon_months:0,fee:'0',purpose:'近期资金'},{id:'growth',name:'长期均衡',risk:3,holding_minor:0,eligible:false,liquidity:'按产品规则赎回',horizon_months:12,fee:'0',purpose:'一年以上资金'}],planning:{ready:false,basis:{observed_months:1},quality:{message:'仍需核对产品适当性与用钱期限'}},cashflow:{observed_months:1},profile:{goal_name:'旅行基金',goal_amount:'12000'}}}
  function budget(month=ui.month){const s=getState();return s.nativeBudget?.[month]||{month,status:month==='2026-11'?'set':'unset',revision:0,total_minor:month==='2026-11'?800000:null,categories:month==='2026-11'?[{category:'住房',limit_minor:350000},{category:'餐饮',limit_minor:200000},{category:'购物',limit_minor:150000},{category:'其他',limit_minor:100000}]:[]}}
  async function finance(path,options={}){
+  const writes=options.method&&!['GET','HEAD'].includes(options.method.toUpperCase());
+  const ticket=writes?prepareLocalWrite(getState(),{kind:'data_maintenance',id:path,parameters:options.body||{}}):null;
+
   if(path==='/positions'&&!options.method&&!options.seed)return getPaper();
   if(path.startsWith('/capture'))return captureRequest(path,options);
   if(path==='/overview')return overview();
@@ -52,19 +56,19 @@ export function createBaselineBridge(host){
    const s=getState(),d=options.body,current=budget(month);if(d.month!==undefined&&d.month!==month)throw Error('预算月份不匹配');s.nativeBudgetRequests||={};const previous=s.nativeBudgetRequests[d.request_id];if(previous){if(previous.month!==month||previous.total_minor!==d.total_minor||JSON.stringify(previous.categories)!==JSON.stringify(d.categories))throw Error('请求参数已变化，请重新核对');return previous;}
    if(current.revision!==d.expected_revision){const e=Error('预算已变化，请重新载入');e.status=409;throw e}
    if(!Number.isSafeInteger(d.total_minor)||d.total_minor<=0||!Array.isArray(d.categories)||d.categories.some(c=>!Number.isSafeInteger(c.limit_minor)||c.limit_minor<0)||d.categories.reduce((n,c)=>n+c.limit_minor,0)>d.total_minor)throw Error('请核对预算金额');
-   const result={month,status:'set',revision:current.revision+1,total_minor:d.total_minor,categories:d.categories};s.nativeBudget||={};s.nativeBudget[month]=result;s.nativeBudgetRequests[d.request_id]=result;save();return result;
+   const result={month,status:'set',revision:current.revision+1,total_minor:d.total_minor,categories:d.categories};assertLocalWrite(getState(),ticket,{parameters:options.body||{}});s.nativeBudget||={};s.nativeBudget[month]=result;s.nativeBudgetRequests[d.request_id]=result;save();return result;
   }
   const request=()=>fetch('/api'+path,{method:options.method||'GET',headers:{'Content-Type':'application/json','X-CSRF-Token':getCsrf()},body:options.body?JSON.stringify(options.body):undefined});
   let res=await request();
   // Only idempotent reads may be retried after renewing an expired local session.
   if(res.status===401&&(!options.method||options.method==='GET')&&host.refreshSession){await host.refreshSession();res=await request();}
-  const data=await res.json();if(!res.ok){const e=Error(data.message||'本地资料暂不可用');e.status=res.status;throw e}if(path.startsWith('/position-imports/')&&path.endsWith('/confirm')&&options.method==='POST')seedPositions=null;return data;
+  const data=await res.json();if(writes){try{assertLocalWrite(getState(),ticket,{parameters:options.body||{}});}catch(error){error.outcomeUnknown=true;error.message='安全状态已变化，已发出的资料维护请求需核实，未回填或自动重试。';throw error;}}if(!res.ok){const e=Error(data.message||'本地资料暂不可用');e.status=res.status;throw e}if(path.startsWith('/position-imports/')&&path.endsWith('/confirm')&&options.method==='POST')seedPositions=null;return data;
  }
  let seedPositions=null;
  const getPaper=async()=>{if(!seedPositions)seedPositions=await finance('/positions',{seed:true});ensurePaperPortfolio(getState(),seedPositions);save();return paperPortfolio(getState(),seedPositions);};
  const riskExperience=createRiskExperience({prepare:getPaper,modal:showModal,closeSheet:()=>closeModal({history:false}),onClose:()=>host.closeRiskNavigation?.(),profile:()=>riskProfile(getState()),esc,money,reduced:()=>!!getState().reduceMotion});
  function openRisk({history=true}={}){if(history)host.registerRiskNavigation?.();return riskExperience.open();}
- const context={paper:{get:getPaper,profile:()=>riskProfile(getState()),review:d=>reviewTrade(getState(),d),execute:(d,id)=>{const candidate=structuredClone(getState()),r=executePaperTrade(candidate,d,id);if(host.persistState)host.persistState(candidate);else{save(candidate);Object.assign(getState(),candidate);}return r;},openRisk:()=>openRisk()},state:ui,prefs,esc,money,icon,finance,allBills:async()=>rows(),range:dates,loading:()=>'<p class="ap-l-status">正在读取…</p>',modal:(title,body)=>showModal(title,body.replace('证券字标为原创文字识别，非官方标志。','公司标识来源见本地资料记录。')),closeSheet:()=>closeModal({consume:true}),render,storage,go:route=>{closeModal({consume:true});if(route==='risk'){openRisk();return}host.navigateInvestment(route==='research'?'research':['holdings','wealth'].includes(route)?'wealth':'holdings')}};
+ const context={paper:{get:getPaper,profile:()=>riskProfile(getState()),review:d=>reviewTrade(getState(),d),requestInline:d=>host.requestPaperInline?.(d),execute:(d,id)=>{const candidate=structuredClone(getState()),r=executePaperTrade(candidate,d,id);if(host.persistState)host.persistState(candidate);else{save(candidate);Object.assign(getState(),candidate);}return r;},openRisk:()=>openRisk()},state:ui,prefs,esc,money,icon,finance,allBills:async()=>rows(),range:dates,loading:()=>'<p class="ap-l-status">正在读取…</p>',modal:(title,body)=>showModal(title,body.replace('证券字标为原创文字识别，非官方标志。','公司标识来源见本地资料记录。')),closeSheet:()=>closeModal({consume:true}),render,storage,go:route=>{closeModal({consume:true});if(route==='risk'){openRisk();return}host.navigateInvestment(route==='research'?'research':['holdings','wealth'].includes(route)?'wealth':'holdings')}};
  const bankCards=createBankCards({getState,save,esc,money,icon,onLedger:card=>{ui.filter={q:'',category:'',type:'',accountTail:card.tail};ui.ledgerRange=null;host.navigateFinancial('ledger');}});
  const home=createApprovedHome(context),ledger=createApprovedLedger(context),composition=createApprovedOverview({...context,categoryColor:c=>c==='餐饮'?'var(--jade9)':categoryChartColor(c)}),trends=createApprovedTrends(context),budgets=createApprovedBudget(context),research=createApprovedResearch(context),wealth=createApprovedWealth(context),legacyPortfolio=createProductInvestment(context),portfolio=createInvestmentUI(context);
 

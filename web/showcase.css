@@ -90,3 +90,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   .sc-note{margin-top:10px}
 }
 @media (prefers-reduced-motion:reduce){.sc-tour button{transition:none}}
+
+/* Native thin thumb; preserve native drag and keyboard scrolling. */
+html::-webkit-scrollbar{width:4px;height:4px}html::-webkit-scrollbar-track{background:transparent}html::-webkit-scrollbar-thumb{background:var(--slate-8,#b9bbc6);border-radius:8px}html::-webkit-scrollbar-thumb:hover{background:var(--indigo-9,#3e63dd)}
+@supports(-moz-appearance:none){html{scrollbar-width:thin;scrollbar-color:var(--slate-8,#b9bbc6) transparent}html[data-scrollbar-hover=true]{scrollbar-color:var(--indigo-9,#3e63dd) transparent}}

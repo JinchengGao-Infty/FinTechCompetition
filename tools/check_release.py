@@ -34,6 +34,10 @@ def main():
             risks.append({'path':name,'risk':'excluded-file-type'})
             continue
         content = (ROOT / name).read_bytes()
+        if path.suffix.lower() == '.wav':
+            if len(content) > 10 * 1024 * 1024 or content[:4] != b'RIFF' or content[8:12] != b'WAVE':
+                risks.append({'path':name,'risk':'unexpected-audio-format'})
+            continue
         if path.suffix.lower() in {'.pdf','.png','.jpg','.jpeg','.ico','.woff','.woff2'}:
             continue
         try:
@@ -45,6 +49,9 @@ def main():
             matches = list(re.finditer(pattern, text, re.I if kind in {'private-key','credential-in-url'} else 0))
             if kind == 'provider-token':
                 matches = [m for m in matches if not (name.startswith('tests/') and m.group().startswith(('sk-test-','sk-fake-','sk-demo-')))]
+            if kind == 'credential-in-url' and name == 'tests/voice-demo.test.mjs':
+                # Exact synthetic negative fixture: the adapter must reject URL credentials.
+                matches = [m for m in matches if m.group() != ''.join(('http', '://demo-user:demo-password@'))]
             if matches:
                 risks.append({'path':name,'risk':kind})
         literal = re.finditer(r'''(?ix)(?<![A-Za-z0-9_-])["']?(api_key|api-key|password|secret|token|key)["']?\s*[:=]\s*["']([^"'\n]{16,})["']''', text)

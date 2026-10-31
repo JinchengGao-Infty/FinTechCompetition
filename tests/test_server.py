@@ -29,6 +29,14 @@ class ServerTests(unittest.TestCase):
         cls.temp.cleanup()
 
     def setUp(self):
+        # Explicit legacy fixture: retain historical SSE/error regression coverage.
+        # Official routing and legacy-endpoint rejection are tested separately.
+        mod.MODEL='deepseek-v4-flash-0731'
+        # The current config route defaults to the official credential slot.
+        # MODEL stays legacy only to exercise the historical, fully mocked SSE reader.
+        mod.BASE=mod.chat_profile.BASE
+        profile_patch=patch.object(mod.chat_profile,'live_official_only',False)
+        profile_patch.start();self.addCleanup(profile_patch.stop)
         mod.ALLOW_API = False
         mod.AGENT_VALIDATION = False
         mod.SESSIONS.clear()
@@ -91,7 +99,12 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.request('POST','/api/config',{**blank,'key':fake})[0],200)
         session=next(iter(mod.SESSIONS.values()))
         self.assertTrue(json.loads(self.request('GET','/api/session')[2])['configured'])
-        for invalid in [blank,{**blank,'key':fake,'base_url':'https://untrusted.invalid/v1'}]:
+        code,_,body=self.request('POST','/api/config',{**blank,'model':' MiniMax-M3.1-Flash '})
+        self.assertEqual(code,200)
+        self.assertEqual(json.loads(body)['model'],'MiniMax-M3.1-Flash')
+        self.assertEqual(session['key'],fake)
+        self.assertNotIn(fake,body)
+        for invalid in [{**blank,'model':' '},{**blank,'key':fake,'base_url':'https://untrusted.invalid/v1'}]:
             code,_,body=self.request('POST','/api/config',invalid)
             self.assertEqual(code,400)
             self.assertTrue(json.loads(self.request('GET','/api/session')[2])['configured'])
@@ -290,6 +303,11 @@ class ServerTests(unittest.TestCase):
             status, _, body = self.request('POST', '/api/agent', payload)
             self.assertEqual(status, 429)
             self.assertEqual(json.loads(body)['retry_after_seconds'], 15)
+            # HTTP response bytes can arrive before the request thread's finally cleanup.
+            # Bound the wait so a genuinely stuck busy flag still fails this regression.
+            deadline = mod.time.monotonic() + 1
+            while session.get('agent_busy') and mod.time.monotonic() < deadline:
+                mod.time.sleep(.001)
             self.assertFalse(session['agent_busy'])
             status, _, body = self.request('POST', '/api/agent', payload)
             self.assertEqual(status, 429)
@@ -329,6 +347,7 @@ class ServerTests(unittest.TestCase):
         class Legacy(mod.Handler):
             def agent_validation_request(self, session): pass
         host = types.SimpleNamespace(**vars(mod))
+        host.BASE=mod.chat_profile.MICU_BASE
         host.Handler = Legacy
         host.AGENT_CALL_LIMIT = 40
         session = next(iter(host.SESSIONS.values()))

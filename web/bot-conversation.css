@@ -1,9 +1,12 @@
+/* Shared navigation baseline preserves the approved 20px bottom gap. */
+#app[data-approved-ui]{--nav-bottom-gap:20px}
+#app[data-approved-ui] .ap-nav{bottom:calc(var(--nav-bottom-gap) + env(safe-area-inset-bottom,0px))}
 /* Bot-only structure; the approved page materials and other routes are intact. */
 #app[data-route=assistant]{--bot-side:20px;padding-bottom:var(--bot-bottom-clearance,176px)}
 #app[data-route=assistant] .bot-topbar{
  position:sticky;top:var(--bot-visual-top,0px);z-index:36;isolation:isolate;
  display:grid;grid-template-columns:1fr 84px 1fr;align-items:center;
- min-height:112px;margin:-28px calc(-1 * var(--bot-side)) 18px;
+ min-height:124px;margin:-16px calc(-1 * var(--bot-side)) 18px;
  padding:calc(10px + env(safe-area-inset-top)) var(--bot-side) 10px;
  background:transparent;border:0;box-shadow:none;
 }
@@ -17,10 +20,23 @@
 #app[data-route=assistant] .bot-topbar .bot-avatar{grid-column:2;width:84px;height:84px;justify-self:center;padding:0;isolation:isolate}
 #app[data-route=assistant] .bot-topbar .task-link{grid-column:3;justify-self:end;min-height:44px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 #app[data-route=assistant] .bot-page{padding-bottom:0}
-#app[data-route=assistant] .composer{bottom:calc(96px + env(safe-area-inset-bottom) + var(--bot-keyboard-inset,0px))}
-#app[data-route=assistant] .ap-nav{bottom:calc(16px + env(safe-area-inset-bottom) + var(--bot-keyboard-inset,0px))}
+#app[data-route=assistant] .composer{bottom:calc(var(--nav-bottom-gap,20px) + var(--bot-nav-height,72px) + 12px + env(safe-area-inset-bottom,0px) + var(--bot-keyboard-inset,0px))}
+#app[data-route=assistant] .ap-nav{bottom:calc(var(--nav-bottom-gap,20px) + env(safe-area-inset-bottom,0px) + var(--bot-keyboard-inset,0px))}
 .bot-thought-bulb{position:absolute;top:0;right:2px;width:19px;height:22px;color:var(--amber9,#ffc53d);pointer-events:none}
 .bot-thought-bulb svg{display:block;width:100%;height:100%;stroke-width:1.25;fill:none;stroke:currentColor}
-@media(max-width:350px){#app[data-route=assistant]{--bot-side:16px}#app[data-route=assistant] .bot-topbar{grid-template-columns:1fr 72px 1fr;min-height:100px}#app[data-route=assistant] .bot-topbar .bot-avatar{width:72px;height:72px}}
+@media(max-width:350px){#app[data-route=assistant]{--bot-side:16px}#app[data-route=assistant] .bot-topbar{grid-template-columns:1fr 72px 1fr;min-height:112px}#app[data-route=assistant] .bot-topbar .bot-avatar{width:72px;height:72px}}
 @media(prefers-reduced-motion:reduce){.bot-topbar .companion img{animation:none!important}}
 html[data-motion=reduce] .bot-topbar .companion img{animation:none!important}
+
+/* A single restrained playback cue; no animation survives cancel or navigation. */
+html[data-bot-speaking=true] .bot-topbar .companion img{animation:bot-speaking-breathe 2.4s ease-in-out infinite!important}
+@keyframes bot-speaking-breathe{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.035);opacity:.9}}
+.composer-events{position:relative;flex:none}.event-add{width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--slate11)}.event-add svg{width:20px;height:20px}
+.event-menu{position:absolute;bottom:54px;left:0;width:210px;display:grid;padding:8px;background:var(--slate1,#fff);border:.5px solid var(--slateA5);border-radius:20px;box-shadow:0 8px 24px var(--slateA4);z-index:60}.event-menu>span{font-size:12px;color:var(--slate11);padding:8px 12px}.event-menu button{min-height:44px;text-align:left;font:inherit;font-size:14px;color:var(--slate12);background:none;border:0;border-radius:12px;padding:10px 12px}.event-menu button:hover{background:var(--indigoA3)}
+.event-source,.event-summary small{font-size:12px;color:var(--slate11)}.event-summary h3{font-size:14px;margin:8px 0}.event-summary p{font-size:14px;line-height:1.6}.event-summary{margin:0}
+.conversation-history{margin:12px 0;border:.5px solid var(--slateA5);border-radius:20px;background:var(--whiteA7);padding:12px 16px}.conversation-history>summary{cursor:pointer;font-size:14px;font-weight:500;min-height:44px;display:flex;flex-direction:column;justify-content:center;gap:4px}.conversation-history>summary span{font-size:12px;font-weight:400;color:var(--slate11)}.conversation-history[open]>div{padding-top:12px}
+.action-success{min-height:48px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:24px;background:var(--indigo9,#3e63dd);color:white;animation:success-settle 220ms ease-out}.action-success svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.action-success.sent svg{animation:sent-flight 550ms ease-out}.action-success .feedback-arrow{animation:transfer-out 500ms ease-in forwards}.action-success .feedback-check{animation:transfer-check 650ms ease-out both}.step-scheduled{font-size:12px;line-height:1.6;color:var(--indigo11)}
+@keyframes success-settle{from{opacity:.65}to{opacity:1}}@keyframes sent-flight{from{transform:translate(-8px,5px);opacity:.2}to{transform:translate(0,0);opacity:1}}@keyframes transfer-out{to{transform:translateX(8px);opacity:0}}@keyframes transfer-check{0%,65%{opacity:0}100%{opacity:1}}
+@media(prefers-reduced-motion:reduce){html[data-bot-speaking=true] .bot-topbar .companion img,.action-success,.action-success svg,.action-success path{animation:none!important}.feedback-arrow{display:none}}
+html[data-motion=reduce] .bot-topbar .companion img,html[data-motion=reduce] .action-success,html[data-motion=reduce] .action-success svg,html[data-motion=reduce] .action-success path{animation:none!important}
+html[data-motion=reduce] .feedback-arrow{display:none}

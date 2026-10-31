@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "seconds": 0.28,
+  "bytes": 62426,
+  "wav": {
+    "frames": 31191,
+    "rate": 8000,
+    "channels": 1
+  },
+  "engine": "sherpa-onnx-vits",
+  "scope": "loopback same-origin HTTP synthetic text; playback not yet listened"
+}

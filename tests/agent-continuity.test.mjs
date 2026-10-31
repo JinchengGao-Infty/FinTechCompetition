@@ -54,7 +54,7 @@ test('late A response and A failure cannot affect B after cancellation or worksp
 
 test('completed task then hi then readonly explanation references bound receipt without recreating task',()=>{
  const s=fresh(),task=createTask(s,'travel',{reuse:false});task.amount=1200;
- transition(s,task.id,'grant');transition(s,task.id,'confirm',{revision:task.revision,parameters:parameterFingerprint(task)});executeLocalTask(s,task.id);
+ transition(s,task.id,'grant');transition(s,task.id,'confirm',{source:{kind:'user',method:'click'},revision:task.revision,parameters:parameterFingerprint(task)});executeLocalTask(s,task.id);
  const count=s.tasks.length,ledger=structuredClone(s.ledger),cash=s.balance,travel=s.travelBudget,receipt=task.receipt;
  apply(s,{status:'answer',scenario:'other',reply:'你好',fields:{}},'hi');leaveWorkspace(s);
  const out=apply(s,{status:'answer',scenario:'question',query:'recent_task',fields:{purpose:'travel'},reply:'请看已完成的安排。',mode:'none',context_action:'none'},'explain');

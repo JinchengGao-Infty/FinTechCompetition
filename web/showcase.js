@@ -22,3 +22,5 @@ document.getElementById('reset').addEventListener('click',()=>{
  frame.src=appURL(location.href,'/today').href;
 });
 openApp.href=initial.href;frame.src=initial.href;
+
+if(CSS.supports('-moz-appearance','none'))document.addEventListener('pointermove',event=>{document.documentElement.dataset.scrollbarHover=String(document.documentElement.scrollHeight>innerHeight&&innerWidth-event.clientX<12);},{passive:true});

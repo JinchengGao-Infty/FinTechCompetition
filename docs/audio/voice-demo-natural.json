@@ -1,0 +1,22 @@
+{
+  "load_ms": 3196.58,
+  "first": {
+    "first_audio_ms": 401.12,
+    "duration_ms": 3664.49,
+    "sample_rate": 22050,
+    "bytes": 161648,
+    "engine": "sherpa-onnx-matcha",
+    "model": "matcha-icefall-zh-baker"
+  },
+  "warm": {
+    "first_audio_ms": 386.16,
+    "duration_ms": 3664.67,
+    "sample_rate": 22050,
+    "bytes": 161656,
+    "engine": "sherpa-onnx-matcha",
+    "model": "matcha-icefall-zh-baker"
+  },
+  "audio_sha256": "a4572cd9d664dd5986b19cfd266a48cb48f3d8e945b449290e6b6e7cf5c1d9c3",
+  "text": "我会先核对收款人与金额,确认后再继续。",
+  "timing_definition": "Full first utterance generated to WAV in memory; excludes browser, network and LLM time."
+}

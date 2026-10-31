@@ -1,3 +1,4 @@
+import {verifyForTest} from './safety-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createBaselineBridge} from '../web/baseline-bridge.mjs';
@@ -5,7 +6,7 @@ import {fresh,createTask,transition} from '../web/engine.mjs';
 import {financialFacts} from '../web/finance-state.mjs';
 
 const bridge=s=>createBaselineBridge({getState:()=>s,save(){},render(){},esc:String,money:n=>'¥'+n,showModal(){},closeModal(){},start(){},icon:()=>'',getCsrf:()=>'',namespace:'unit',setFinancial(){},setInvestment(){},openRisk(){}});
-function complete(s,key,amount){const t=createTask(s,key);transition(s,t.id,'grant');if(amount)transition(s,t.id,'edit',{amount});transition(s,t.id,'confirm',{revision:t.revision});if(t.status==='verify')transition(s,t.id,'verify',{verified:true});transition(s,t.id,'complete');return t}
+function complete(s,key,amount){const t=createTask(s,key);transition(s,t.id,'grant');if(amount)transition(s,t.id,'edit',{amount});transition(s,t.id,'confirm',{source:{kind:'user',method:'click'},revision:t.revision});if(t.status==='verify')verifyForTest(s,t.id);transition(s,t.id,'complete');return t}
 
 test('copied overview/trend DTO reconciles to task ledger after one transfer',()=>{
  const s=fresh(),t=complete(s,'salary',1800),b=bridge(s),d=b.report(),f=financialFacts(s);

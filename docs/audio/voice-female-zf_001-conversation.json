@@ -1,0 +1,37 @@
+{
+  "file": "voice-female-zf_001-conversation.wav",
+  "text": "好，我先把餐厅和蛋糕安排好。定时转账的收款人和金额，还需要你确认一下。",
+  "threads": 8,
+  "first": {
+    "first_audio_ms": 2900.72,
+    "duration_ms": 7344.58,
+    "sample_rate": 24000,
+    "bytes": 352584,
+    "engine": "sherpa-onnx-kokoro",
+    "model": "kokoro-multi-lang-v1_1",
+    "voice": {
+      "speaker_id": 3,
+      "name": "zf_001",
+      "gender": "female",
+      "language": "zh-CN",
+      "precision": "fp32"
+    }
+  },
+  "warm": {
+    "first_audio_ms": 3003.73,
+    "duration_ms": 7344.29,
+    "sample_rate": 24000,
+    "bytes": 352570,
+    "engine": "sherpa-onnx-kokoro",
+    "model": "kokoro-multi-lang-v1_1",
+    "voice": {
+      "speaker_id": 3,
+      "name": "zf_001",
+      "gender": "female",
+      "language": "zh-CN",
+      "precision": "fp32"
+    }
+  },
+  "audio_sha256": "e6531052385aed169b4cedd4a7ede989a44ba81e130d3a447b5dc51e09972801",
+  "audition": "Not listened to by agent; audio input is unsupported in the current tool session."
+}

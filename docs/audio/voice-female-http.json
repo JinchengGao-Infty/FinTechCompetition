@@ -1,0 +1,17 @@
+{
+  "http_status": 200,
+  "http_headers_ms": 1844.56,
+  "server_first_audio_ms": 1825.33,
+  "engine": "sherpa-onnx-kokoro",
+  "wav_bytes": 210638,
+  "real_pcm_header": true,
+  "cancellation": {
+    "closed_during_inference": true,
+    "client_socket_close_ms": 0.171,
+    "cpu_completed_after_client_close_ms": 1810.15,
+    "health_after_cancel_status": 200,
+    "definition": "Actual HTTP client closed during real model generation. This is not a browser microphone/playback latency measurement; CPU generation is allowed to finish."
+  },
+  "text": "我会先核对收款人与金额，确认后再继续。",
+  "model_load_ms": 3098.02
+}

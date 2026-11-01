@@ -6,15 +6,16 @@ import {createCompanionController} from '../web/companion-controller.mjs';
 import {offlineResult,OFFLINE_PROMPTS} from '../web/offline-demo.mjs';
 import {recipientOperation} from '../web/recipient-review.mjs';
 import {getRiskSource} from '../web/risk-sources.mjs';
+import {ensureFinance} from '../web/finance-state.mjs';
 const USER={kind:'user',method:'click'};
-async function fixture(run){
+async function fixture(run,{paintSync=false}={}){
  const oldLocation=Object.getOwnPropertyDescriptor(globalThis,'location'),oldFetch=globalThis.fetch,oldForm=globalThis.FormData;
  let state=fresh(),c,network=0,inlinePaints=0;const errors=[];
  Object.defineProperty(globalThis,'location',{value:{href:'http://127.0.0.1:63939/?offline=1&session=timing-test'},configurable:true});
  globalThis.fetch=async()=>{network++;throw Error('No external IO');};
  globalThis.FormData=class{constructor(f){this.fields=f.fields;}get(k){return this.fields[k];}};
  try{
-  c=createCompanionController({getState:()=>state,commit:n=>{state=structuredClone(n);},esc:String,repaint(){},onInlineUpdated(){inlinePaints++;},disableSpeech:true,onError:m=>errors.push(m)});
+  c=createCompanionController({getState:()=>state,commit:(n,options={})=>{state=structuredClone(n);if(paintSync&&options.paint!==false)c?.sync();},esc:String,repaint(){},onInlineUpdated(){inlinePaints++;},disableSpeech:true,onError:m=>errors.push(m)});
   const h={c,errors,get inlinePaints(){return inlinePaints;},get state(){return state;},update(fn){fn(state);},action:(name,data={})=>c.handleAction(name,{dataset:data},{isTrusted:true}),
    input(text){return c.applyModelResult(offlineResult({text,run_companion:c.modelContext()}).result);},
    challenge(){return Object.values(state.safety.challenges).findLast(x=>x.status==='pending');},
@@ -23,6 +24,23 @@ async function fixture(run){
  }finally{c?.dispose();globalThis.fetch=oldFetch;globalThis.FormData=oldForm;if(oldLocation)Object.defineProperty(globalThis,'location',oldLocation);else delete globalThis.location;}
 }
 async function start(h){h.input(OFFLINE_PROMPTS.recipient);await h.action('recipient-confirm');return h.challenge().id;}
+
+test('password success survives render-time sync and executes the same reviewed recipient once',async()=>{
+ for(const known of [false,true])await fixture(async h=>{
+  if(known)h.update(s=>{s.recipientHistory=[{cardNumber:'0000000000006217',recipientName:'陈宇'}];s.ledger.push({id:'previous-transfer',kind:'transfer',date:'2026-11-02',amountMinor:80000,direction:'expense'});ensureFinance(s);});
+  const before=h.state.balance,rows=h.state.ledger.length;
+  h.input(OFFLINE_PROMPTS.recipient);const recipientId=h.state.companion.recipient.id;
+  assert.equal(h.state.companion.recipient.review.evidence.first_transfer,!known);
+  await h.action('recipient-confirm');const challengeId=h.challenge().id;
+  if(known)assert.match(h.c.render(),/高风险/);
+  await h.password(policy.DEMO_VERIFICATION_CODE,challengeId);
+  assert.equal(h.state.companion.recipient.id,recipientId);
+  assert.equal(h.state.companion.recipient.status,'done');assert.equal(h.state.balance,before-300);assert.equal(h.state.ledger.length,rows+1);
+  assert.match(h.c.render(),/转账成功/);assert.doesNotMatch(h.c.render(),/safety-challenge-form/);assert.deepEqual(h.errors,[]);
+  await h.password(policy.DEMO_VERIFICATION_CODE,challengeId);h.c.sync();
+  assert.equal(h.state.balance,before-300);assert.equal(h.state.ledger.length,rows+1);
+ },{paintSync:true});
+});
 
 test('reported-recipient bubble and card use reviewed risk wording without implying verification can release it',()=>fixture(async h=>{
  const before=h.state.balance;

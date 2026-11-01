@@ -442,7 +442,10 @@ export function createCompanionController(host){
      if(!result.ok){if(activeChallenge.sourceReview&&next.safety.lock?.reason==='password_failures'){activeChallenge=null;const locked=clone(getState());locked.companion.securityNotice.stage='locked';save(locked);}throw Error(next.safety.lock?.reason==='password_failures'?'连续三次密码错误，操作已暂停。':'密码不正确，请重试。');}
      if(activeChallenge.sourceReview){const reviewed=clone(getState());if(reviewed.companion.securityNotice?.sourceId===activeChallenge.sourceId)reviewed.companion.securityNotice.stage='decision';activeChallenge=null;save(reviewed);}else{activeChallenge=null;append('已恢复操作权限。旧授权已失效，请重新核对待办。',{kind:'safety_status'});}
     }else{
-     const result=policy.verifyChallenge(next,{challengeId,code,source:USER,now:now()});save(next);persisted=true;
+     // Commit the proof without rendering an intermediate verified challenge.
+     // render()->sync() otherwise mistakes it for an expired pending challenge,
+     // revokes this grant and returns the recipient to review before execution.
+     const result=policy.verifyChallenge(next,{challengeId,code,source:USER,now:now()});save(next,{paint:!result.ok});persisted=true;
      if(!result.ok)throw Error(next.safety.locked?'连续验证失败，安全保护已开启。':'演示密码不匹配，请重新输入。');
      if(activeChallenge.wealth){executeWealth();}else if(activeChallenge.recipient){activeChallenge=null;await runRecipient();}else if(activeChallenge.paper)executePaper();else{const id=activeChallenge.planId;activeChallenge=null;await runPlan(id);}
     }

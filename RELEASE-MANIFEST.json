@@ -1,8 +1,7 @@
 {
-  "version": "R16",
-  "base_commit": "dbabbffe3b997ecba9a3f37b269d0a91a96ea0c5",
+  "version": "R16.1",
+  "base_commit": "963655e43f4aafb5e97945485a7da21ac1d14890",
   "branch": "26fincom_v2",
-  "rollback_tag": "rollback/26fincom_v2-before-r16-20261101",
   "source_freeze_manifest_sha256": "7fe4ece84620fa99b3c9f9f4c74f28113d9ca30500397d16e32fb624515e0a41",
   "source_files": {
     ".gitattributes": "738072911215d5d6eb3ca499175b3d77fea7fb082786c0f613c8e3d8ff34bb0f",
@@ -10,7 +9,7 @@
     ".runtime/.gitkeep": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
     "API-CONFIG.example.json": "59a1d1852ea433f8cc9a46794ba41fb64141d708dc881b2088a78e73c4135d4a",
     "DEMO-15.zh-CN.md": "ec86ba013cd5c1ff0292dede4af791488d5bdfe4cd07dd1f4a5174383fab9237",
-    "README.md": "0bad4c4b6d9806de9d3420c7da58b48d2798cd5276fcf3e2a6bd573c573477e1",
+    "README.md": "cd1a9e4bcf297e6c9116c6a044b41cea60b26a74e252e0f6c5118a6ee00d40f3",
     "RELEASE-CHECKLIST.md": "f9f086da7aec2a35ae600d3d293aa290cc2ef0db464c9ea632e671d8fb4b88ff",
     "RUNNING.md": "cb3bc4674407e9deda02d5f81baa72709948d81c6379862bb145b53df8db938e",
     "SOURCE-PROVENANCE.md": "3d05ee3acd3d951d6698a5dcd26f18a2cbe3ee743d4e9bcfe8936322e56a2344",
@@ -136,7 +135,7 @@
     "tests/safety-policy.test.mjs": "356c9a947c83deb908f9ba9704391a922f8bbbd2a84d610e4d69c743a47b4357",
     "tests/savings-coach.test.mjs": "de18e85ab9f9e6f1f35c062ffd4bf7d3c5104f332126dad4c72995bf0e322823",
     "tests/savings-multi.test.mjs": "77e2d831d611e145a20391eba8ddf7bf1540b42a9025b5a05402946a171f4a64",
-    "tests/scene-card-timing.test.mjs": "dd76e99ec93c24476bdf635dde5b7a92873c74fee20ae9beb3181e2422f5aa69",
+    "tests/scene-card-timing.test.mjs": "a7b814549128cce6190c63e34a00a05ffb4d47d186ee3cb167521ea8de18c0a9",
     "tests/speech-numbers.test.mjs": "aacbc7c47919ed344697bce26e4ac2b04f79ab4dcc437adb13a54459c1e3dcd9",
     "tests/state-storage.test.mjs": "72c91fa7e150841cefa1fbe1d9321db3033dba6292f285ea448065c95573e1f6",
     "tests/step-confirmation.test.mjs": "d7c0a3197778ee01333da4ad2c14de6a44393a06f5f102bd033e35c9a8b9a11d",
@@ -359,7 +358,7 @@
     "web/category-order.mjs": "e56b685edb04a5f476067a3d87e72ffb11386154a7877965bd94fb09d95fff6a",
     "web/chat-settings.mjs": "051adbb9f26d7b1fa12acaa275e7bb7cbfc766aa7769d4fde5639c79d99e9188",
     "web/companion-contract.mjs": "11a5533478e7658cee97b40c449233dac9a75b306ad6a078f2fe34ef3bed195b",
-    "web/companion-controller.mjs": "c0ba0d7980218ce79c091cb61b5ae39471d61557cb90b918bd05558ef6ae380a",
+    "web/companion-controller.mjs": "6ba74998d11c6094fd9bbf3e4d7c59c9b6a6f50e32c76e22266e8746df786564",
     "web/companion-planner.mjs": "5a0bd361bdf9a2d4ad9e15228cbe774c9b90cbcc527a7d1378d92f500654dcb8",
     "web/companion-ui.css": "5ddcf755d5ec750b7c2801cabfe8784e42bf07a71af71967b90f6c6bf2c6c945",
     "web/companion-ui.mjs": "ddcf5b96598f80ca50eb3fc42b08ce82f7be2795b9cbc8a2c62639f5630906b1",
@@ -431,25 +430,30 @@
     "web/wealth-guide.mjs": "89a2b1799d65357ed16d89b4df26b1b56dcc67ddfab2a3a028eaa49a7b9b0441"
   },
   "verification": {
-    "node_pass": 555,
-    "python_pass": 198,
-    "clean_clone_startup": "passed",
-    "static_routes": 18,
-    "local_module_references": 189,
+    "scope": "password verification continuation fix",
+    "affected_node_pass": 26,
+    "browser_new_recipient_password": "passed",
+    "browser_known_recipient_daily_total_1200_password": "passed",
+    "repeat_submit_single_debit": "passed",
     "new_live_provider_calls": 0,
-    "browser_home_and_editable_model": "passed",
-    "credentials_copied": false
+    "credentials_copied": false,
+    "service_restarted": false,
+    "prior_full_suite": {
+      "release": "R16",
+      "node_pass": 651,
+      "python_pass": 209
+    }
   },
   "release_notes": "docs/R13-RELEASE.md",
   "local_base_commit": "8087c73a0d80f40f92328bd36ce695e813cbcfca",
-  "publication_status": "local-only-uncommitted",
-  "rollback_branch": "rollback/26fincom_v2-before-r14-20261031",
-  "previous_published_commit": "1a9ae19a1383efd8035a2f2ffa9000e9e3ee6aa2",
+  "publication_status": "release-candidate",
+  "rollback_branch": "rollback/26fincom_v2-before-password-fix-20261101",
+  "previous_published_commit": "963655e43f4aafb5e97945485a7da21ac1d14890",
   "integrated_prs": [
     2,
     3,
     8
   ],
-  "published_base": "dbabbffe3b997ecba9a3f37b269d0a91a96ea0c5",
-  "local_only": true
+  "published_base": "963655e43f4aafb5e97945485a7da21ac1d14890",
+  "local_only": false
 }

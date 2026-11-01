@@ -9,6 +9,7 @@ export const OFFLINE_PROMPTS=Object.freeze({
  seller:'给闲鱼卖家转2000元，卡号0000000000008891。',
  ride:'跟妈妈说我周六中午回家吃饭，帮我约辆周六上午从学校回家的顺风车，出发前记得提醒我。',
  rideDetails:'11月7日上午9点，从学校东门到锦绣小区南门，车费最多80元，从生活账户1608出。',
+ birthday:'林夏11月9日生日，预算1200元，帮我安排上海的双人晚餐和六寸草莓蛋糕，联系陈老板并从生活账户1608支付50元定金，当天13:14转账520元。',
  savings:'手里有点钱，想理一理。',
 });
 const actions={wealth_guide:'prepare_wealth',security_case:'show_security_case',compound:'prepare_compound',birthday:'prepare_birthday',rent_reminder:'prepare_rent',subscription_reminder:'prepare_subscription',savings_coach:'prepare_savings',plan_control:'control_plan'};
@@ -51,6 +52,7 @@ export function offlineResult(request,{programEvent=false,formContinuation=false
   result=proposal('birthday',context.fields,'请核对更新后的生日安排。',{status:missing.length?'clarify':'propose',missing,mode:missing.length?'none':context.plan_id?'update':'create',task_id:missing.length?null:context.plan_id||null,context_action:'continue',cards:[{type:missing.length?'clarification':'birthday_plan'}],actions:missing.length?[]:[{type:'prepare_birthday'}]});
  }else if(text===normalize(OFFLINE_PROMPTS.ride))result=compound({items:[{id:'item-1',kind:'sms',contact_id:'mom',message:'妈妈，我周六中午回家吃饭。'},{id:'item-2',kind:'ride',date:'2026-11-07',source_account:'living_1608',reminder_before_minutes:60}]});
 
+ else if(text===normalize(OFFLINE_PROMPTS.birthday))result=proposal('birthday',{birthday_date:'2026-11-09',budget_minor:120000,partner_id:'partner-linxia',city:'上海',source_account:'living_1608'},'晚餐、联系蛋糕店、定金和生日转账分开核对，每一步由你确认。');
  else if([OFFLINE_PROMPTS.savings,'有点闲钱，想打理一下。','最近想攒点钱。'].some(x=>normalize(x)===text))result=proposal('wealth_guide',{},'先选一个方向，我们一步一步来。');
  else if(context?.scenario==='wealth_guide')result=proposal('wealth_guide',{choice:/^\d+元$/.test(text)?String(Number(text.slice(0,-1))*100):text},'按你的选择继续核对。',{context_action:'continue'});
  else if(context?.scenario==='savings_coach'&&/^(先不调整|不同意|取消|先不办了)$/.test(text))result=proposal('savings_coach',{proposal_action:'reject'},'先不调整，保留原来的预算。',{context_action:'continue'});

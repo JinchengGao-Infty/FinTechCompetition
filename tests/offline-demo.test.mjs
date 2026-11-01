@@ -30,8 +30,8 @@ test('SMS plus ride preserves both tasks through typed and form clarification, n
  const cancel=parse('先不办了',h.c.modelContext());h.c.applyModelResult(cancel.result);assert.equal(h.c.manager.getPlan(p.id).status,'cancelled');
  }finally{h.close();}
 });
-test('retired birthday entry is absent and ambiguous wealth uses three real branches',async()=>{
- assert.equal(P.birthday,undefined);const h=harness();try{
+test('offline birthday proposes the original bounded plan and ambiguous wealth uses three real branches',async()=>{
+ const birthday=parse(P.birthday);assert.equal(birthday.source,'preset');assert.equal(birthday.result.scenario,'birthday');const b=harness();try{b.c.applyModelResult(birthday.result);const plan=b.c.manager.snapshot().plans[0];assert.equal(plan.kind,'birthday');assert.ok(plan.steps.some(n=>n.id==='cake.contact'));assert.ok(plan.steps.some(n=>n.id==='cake.deposit'));assert.ok(plan.steps.some(n=>n.id==='birthday.transfer'));assert.ok(Object.values(b.s.safety.executions).every(e=>e.snapshot.kind==='read'));}finally{b.close();}const h=harness();try{
  h.c.applyModelResult(parse(P.savings).result);assert.match(h.c.render(),/为一个目标攒钱/);assert.match(h.c.render(),/让闲钱赚点收益/);assert.match(h.c.render(),/还没想好/);
  const choose=async value=>h.c.handleAction('wealth-choice',{dataset:{value,revision:String(h.s.wealthGuide.revision)}},{});
  await choose('unsure');assert.equal(h.s.wealthGuide.stage,'direction');await choose('save');await choose('旅行');await choose('60000');await choose('2000');

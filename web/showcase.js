@@ -35,6 +35,8 @@ const modeSwitch=document.getElementById('mode-switch');modeSwitch.href=toggleUR
 const guide=document.getElementById('offline-guide');guide.hidden=!offline;guide.open=offline;
 document.querySelectorAll('[data-prompt]').forEach(button=>button.addEventListener('click',()=>{if(offline)frame.contentWindow.postMessage({type:'finpilot-offline-prefill',key:button.dataset.prompt},location.origin);}));
 
+document.querySelector('[data-birthday-clock]')?.addEventListener('click',()=>{if(offline)frame.contentWindow.postMessage({type:'finpilot-advance-birthday'},location.origin);});
+
 document.querySelector('[data-ride-clock]')?.addEventListener('click',()=>{if(offline)frame.contentWindow.postMessage({type:'finpilot-advance-ride-reminder'},location.origin);});
 
 addEventListener('message',event=>{if(offline&&event.origin===location.origin&&event.source===frame.contentWindow&&event.data?.type==='finpilot-offline-ready')markStep();});

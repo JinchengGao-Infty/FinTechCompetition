@@ -1,5 +1,17 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {botActivity,nearBottom,keyboardInset,composerClearance,installBotViewport,operationScrollTarget} from '../web/bot-viewport.mjs';
+
+test('offline reveal stays at latest content instead of jumping to the first tall operation',()=>{
+ let frame,resize;const root={scrollHeight:2400};
+ const win={scrollY:0,innerHeight:800,ResizeObserver:class{constructor(fn){resize=fn;}observe(){}disconnect(){}},requestAnimationFrame(fn){frame=fn;return 1;},cancelAnimationFrame(){frame=null;},addEventListener(){},removeEventListener(){},scrollTo({top}){this.scrollY=top;}};
+ const app={style:{setProperty(){}},querySelector:s=>s==='.composer'?{getBoundingClientRect:()=>({top:640})}:s==='.companion-challenge'?{getBoundingClientRect:()=>({top:100,bottom:1900})}:null};
+ const ui=installBotViewport(app,{win,doc:{scrollingElement:root},preferLatest:true});
+ const flush=()=>{const f=frame;frame=null;f?.();};
+ ui.afterRender(true);ui.revealOperation();flush();assert.equal(win.scrollY,1600);
+ root.scrollHeight=2800;resize();flush();assert.equal(win.scrollY,2000);
+ ui.beforeRender();win.scrollY=0;ui.afterRender(true);ui.forceBottom();flush();assert.equal(win.scrollY,2000);
+ ui.destroy();
+});
 test('activity follows real work and stops for waiting,unknown,completed,cancelled,failed and pause',()=>{
  for(const status of ['permission','review','verify','unknown','done','cancelled','failed'])assert.equal(botActivity({tasks:[{status}]}),'idle');
  assert.equal(botActivity({busy:true}),'thinking');assert.equal(botActivity({tasks:[{status:'executing'}]}),'working');assert.equal(botActivity({busy:true,paused:true}),'idle');

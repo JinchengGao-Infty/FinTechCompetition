@@ -14,7 +14,7 @@ export function botActivity({busy=false,paused=false,tasks=[]}={}){
 
 // The app uses the document scrollport. Observe only the active Bot content;
 // no polling, screenshot sampling, or permanent animation loop.
-export function installBotViewport(app,{win=window,doc=document}={}){
+export function installBotViewport(app,{win=window,doc=document,preferLatest=false}={}){
  let active=false,pinned=true,forced=false,restoring=false,savedTop=0,hasSaved=false,frame=0,revealPending=false;
  const root=()=>doc.scrollingElement||doc.documentElement;
  const metrics=()=>({top:win.scrollY,height:root().scrollHeight,viewport:win.innerHeight});
@@ -30,7 +30,7 @@ export function installBotViewport(app,{win=window,doc=document}={}){
   const composer=app.querySelector('.composer');
   if(composer)app.style.setProperty('--bot-bottom-clearance',composerClearance(win.innerHeight,composer.getBoundingClientRect().top)+'px');
   let target=forced||pinned?Math.max(0,root().scrollHeight-win.innerHeight):restoring?savedTop:win.scrollY;
-  if(revealPending&&composer){
+  if(revealPending&&composer&&!preferLatest){
    const card=app.querySelector('.companion-challenge')||app.querySelector('[data-current-plan]')||app.querySelector('.companion-inline')||app.querySelector('.operation-card');
    if(card?.getBoundingClientRect){const r=card.getBoundingClientRect(),header=app.querySelector('.bot-topbar')?.getBoundingClientRect?.();target=operationScrollTarget({scrollTop:win.scrollY,scrollHeight:root().scrollHeight,viewport:win.innerHeight,cardTop:r.top,cardBottom:r.bottom,composerTop:composer.getBoundingClientRect().top,headerBottom:header?.bottom||0});}
   }

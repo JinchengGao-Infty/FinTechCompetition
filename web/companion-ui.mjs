@@ -2,7 +2,7 @@ const money=(n,currency='CNY')=>(currency==='CNY'?'¥':currency+' ')+(Number(n||
 export const riskLabel=level=>({green:'低风险',yellow:'中风险 需密码',red:'高风险 需加验'}[level]||'待核对');
 const events={classified:'分级核对',authorized:'已记录有界授权',blocked:'已拦截',challenge_started:'开始身份验证',challenge_expired:'验证已过期',verified:'身份验证通过',verification_failed:'密码验证失败',execution_started:'开始执行',execution_completed:'回执已核实',execution_failed:'执行未完成',authorization_revoked:'授权已失效',permissions_invalidated:'旧授权已全部失效',locked:'安全保护已开启',recovery_started:'开始恢复验证',recovered:'恢复完成，等待新授权',safety_signal:'检测到风险信号'};
 const reasons={password_failures:'连续密码验证失败',verification_failures:'连续密码验证失败',tool_failures:'连续工具执行失败',prompt_injection:'第三方文本包含越权指令',reported_scam:'收款人命中本地举报案例',voice_mismatch:'声纹辅助信号不一致',page_reloaded:'页面重开，重新核对授权',demo_reset:'演示案例已复位',manual_pause:'用户暂停了写操作'};
-const readable=value=>reasons[value]||(/^[a-z0-9_:-]+$/i.test(value||'')?'当前对象与授权已重新核对':value||'');
+const readable=value=>reasons[value]||(/^[a-z0-9_:-]+$/i.test(value||'')?'详情已记录':value||'');
 export function riskBadge(classification,{esc}){return `<span class="companion-risk companion-risk-${esc(classification?.level||'yellow')}">${esc(classification?.riskBlocked?'高风险 已阻断':riskLabel(classification?.level)+(classification?.level==='green'?(classification.writes?' 需确认':' 只读'):''))}</span>`;}
 export function renderSafetyBanner(safety,{esc}){
  if(!safety?.locked)return '';
@@ -21,9 +21,14 @@ export function renderChallenge(challenge,{esc,recovery=false,embedded=false,rev
  const ended=['expired','failed','cancelled','verified','completed','invalidated'].includes(challenge.status);
  return `<section class="companion-challenge ${embedded?'':'card'}" aria-label="${recovery?'恢复验证':'密码验证'}"><div class="row between"><h3>${review?'查看前验证':recovery?'恢复操作前核对':'密码验证'}</h3></div><p class="muted">${review?'验证后还需确认，不会发送信息或付款。':recovery?'恢复后需重新确认原安排。':'修改对象或金额后需重新验证。'}</p>${ended?`<p class="notice">${challenge.status==='expired'?'本次验证已过期，请重新核对。':challenge.status==='verified'||challenge.status==='completed'?'验证已通过。':'本次验证未完成，请重新核对。'}</p>`:`<form id="safety-challenge-form" data-challenge="${esc(challenge.id)}" data-purpose="${recovery?'recovery':'operation'}"><label>密码<input name="challengeCode" type="password" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" aria-label="密码" required></label>${offlineDemo?'<p class="companion-card-meta" data-offline-password-hint>演示密码：123456</p>':''}<p class="companion-card-meta">本次验证90秒内有效</p><p role="alert" class="error-text" id="challenge-error">${challenge.attempts?`已核验失败 ${challenge.attempts} 次，请重新输入。`:""}</p><div class="task-actions"><button class="primary" type="submit">核验并继续</button><button class="quiet" type="button" data-action="safety-challenge-cancel" data-challenge="${esc(challenge.id)}">暂不验证</button></div></form>`}</section>`;
 }
+export function chronologicalAudit(entries){
+ const timestamp=e=>{if(typeof e.at==='number'&&Number.isFinite(e.at))return e.at;for(const value of [e.atISO,e.at]){if(typeof value==='string'&&value.trim()){const n=Date.parse(value);if(Number.isFinite(n))return n;}}return null;};
+ // Missing timestamps stay stable after dated evidence; never rewrite evidence.
+ return entries.map((entry,index)=>({entry,index,time:timestamp(entry)})).sort((a,b)=>a.time===null?(b.time===null?a.index-b.index:1):b.time===null?-1:a.time-b.time||a.index-b.index).map(x=>x.entry);
+}
 export function renderSafetyAudit(entries,{esc}){
  if(!entries?.length)return '';
- return `<details class="companion-audit" id="companion-audit"><summary>查看处理依据</summary><ol>${entries.slice(-12).reverse().map(e=>`<li><strong>${esc(e.label||events[e.type||e.event]||'状态更新')}</strong><span>${esc(readable(e.reason||e.message||e.target))}${e.level?' '+riskLabel(e.level):''}</span><time>${esc(e.atISO||e.at?new Date(e.atISO||e.at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'')}</time></li>`).join('')}</ol></details>`;
+ return `<details class="companion-audit" id="companion-audit"><summary>查看处理依据</summary><ol>${chronologicalAudit(entries).slice(-12).map(e=>`<li><strong>${esc(e.label||events[e.type||e.event]||'状态更新')}</strong><span>${esc(readable(e.reason||e.message||e.target))}${e.level?' '+riskLabel(e.level):''}</span><time>${esc(e.atISO||e.at?new Date(e.atISO||e.at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'')}</time></li>`).join('')}</ol></details>`;
 }
 export function renderDelegationCard(plan,{esc,nodes=[],canConfirm=false}={}){
  if(!plan)return '';

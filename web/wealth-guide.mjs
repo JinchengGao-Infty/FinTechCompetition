@@ -67,17 +67,17 @@ export function commitWealthSubscription(state,{grantId,now}={}){
 export function postWealthReservation(state,op,permit,{now}={}){
  const g=state.wealthGuide;if(!g||g.stage==='done')throw Error('请勿重复提交');
  const expected=wealthOperation(state,{now});if(JSON.stringify(expected)!==JSON.stringify(op))throw Error('申购参数已变化');
- validatePermit(state,op,permit,{now});const receipt='pending:'+g.id+':'+g.revision;
- commitExecution(state,permit,{status:'completed',receipt,source:'local_adapter',external:false,statusOfSubscription:'pending'},{now});
- const row={id:g.id,productId:g.fields.product_id,name:op.target,amountMinor:op.amountMinor,sourceAccount:'living_1608',status:'pending',createdAt:now,receipt};
+ validatePermit(state,op,permit,{now});const receipt='local-filled:'+g.id+':'+g.revision;
+ commitExecution(state,permit,{status:'completed',receipt,source:'local_adapter',external:false,statusOfSubscription:'completed'},{now});
+ const row={id:g.id,productId:g.fields.product_id,name:op.target,amountMinor:op.amountMinor,sourceAccount:'living_1608',status:'completed',units:op.amountMinor/100,unitPriceMinor:100,valuationSource:'synthetic_fixed_nav',createdAt:now,receipt};
  state.wealthSubscriptions??=[];if(state.wealthSubscriptions.some(x=>x.id===g.id))throw Error('请勿重复提交');state.wealthSubscriptions.push(row);
- state.ledger.push({id:'wealth-reserve:'+g.id,date:new Date(now+8*3600000).toISOString().slice(0,10),title:op.target+'申购待确认',category:'申购资金占用',amountMinor:op.amountMinor,direction:'expense',movement:'principal',kind:'wealth-reservation',icon:'invest',order:state.ledger.length,receipt,accountLabel:'生活账户1608',source:'synthetic'});
+ state.ledger.push({id:'wealth-reserve:'+g.id,date:new Date(now+8*3600000).toISOString().slice(0,10),title:op.target+'买入',category:'理财买入',amountMinor:op.amountMinor,direction:'expense',movement:'principal',kind:'investment',icon:'invest',order:state.ledger.length,receipt,accountLabel:'生活账户1608',source:'synthetic'});
  syncFinance(state);g.stage='done';g.receipt=receipt;return clone(row);
 }
 export function cancelWealthGuide(state,{now}={}){const g=state.wealthGuide;if(!g||g.stage==='done')return;revokeOperation(state,g.id+':subscribe',{reason:'user_cancel',now});g.stage='cancelled';g.revision++;}
 export function renderWealthSubscriptions(state,{esc:e}){
  const rows=state.wealthSubscriptions||[];if(!rows.length)return '';
- return `<section class="card companion-inline"><h3>待确认申购</h3>${rows.map(r=>`<div class="plan-row"><span>${e(r.name)}<small>待确认，份额未到账</small></span><strong>${money(r.amountMinor)}</strong></div>`).join('')}<p class="companion-card-meta">以上金额已从可用资金中预留。</p></section>`;
+ return `<section class="card companion-inline"><h3>理财持仓</h3>${rows.map(r=>`<div class="plan-row"><span>${e(r.name)}<small>${r.status==='completed'?'已买入 · '+e(String(r.units))+'份':'待确认，份额未到账'}</small></span><strong>${money(r.amountMinor)}</strong></div>`).join('')}</section>`;
 }
 export function renderWealthGuide(state,{esc:e}){
  const g=state.wealthGuide;if(!g||['done','cancelled'].includes(g.stage))return '';
@@ -99,6 +99,6 @@ export function renderWealthGuide(state,{esc:e}){
  else if(g.stage==='products'){
   title='先比较，再决定';html=WEALTH_PRODUCTS.map(p=>`<article class="wealth-product"><div class="row between"><strong>${p.name}</strong><span class="pill">R${p.risk}</span></div><p>${p.assets}</p><details><summary>费用、赎回与资料</summary><p>${p.fee}</p><p>${p.redemption}</p><p>${p.detail}</p><small>资料日期 ${p.date}</small></details>${button(p.id,eligible(state,g,p,Date.parse(state.demoClock?.now)||Date.now())?'选择这款':'不适合当前期限或风险范围',!eligible(state,g,p,Date.parse(state.demoClock?.now)||Date.now()))}</article>`).join('');
  }else if(g.stage==='amount'){title='这次安排多少？';const max=investable(g);html=`<p>可投资 ${money(max)}。其余资金继续保留。</p>`+amounts([100000,300000,500000,max].filter(x=>x<=max))+custom();}
- else if(['confirm','verifying'].includes(g.stage)){const p=WEALTH_PRODUCTS.find(p=>p.id===g.fields.product_id);title='核对申购';html=`<p>${p.name} · R${p.risk}</p><div class="plan-row"><span>本次申购</span><strong>${money(g.fields.amount_minor)}</strong></div><div class="plan-row"><span>剩余可投资资金</span><strong>${money(investable(g)-g.fields.amount_minor)}</strong></div><p class="companion-card-meta">生活账户1608。确认后预留资金，份额仍待确认。</p>${g.stage==='confirm'?`<button class="primary full" data-action="wealth-confirm" data-revision="${g.revision}">确认申购并验证</button>`:''}`;}
+ else if(['confirm','verifying'].includes(g.stage)){const p=WEALTH_PRODUCTS.find(p=>p.id===g.fields.product_id);title='核对申购';html=`<p>${p.name} · R${p.risk}</p><div class="plan-row"><span>本次申购</span><strong>${money(g.fields.amount_minor)}</strong></div><div class="plan-row"><span>剩余可投资资金</span><strong>${money(investable(g)-g.fields.amount_minor)}</strong></div><p class="companion-card-meta">生活账户1608。验证通过后买入。</p>${g.stage==='confirm'?`<button class="primary full" data-action="wealth-confirm" data-revision="${g.revision}">确认申购并验证</button>`:''}`;}
  return `<section class="card companion-inline wealth-guide" data-wealth-stage="${e(g.stage)}"><h3>${title}</h3>${html}${g.error?`<p class="error-text">${e(g.error)}</p>`:''}<button class="quiet full" data-action="wealth-cancel" data-revision="${g.revision}">暂不安排</button></section>`;
 }

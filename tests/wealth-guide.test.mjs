@@ -12,13 +12,23 @@ test('first three choices branch into saving, returns, and guidance without inve
  const s=state(),before=s.balance;assert.equal(s.wealthGuide.stage,'direction');pick(s,'unsure');assert.equal(s.wealthGuide.stage,'direction');pick(s,'save');assert.equal(s.wealthGuide.stage,'goal');pick(s,'旅行');pick(s,60000);pick(s,2000);assert.equal(s.wealthGuide.stage,'saving_confirm');assert.equal(s.balance,before);assert.equal(s.wealthSubscriptions,undefined);
 });
 test('investment uses live data, explicit assessment and leaves unselected products unselected',()=>{const s=state();pick(s,'earn');pick(s,'暂无');pick(s,'随时');assert.equal(s.wealthGuide.stage,'experience');for(const x of ['没有经验','不能接受本金损失','收入不稳定'])pick(s,x);assert.equal(s.wealthRiskProfile.level,1);assert.equal(s.wealthGuide.fields.product_id,undefined);assert.throws(()=>pick(s,'demo-bond'));pick(s,'demo-flex');assert.throws(()=>pick(s,s.wealthGuide.allocation.cash+100));});
-test('red challenge required; one confirmed reservation subtracts available funds but no shares',()=>{
+test('red challenge required; one confirmed local purchase moves cash into holdings exactly once',()=>{
  const s=confirmable(),cash=s.balance,invested=s.invested,op=w.wealthOperation(s,{now:NOW});const g=p.authorizeSafety(s,op,{source:USER,now:NOW});assert.equal(g.status,'verification_required');assert.throws(()=>p.acquireExecution(s,op,{grantId:g.grantId,executionId:op.id+':'+op.revision,now:NOW}));
  const challenge=p.beginChallenge(s,op,{grantId:g.grantId,now:NOW});assert.equal(p.verifyChallenge(s,{challengeId:challenge.id,code:'123456',source:USER,now:NOW}).ok,true);
- const permit=p.acquireExecution(s,op,{grantId:g.grantId,executionId:op.id+':'+op.revision,now:NOW});w.postWealthReservation(s,op,permit,{now:NOW});assert.equal(s.balance,cash-3000);assert.equal(s.invested,invested);assert.equal(s.wealthSubscriptions[0].status,'pending');assert.throws(()=>w.postWealthReservation(s,op,permit,{now:NOW}));assert.equal(s.wealthSubscriptions.length,1);
+ const permit=p.acquireExecution(s,op,{grantId:g.grantId,executionId:op.id+':'+op.revision,now:NOW});w.postWealthReservation(s,op,permit,{now:NOW});assert.equal(s.balance,cash-3000);assert.equal(s.invested,invested+3000);assert.equal(s.wealthSubscriptions[0].units,3000);assert.equal(s.wealthReservedMinor,0);assert.equal(s.wealthSubscriptions[0].status,'completed');assert.throws(()=>w.postWealthReservation(s,op,permit,{now:NOW}));assert.equal(s.wealthSubscriptions.length,1);
 });
 test('cancel, changed financial facts, reset and stale choice cannot execute',()=>{
  const s=confirmable(),before=s.balance,revision=s.wealthGuide.revision;assert.throws(()=>w.wealthChoice(s,'cancel',{now:NOW,expectedRevision:revision-1}));w.cancelWealthGuide(s,{now:NOW});assert.throws(()=>w.wealthOperation(s,{now:NOW}));assert.equal(s.balance,before);
  const other=confirmable();other.nativeBudget={'2026-11':{categories:[{category:'住房',limit_minor:999999}]}};assert.throws(()=>w.wealthOperation(other,{now:NOW}));resetDemoOnBoot(other);assert.equal(other.wealthGuide,null);
 });
 test('valid formal answers can be reused; ledger capacity suggestion is not substituted',()=>{const s=state();s.wealthRiskProfile={source:'self_report',level:2,answers:[1,1,1],expiresAt:NOW+10000};pick(s,'earn');pick(s,'暂无');pick(s,'一年');assert.equal(s.wealthGuide.stage,'products');const t=state();t.wealthRiskProfile={ready:true,level:3};pick(t,'earn');pick(t,'暂无');pick(t,'一年');assert.equal(t.wealthGuide.stage,'experience');});
+
+test('1000-yuan purchase has matching cash, ledger, holding and repeat-safe receipt',()=>{
+ const s=confirmable();s.wealthGuide.fields.amount_minor=100000;
+ const cash=s.balance,invested=s.invested,op=w.wealthOperation(s,{now:NOW});
+ const grant=p.authorizeSafety(s,op,{source:USER,now:NOW});const c=p.beginChallenge(s,op,{grantId:grant.grantId,now:NOW});p.verifyChallenge(s,{challengeId:c.id,code:'123456',source:USER,now:NOW});
+ const permit=p.acquireExecution(s,op,{grantId:grant.grantId,executionId:op.id+':'+op.revision,now:NOW});const row=w.postWealthReservation(s,op,permit,{now:NOW});
+ assert.equal(row.amountMinor,100000);assert.equal(row.units,1000);assert.equal(row.status,'completed');assert.equal(s.balance,cash-1000);assert.equal(s.invested,invested+1000);assert.equal(s.wealthReservedMinor,0);
+ assert.equal(s.ledger.at(-1).receipt,row.receipt);assert.equal(s.ledger.at(-1).kind,'investment');assert.match(w.renderWealthSubscriptions(s,{esc:String}),/已买入/);assert.doesNotMatch(w.renderWealthSubscriptions(s,{esc:String}),/待确认/);
+ assert.throws(()=>w.postWealthReservation(s,op,permit,{now:NOW}));assert.equal(s.balance,cash-1000);assert.equal(s.wealthSubscriptions.length,1);
+});

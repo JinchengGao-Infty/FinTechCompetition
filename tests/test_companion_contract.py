@@ -17,7 +17,7 @@ PAYLOAD={'validation_scope':'finpilot-fifteen-v1','text':'下周林夏生日，�
 
 
 def proposal(scenario='birthday',fields=None,**patch):
-    default={'savings_coach':{},'birthday':BIRTHDAY,'rent_reminder':{},'subscription_reminder':{'subscription_action':'keep'},'security_case':{'case_id':'reported_scam'},'compound':{'items':[{'id':'item-1','kind':'sms','contact_id':'mom','message':'周末回家吃饭。'},{'id':'item-2','kind':'cake','product_id':'demo-cake-01','date':'2026-11-09','pickup_time':'16:00','fulfillment':'pickup','source_account':'living_1608'}]}}
+    default={'wealth_guide':{},'savings_coach':{},'birthday':BIRTHDAY,'rent_reminder':{},'subscription_reminder':{'subscription_action':'keep'},'security_case':{'case_id':'reported_scam'},'compound':{'items':[{'id':'item-1','kind':'sms','contact_id':'mom','message':'周末回家吃饭。'},{'id':'item-2','kind':'cake','product_id':'demo-cake-01','date':'2026-11-09','pickup_time':'16:00','fulfillment':'pickup','source_account':'living_1608'}]}}
     result={'status':'propose','scenario':scenario,'reply':'我先整理安排，等你核对后再继续。','fields':copy.deepcopy(default[scenario] if fields is None else fields),'missing':[],
             'actions':[{'type':COMPANION_ACTIONS[scenario]}],'cards':[]}
     result.update(patch)

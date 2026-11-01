@@ -128,7 +128,7 @@ export function syncFinance(state){
   if(row.kind==='redemption')invested-=row.amountMinor;
   if(row.kind==='transfer'&&row.date===STORY_DATE)spent+=row.amountMinor;
  }
- state.balance=cash/100;state.invested=invested/100;state.spent=spent/100;
+ state.wealthReservedMinor=(state.wealthSubscriptions||[]).filter(x=>x.status==='pending').reduce((n,x)=>n+x.amountMinor,0);state.balance=cash/100;state.invested=invested/100;state.spent=spent/100;
  return state;
 }
 export function financialFacts(state,month='2026-11'){

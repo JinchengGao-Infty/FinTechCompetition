@@ -52,3 +52,10 @@ html[data-motion=reduce] .feedback-arrow{display:none}
 #app[data-route=assistant] .bot-topbar .bot-avatar{grid-row:1}
 #app[data-route=assistant] .bot-topbar .task-link{grid-column:1;grid-row:1;justify-self:start;margin:0}
 #app[data-route=assistant] .bot-topbar .bot-reset{grid-column:3;grid-row:1;justify-self:end;margin:0}
+
+/* Presentation queue: hidden steps are absent from layout and keyboard navigation. */
+[data-bot-step][hidden]{display:none!important}
+.bot-step-enter{animation:bot-step-enter 160ms ease-out both}
+@keyframes bot-step-enter{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.bot-step-enter{animation:none!important}}
+html[data-motion=reduce] .bot-step-enter{animation:none!important}

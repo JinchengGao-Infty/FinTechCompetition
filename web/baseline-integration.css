@@ -76,3 +76,15 @@ html[data-motion=reduce] .companion img{animation:none!important}
 #app[data-dot-page][data-route=home] .hero-card .primary{font-size:14px!important;font-weight:500}
 
 #app[data-dot-page][data-route=home] .goal-track small>span{font-size:12px!important;font-weight:400}
+
+/* Today: one compact context group, aligned to the first financial card. */
+#app[data-dot-page][data-route=home] .today-header{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:16px;align-items:start;margin:0 0 20px;min-height:106px}
+#app[data-dot-page][data-route=home] .today-context{min-width:0;padding-top:4px}
+#app[data-dot-page][data-route=home] .today-date{font-size:12px;line-height:20px;color:var(--muted);font-weight:400}
+#app[data-dot-page][data-route=home] .today-context h1{font-size:20px!important;line-height:28px;font-weight:600;letter-spacing:-.3px;margin:6px 0 0}
+#app[data-dot-page][data-route=home] .today-weather{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:14px;line-height:20px;color:var(--muted);font-variant-numeric:tabular-nums}
+#app[data-dot-page][data-route=home] .today-weather svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#app[data-dot-page][data-route=home] .today-presence{display:flex;flex-direction:column;align-items:center;gap:4px}
+#app[data-dot-page][data-route=home] .today-presence .icon-btn{align-self:flex-end}
+#app[data-dot-page][data-route=home] .today-presence .companion{width:58px;height:58px}
+#app[data-dot-page][data-route=home] .today-paused{font-size:12px;line-height:18px;color:var(--muted);margin-top:4px}

@@ -24,7 +24,7 @@ export function stepDetails(node,{esc:e,money,target,contacts=[],formatTime=x=>x
  if(node.operation==='reserve_ride')html='';
  if(p.product_name)html+=row('蛋糕',p.product_name);
  if(p.date||p.time||p.pickup_time||p.departure_time)html+=row(node.operation==='reserve_ride'?'出发时间':p.fulfillment==='pickup'?'自取':'时间',[p.date,p.departure_time||p.pickup_time||p.time].filter(Boolean).join(' '));
- if(node.operation==='reserve_ride'){html+=row('从',p.origin)+row('到',p.destination)+row('车费上限',money(p.fare_minor));html+='<p class="companion-card-meta">确认预约，不扣车费。</p>';}
+ if(node.operation==='reserve_ride'){html+=row('从',p.origin)+row('到',p.destination)+row('车费上限',money(p.fare_minor));html+='<p class="companion-card-meta">确认预约，不扣车费。</p>';if(p.reminder_before_minutes)html+=row('出发提醒','提前1小时');}
  if(p.people)html+=row('人数',p.people+'人');
  if(p.quoted_amount_minor)html+=row('报价',money(p.quoted_amount_minor));
  if(p.deposit_minor)html+=row('定金',money(p.deposit_minor));

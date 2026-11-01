@@ -222,7 +222,8 @@ test('each model-selected security variant uses actual program evidence without 
    const pair=sourceTypes[caseId];if(pair)h.state.companion.pendingEvent={type:pair[0],fixture_id:pair[1]};
    const fields={case_id:caseId,...(caseId==='reported_scam'?{recipient_name:'闲鱼卖家',recipient_card_number:'0000000000008891',amount_minor:200000}:{})};
    const output=h.controller.applyModelResult(model('security_case','propose',{fields,cards:[{type:'security_notice'}],actions:[{type:'show_security_case'}]}),{programEvent:!!pair});
-   assert.equal(output.text,'这是一条来自本次受控模型响应的自然回复。');
+   if(caseId==='reported_scam')assert.equal(output.text,'该收款人被多人标记为信用不佳，已停止转账。身份验证也不能消除这个风险。');
+   else assert.equal(output.text,'这是一条来自本次受控模型响应的自然回复。');
    assert.equal(h.state.balance,balance);assert.equal(h.state.ledger.length,rows);
    assert.equal(Object.keys(h.state.safety.grants).length,0);
    assert.equal(Object.values(h.state.safety.executions).some(e=>e.snapshot.writes),false);
@@ -230,7 +231,7 @@ test('each model-selected security variant uses actual program evidence without 
     assert.equal(h.state.companion.recipient.status,'details');assert.equal(h.state.companion.recipient.input.recipientName,null);
     assert.match(h.controller.render(),/companion-recipient-form/);assert.doesNotMatch(h.controller.render(),/多人举报/);
    }else if(caseId==='reported_scam'){
-    assert.equal(h.state.companion.securityNotice.level,'red');assert.match(h.state.companion.securityNotice.detail,/合成收款记录有 7 条举报/);
+    assert.equal(h.state.companion.securityNotice.level,'red');assert.match(h.state.companion.securityNotice.detail,/该收款人被多人标记为信用不佳/);
     assert.equal(h.state.safety.locked,true);assert.equal(h.state.companion.recipient.review.evidence.report_count,7);
 
    }else if(caseId==='prompt_injection_tool'){assert.equal(h.state.safety.locked,false);assert.equal(h.state.companion.securityNotice,null);

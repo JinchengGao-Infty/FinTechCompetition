@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createMessageSequence} from '../web/message-sequence.mjs';
+function setup(){let time=0,id=0;const timers=new Map(),events=[];const q=createMessageSequence({now:()=>time,setTimer:(fn,ms)=>{timers.set(++id,{fn,at:time+ms});return id;},clearTimer:id=>timers.delete(id),onChange:()=>events.push(time)});return {q,events,timers,at(t){time=t;for(const [id,v] of [...timers])if(v.at<=t){timers.delete(id);v.fn();}}};}
+test('summary, source and verification appear in order, first immediately',()=>{const h=setup(),keys=['summary','source','verify'];assert.deepEqual([...h.q.sync(keys)],['summary']);h.at(400);assert.deepEqual([...h.q.sync(keys)],['summary','source']);h.at(800);assert.deepEqual([...h.q.sync(keys)],keys);});
+test('rerender neither duplicates nor postpones queue, with no TTS dependency',()=>{const h=setup(),keys=['a','b'];h.q.sync(keys);h.at(200);h.q.sync(keys);h.at(400);assert.deepEqual([...h.q.sync(keys)],keys);assert.equal(h.timers.size,0);});
+test('reset rejects late timer callback and new conversation starts immediately',()=>{const h=setup();h.q.sync(['old','late']);const stale=[...h.timers.values()][0].fn;h.q.reset();stale();assert.deepEqual(h.events,[]);assert.deepEqual([...h.q.sync(['new'])],['new']);});
+test('removed card cannot return through queued callback',()=>{const h=setup();h.q.sync(['summary','verify']);h.q.sync(['summary']);h.at(1000);assert.deepEqual(h.events,[]);assert.deepEqual([...h.q.sync(['summary'])],['summary']);});
+test('history is immediate without replay and later messages are paced',()=>{const h=setup();assert.deepEqual([...h.q.sync(['a','b'],{history:true})],['a','b']);h.at(1000);assert.deepEqual([...h.q.sync(['a','b','c','d'])],['a','b','c']);h.at(1400);assert.equal(h.q.sync(['a','b','c','d']).size,4);});

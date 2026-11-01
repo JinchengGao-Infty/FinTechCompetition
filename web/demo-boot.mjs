@@ -16,6 +16,7 @@ export function resetDemoOnBoot(state,{resetCards=true}={}){
   auditSafety(state,{type:'demo_run_reset',reason:'page_reloaded'});
  }
  if(resetCards&&state.bankCards)delete state.bankCards.credit;
+ state.wealthGuide=null;state.rideReminders={};
  state.savingsCoach=null;state.savingsEditor=null;state.savingsCancelId=null;state.savingsArchiveId=null;
  for(const jar of [...Object.values(state.savingsJars||{}),state.savingsJar].filter(Boolean))if(jar.status==='active')jar.status='paused_safety';
  state.messages=[];state.conversationArchives=[];state.agentDraftHistory={};

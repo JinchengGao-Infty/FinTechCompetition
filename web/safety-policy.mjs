@@ -232,6 +232,25 @@ export function verifyChallenge(state,options={}){
  return freeze({ok:true,status:'verified',challengeId:challenge.id,grantId:grant.id,proofId:challenge.proofId,expiresAt:grant.expiresAt});
 }
 
+// Explicitly simulated scene-one identity proof. No microphone, biometric data,
+// voice recognition or external identity provider is involved.
+export function verifyDemoVoiceChallenge(state,operation,options={}){
+ const {safety,now,challenge}=challengeFor(state,options.challengeId,'operation',options);
+ assertUser(options.source,null,now);
+ if(safety.locked)fail('locked');
+ if(state.paused)fail('paused');
+ const {snapshot,grant,binding}=sameGrant(state,operation,challenge.grantId,options);
+ let parameters;try{parameters=JSON.parse(snapshot.parameters);}catch{fail('invalid_operation');}
+ if(snapshot.kind!=='transfer'||snapshot.scope?.action!=='transfer'||parameters.recipient_status!=='verified_local_fixture'||!parameters.review_fingerprint)fail('invalid_operation');
+ if(classifyOperation(state,operation,options).riskBlocked)fail('risk_blocked');
+ if(grant.status!=='verification_required'||grant.executionId||challenge.binding!==binding)fail('invalid_challenge');
+ challenge.status='verified';challenge.method='local-demo-voice';challenge.verifiedAt=now;challenge.proofId=freshId('demo-voice-proof');
+ grant.status='ready';grant.verification={challengeId:challenge.id,proofId:challenge.proofId,method:challenge.method,simulated:true,epoch:safety.epoch,verifiedAt:now,expiresAt:grant.expiresAt};
+ // Switching methods does not erase failed password attempts.
+ auditSafety(state,{type:'verified',operationId:challenge.operationId,revision:challenge.revision,challengeId:challenge.id,grantId:grant.id,status:'verified',reason:'simulated_voice',source:options.source,binding},options);
+ return freeze({ok:true,status:'verified',simulated:true,challengeId:challenge.id,grantId:grant.id});
+}
+
 function readyGrant(state,operation,grantId,options={}){
  const data=sameGrant(state,operation,grantId,options),{safety,now,snapshot,grant}=data;
  if(options.currentEpoch!==undefined&&options.currentEpoch!==safety.epoch)deny(state,'epoch_changed',snapshot,options);

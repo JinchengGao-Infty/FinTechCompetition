@@ -45,3 +45,13 @@ html::-webkit-scrollbar-thumb:hover,.app-shell ::-webkit-scrollbar-thumb:hover{b
 .step-risk{font-size:12px;line-height:1.6;margin-top:10px;color:var(--tomato-11,#d13415)}.step-history{margin-top:6px}.step-management{display:flex;gap:8px}
 .compound-fields{min-width:0;border:0;padding:0;margin:0 0 14px;display:grid;gap:10px}.compound-fields legend{font-size:14px;font-weight:600;margin-bottom:10px}
 .companion-inline textarea{width:100%;min-height:88px;padding:10px 12px;border:.5px solid var(--slate-7,#cccdd5);border-radius:14px;background:var(--white-a7,rgba(255,255,255,.6));font-size:14px;line-height:1.6;resize:vertical}
+
+/* Scene-one simulated identity check; no capture or biometric processing. */
+.voice-verification{display:grid;justify-items:center;gap:8px;padding:20px 0;color:var(--accent-9,#3478f6)}
+.voice-verification p{margin:0;color:var(--gray-12,#202020);font-size:14px}
+.voice-verification-mark{height:40px;min-width:64px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:28px}
+.voice-verification-mark i{width:4px;height:14px;border-radius:4px;background:currentColor}
+.voice-verification.recognizing i{animation:voice-verification-pulse .65s ease-in-out infinite alternate}
+.voice-verification.recognizing i:nth-child(2n){animation-delay:.2s}.voice-verification.recognizing i:nth-child(3){animation-delay:.4s}
+@keyframes voice-verification-pulse{to{height:36px;opacity:.45}}
+@media(prefers-reduced-motion:reduce){.voice-verification.recognizing i{animation:none;height:24px}}

@@ -3,14 +3,14 @@ import {validateCompoundFields,compoundMissing} from './compound-fields.mjs';
 export {validateCompoundFields,compoundMissing,mergeCompoundFields,COMPOUND_ITEM_FIELDS} from './compound-fields.mjs';
 // A model may select a bounded local proposal. This module grants no authority,
 // runs no adapters and never infers a scenario from the user's words.
-const SCENARIOS=new Set(['birthday','rent_reminder','subscription_reminder','security_case','plan_control','compound','savings_coach']);
+const SCENARIOS=new Set(['birthday','rent_reminder','subscription_reminder','security_case','plan_control','compound','savings_coach','wealth_guide']);
 const LEGACY_SCENARIOS=new Set(['transfer','risk_transfer','subscription','budget_link','ambiguous','question','other','card_review']);
 const STATUSES=new Set(['answer','clarify','propose','blocked','decline']);
 const RESULT_KEYS=new Set(['status','scenario','reply','speak','query','fields','missing','mode','task_id','period_month','context_action','cards','actions']);
 const BIRTHDAY_FIELDS=['birthday_date','budget_minor','partner_id','city','source_account'];
-const FIELD_KEYS={birthday:BIRTHDAY_FIELDS,rent_reminder:[],subscription_reminder:['subscription_action'],security_case:['case_id','recipient_name','recipient_reference','recipient_card_number','amount_minor','source_account'],plan_control:['plan_action'],compound:['items'],savings_coach:['proposal_action','reduction_minor','daily_minor','source_account','start_date','target_minor']};
-const ACTIONS={birthday:'prepare_birthday',rent_reminder:'prepare_rent',subscription_reminder:'prepare_subscription',security_case:'show_security_case',plan_control:'control_plan',compound:'prepare_compound',savings_coach:'prepare_savings'};
-const CARDS={birthday:'birthday_plan',rent_reminder:'rent_plan',subscription_reminder:'subscription_plan',security_case:'security_notice',plan_control:'plan_control',compound:'compound_plan',savings_coach:'savings_plan'};
+const FIELD_KEYS={wealth_guide:['choice'],birthday:BIRTHDAY_FIELDS,rent_reminder:[],subscription_reminder:['subscription_action'],security_case:['case_id','recipient_name','recipient_reference','recipient_card_number','amount_minor','source_account'],plan_control:['plan_action'],compound:['items'],savings_coach:['proposal_action','reduction_minor','daily_minor','source_account','start_date','target_minor']};
+const ACTIONS={wealth_guide:'prepare_wealth',birthday:'prepare_birthday',rent_reminder:'prepare_rent',subscription_reminder:'prepare_subscription',security_case:'show_security_case',plan_control:'control_plan',compound:'prepare_compound',savings_coach:'prepare_savings'};
+const CARDS={wealth_guide:'wealth_plan',birthday:'birthday_plan',rent_reminder:'rent_plan',subscription_reminder:'subscription_plan',security_case:'security_notice',plan_control:'plan_control',compound:'compound_plan',savings_coach:'savings_plan'};
 const CASES=new Set(['unfamiliar_recipient','reported_scam','prompt_injection','prompt_injection_email','prompt_injection_page','prompt_injection_tool','safe_external_content','voice_matched','voice_unknown','voice_mismatch']);
 const CONTEXT_STATUSES=new Set(['awaiting_details','awaiting_authorization','awaiting_consent','needs_confirmation','pending','ready','scheduled','running','executing','paused','failed','succeeded','done','cancelled','blocked','clarify','review','permission','verify','unknown','needs_review','needs_input','awaiting_review','answer','propose','decline']);
 const CONTROL=/[\u0000-\u001f\u007f]/;
@@ -38,6 +38,7 @@ function validDate(value){
  return Number.isFinite(timestamp)&&new Date(timestamp).toISOString().slice(0,10)===value;
 }
 function fieldValue(key,value){
+ if(key==='choice')return text(value,80);
  if(value===null)return null;
  if(key==='recipient_card_number'){if(typeof value!=='string'||!/^\d{16}$/.test(value))fail();return value;}
  if(key==='proposal_action'){if(!['accept','adjust','reject'].includes(value))fail();return value;}

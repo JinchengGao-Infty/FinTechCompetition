@@ -160,7 +160,7 @@ function compoundGraph(fields, fixtures, now) {
       const id=item.id+'.ride.reserve';nodes.push(step(id,'预约回家顺风车','rides_demo','reserve_ride',{
         date:item.date,departure_time:item.departure_time,origin:item.origin,destination:item.destination,
         fare_minor:item.fare_minor,source_account:item.source_account,currency:'CNY',
-        fare_type:'maximum_approved',payment_status:'unpaid',synthetic:true,
+        ...(item.reminder_before_minutes?{reminder_before_minutes:item.reminder_before_minutes}:{}),fare_type:'maximum_approved',payment_status:'unpaid',synthetic:true,
       },dependencies));previous=id;
     }else{
       if(instant(item.date+'T'+item.pickup_time+':00+08:00')<instant(now))throw Error('请确认未来的蛋糕自取时间');
@@ -326,6 +326,7 @@ export function createProactiveDemo({ clock = createDemoClock(), safetyGate, ada
     const nodes=missing.length?[]:compoundGraph(clean,fixtures,now());
     for(const old of plan.steps.filter(n=>n.status==='succeeded')){
       const replacement=nodes.find(n=>n.id===old.id);
+      if(replacement&&old.operation==='reserve_ride'&&stable(replacement.payload)!==stable(old.payload)){replacement.previous_receipt=old.receipt_id;continue;}
       if(!replacement||stable(replacement.payload)!==stable(old.payload))throw Error('已完成步骤不能直接修改，请保留回执并新建安排');
       Object.assign(replacement,clone(old));
     }

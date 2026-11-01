@@ -1,5 +1,5 @@
 // Bounded data slots for local SMS/cake/ride proposals. No authority or execution.
-export const COMPOUND_ITEM_FIELDS=Object.freeze({sms:Object.freeze(['contact_id','message']),cake:Object.freeze(['product_id','date','pickup_time','fulfillment','source_account','budget_minor']),ride:Object.freeze(['date','departure_time','origin','destination','fare_minor','source_account'])});
+export const COMPOUND_ITEM_FIELDS=Object.freeze({sms:Object.freeze(['contact_id','message']),cake:Object.freeze(['product_id','date','pickup_time','fulfillment','source_account','budget_minor']),ride:Object.freeze(['date','departure_time','origin','destination','fare_minor','source_account','reminder_before_minutes'])});
 const CONTACTS=new Set(['mom','dad','partner-linxia','cake-owner']);
 const REQUIRED={sms:['contact_id','message'],cake:['product_id','date','pickup_time','fulfillment','source_account'],ride:['date','departure_time','origin','destination','fare_minor','source_account']};
 const invalid=()=>{const error=Error('复合安排信息无效，请保留每一项并重新核对。');error.code='invalid_compound_fields';throw error;};
@@ -13,6 +13,7 @@ function value(k,v){
  if(k==='date'){if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v)||v.startsWith('0000-')||!Number.isFinite(Date.parse(v+'T00:00:00Z'))||new Date(v+'T00:00:00Z').toISOString().slice(0,10)!==v)invalid();return v;}
  if(k==='pickup_time'||k==='departure_time'){if(typeof v!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(v))invalid();return v;}
  if(k==='origin'||k==='destination'){if(typeof v!=='string'||!v.trim()||v.length>80||/[\u0000-\u001f\u007f<>]/.test(v))invalid();return v.trim();}
+ if(k==='reminder_before_minutes'){if(v!==60)invalid();return v;}
  if(k==='fare_minor'){if(!Number.isSafeInteger(v)||v<1||v>200000)invalid();return v;}
  if(k==='fulfillment'){if(v!=='pickup')invalid();return v;}
  if(k==='source_account'){if(v!=='living_1608')invalid();return v;}

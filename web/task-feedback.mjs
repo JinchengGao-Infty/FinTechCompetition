@@ -7,7 +7,7 @@ export function planOutcome(plan,{now=Date.now(),granted=false,paused=false,form
  if(plan.status==='cancelled')return {status:'已取消',collapse:true,summary:done.length?`后续已取消，已完成 ${done.length} 步${paid}。`:'这次安排已取消，没有执行操作。'};
  if(paused||plan.status==='paused')return {status:'已暂停',collapse:false,summary:`已完成 ${done.length}/${writes.length} 步，后续已暂停${paid}。`};
  if(plan.status==='failed'||writes.some(n=>n.status==='failed'))return {status:done.length?'部分完成':'未完成',collapse:false,summary:`已完成 ${done.length}/${writes.length} 步${paid}，剩余步骤未成功，请重新核对。`};
- if(writes.length&&done.length===writes.length)return {status:'已完成',collapse:true,summary:plan.kind==='compound'?`${[done.some(n=>n.operation==='send_sms')?'短信':'',done.some(n=>n.operation==='message_contact')?'蛋糕安排':'',done.some(n=>n.operation==='reserve_ride')?'顺风车预约':''].filter(Boolean).join('与')||'这次安排'}已完成${paid}${done.some(n=>n.operation==='reserve_ride')?'，车费未支付':''}。`: `这次安排已完成${paid}。`};
+ if(writes.length&&done.length===writes.length)return {status:'已完成',collapse:true,summary:plan.kind==='compound'?`${[done.some(n=>n.operation==='send_sms')?'短信':'',done.some(n=>n.operation==='message_contact')?'蛋糕安排':'',done.some(n=>n.operation==='reserve_ride')?'顺风车预约':''].filter(Boolean).join('与')||'这次安排'}已完成${paid}${done.some(n=>n.operation==='reserve_ride')?'，车费未支付'+(done.some(n=>n.operation==='reserve_ride'&&n.payload.reminder_before_minutes)?'；出发前一小时提醒已设定':''):''}。`: `这次安排已完成${paid}。`};
  if(granted&&scheduled.length===remaining.length&&scheduled.length)return {status:'已安排，待执行',collapse:true,summary:`前面的 ${done.length} 步已完成${paid}。${formatTime(scheduled[0].scheduled_for)} 的转账已安排，尚未转出；到时会再核对授权。`};
  return {status:'待你确认',collapse:false,summary:`已完成 ${done.length}/${writes.length} 步，下一步待你确认。`};
 }
